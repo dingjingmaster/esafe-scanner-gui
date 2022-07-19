@@ -7,4 +7,13 @@ file(GLOB UI_SRC
 
     ${CMAKE_SOURCE_DIR}/app/ui/header-button.cpp
     ${CMAKE_SOURCE_DIR}/app/ui/header-button.h
+
+    ${CMAKE_SOURCE_DIR}/app/ui/main-toolbar.cpp
+    ${CMAKE_SOURCE_DIR}/app/ui/main-toolbar.h
+
+    ${CMAKE_SOURCE_DIR}/app/ui/toolbar-action.cpp
+    ${CMAKE_SOURCE_DIR}/app/ui/toolbar-action.h
+
+    ${CMAKE_SOURCE_DIR}/app/ui/push-button.cpp
+    ${CMAKE_SOURCE_DIR}/app/ui/push-button.h
 )

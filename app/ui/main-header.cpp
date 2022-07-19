@@ -1,4 +1,5 @@
 #include "main-header.h"
+#include "main-toolbar.h"
 
 #include <QDebug>
 #include <QHBoxLayout>
@@ -8,6 +9,7 @@ MainHeader::MainHeader(QWidget *parent)
 {
     setMaximumHeight(200);
     setContentsMargins(0, 0, 0, 0);
+    setAttribute(Qt::WidgetAttribute::WA_StyledBackground);
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
     mMainLayout = new QHBoxLayout;
