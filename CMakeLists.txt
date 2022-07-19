@@ -15,10 +15,15 @@ set(PROJECT_VERSION_PATCH 0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+add_definitions(
+    -D APP_NAME=\\"esafe-scanner-gui\\"
+    -D QT_NO_KEYWORDS
+)
+
 find_package (PkgConfig)
 find_package(Qt5 COMPONENTS Core Network Widgets Gui REQUIRED)
 
-#add_subdirectory(app)
+add_subdirectory(app)
 add_subdirectory(demo)
 
 

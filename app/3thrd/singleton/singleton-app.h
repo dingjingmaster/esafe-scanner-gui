@@ -1,7 +1,7 @@
 #ifndef SINGLETONAPP_H
 #define SINGLETONAPP_H
 
-#include <QGuiApplication>
+#include <QApplication>
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QSharedMemory>
@@ -10,7 +10,7 @@
  * @brief 此类使系统只运行一个此类的实例
  * @see QCoreApplication
  */
-class SingletonApp : public QGuiApplication
+class SingletonApp : public QApplication
 {
     struct InstancesInfo
     {

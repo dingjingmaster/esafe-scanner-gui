@@ -10,7 +10,7 @@
 #define SHARED_MEMORY_SIZE 4096
 
 SingletonApp::SingletonApp(int &argc, char *argv[], const char *appName, bool allowSecondary, Options options, int timeout)
-        : QGuiApplication (argc, argv)
+        : QApplication (argc, argv)
 {
     bool            ret = false;
     unsigned long   blockSize = 0;
