@@ -16,4 +16,10 @@ file(GLOB UI_SRC
 
     ${CMAKE_SOURCE_DIR}/app/ui/push-button.cpp
     ${CMAKE_SOURCE_DIR}/app/ui/push-button.h
+
+    ${CMAKE_SOURCE_DIR}/app/ui/scanner-task-widget.cpp
+    ${CMAKE_SOURCE_DIR}/app/ui/scanner-task-widget.h
+
+    ${CMAKE_SOURCE_DIR}/app/ui/scanner-result-widget.cpp
+    ${CMAKE_SOURCE_DIR}/app/ui/scanner-result-widget.h
 )
