@@ -10,6 +10,8 @@ public:
     explicit MainToolBar(QWidget *parent = nullptr);
 
 
+private:
+    const int           mMaxHeight = 120;
 };
 
 #endif // MAINTOOLBAR_H

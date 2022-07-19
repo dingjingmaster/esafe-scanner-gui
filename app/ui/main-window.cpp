@@ -40,10 +40,12 @@ MainWindow::MainWindow(QWidget *parent)
     mMainLayout->addWidget(header);
 
     // tool bar
+    // FIXME:// 图标不能使用 jpg 的，要用 png 的
     MainToolBar* toolbar = new MainToolBar(this);
-    toolbar->setFixedHeight(80);
     toolbar->setStyleSheet("background-color:red;");
     ToolbarAction* action1 = new ToolbarAction;
+    action1->setIcon("://data/scanner.jpg");
+    action1->setText(tr("网络扫描管理"));
     toolbar->addWidget(action1);
     mMainLayout->addWidget(toolbar);
 
