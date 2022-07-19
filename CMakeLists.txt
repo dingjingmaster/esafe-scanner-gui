@@ -1,0 +1,46 @@
+project(esafe-scanner-gui LANGUAGES CXX)
+
+cmake_minimum_required(VERSION 3.5)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
+set(PROJECT_VERSION_MAJOR 0)
+set(PROJECT_VERSION_MINOR 0)
+set(PROJECT_VERSION_PATCH 0)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package (PkgConfig)
+find_package(Qt5 COMPONENTS Core Network Widgets Gui REQUIRED)
+
+#add_subdirectory(app)
+add_subdirectory(demo)
+
+
+
+
+
+
+#set(PROJECT_SOURCES
+#        main.cpp
+#        mainwindow.cpp
+#        mainwindow.h
+#)
+
+#if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+#    qt_add_executable(esafe-scanner-gui
+#        MANUAL_FINALIZATION
+#        ${PROJECT_SOURCES}
+#    )
+#endif()
+
+#target_link_libraries(esafe-scanner-gui PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+
+#if(QT_VERSION_MAJOR EQUAL 6)
+#    qt_finalize_executable(esafe-scanner-gui)
+#endif()
