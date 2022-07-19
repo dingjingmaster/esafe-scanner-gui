@@ -16,9 +16,10 @@ public:
 
 private:
     const int           mMaxWidth = 100;
-    const int           mMaxHeight = 110;
-    const int           mIconWidth = 100;
-    const int           mIconHeight = mIconWidth - 10;
+    const int           mMaxHeight = 80;
+    const int           mIconLabelSize = 80;
+    const int           mIconWidth = 60;
+    const int           mIconHeight = mIconWidth;
     const int           mTextsize = 20;
 
     QVBoxLayout*        mMainLayout;

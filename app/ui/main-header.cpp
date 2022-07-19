@@ -7,7 +7,7 @@
 MainHeader::MainHeader(QWidget *parent)
     : QWidget{parent}
 {
-    setMaximumHeight(200);
+    setMaximumHeight(mMaxHeight);
     setContentsMargins(0, 0, 0, 0);
     setAttribute(Qt::WidgetAttribute::WA_StyledBackground);
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);

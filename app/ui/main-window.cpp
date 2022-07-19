@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
     MainToolBar* toolbar = new MainToolBar(this);
     toolbar->setStyleSheet("background-color:red;");
     ToolbarAction* action1 = new ToolbarAction;
-    action1->setIcon("://data/scanner.jpg");
+    action1->setIcon("://data/scanner.png");
     action1->setText(tr("网络扫描管理"));
     toolbar->addWidget(action1);
     mMainLayout->addWidget(toolbar);

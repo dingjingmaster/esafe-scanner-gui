@@ -11,7 +11,7 @@ public:
 
 
 private:
-    const int           mMaxHeight = 120;
+    const int           mMaxHeight = 100;
 };
 
 #endif // MAINTOOLBAR_H

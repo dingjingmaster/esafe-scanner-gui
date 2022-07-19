@@ -12,12 +12,12 @@ ToolbarAction::ToolbarAction(QWidget *parent)
     setFixedSize(mMaxWidth, mMaxHeight);
 
     mMainLayout = new QVBoxLayout;
-    mMainLayout->setSpacing(0);
+    mMainLayout->setSpacing(10);
     mMainLayout->setContentsMargins(0, 0, 0, 0);
     mMainLayout->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
 
     mIcon = new QLabel;
-    mIcon->setFixedSize(mIconWidth, mIconHeight);
+    mIcon->setFixedSize(mIconLabelSize, mIconLabelSize);
     mIcon->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
 
     mText = new QLabel;

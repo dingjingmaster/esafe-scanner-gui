@@ -25,6 +25,8 @@ protected:
     void mouseReleaseEvent(QMouseEvent*) override;
 
 private:
+    const int               mMaxHeight = 140;
+
     QLayout*                mLeftLayout;
     QLayout*                mRightLayout;
     QHBoxLayout*            mMainLayout;
