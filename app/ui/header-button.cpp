@@ -5,7 +5,8 @@
 HeaderButton::HeaderButton(QWidget *parent, Type type)
     : QPushButton{parent}
 {
-    setFixedSize(16, 16);
+    setFlat(true);
+    setFixedSize(32, 32);
 
     onTypeChanged(type);
 
