@@ -23,6 +23,7 @@ ToolbarAction::ToolbarAction(QWidget *parent)
     mIcon->setObjectName("main-toolbar-action-icon");
 
     mText = new QLabel;
+    mText->setFixedSize(mFixSize, mLabelHeight);
     mText->setObjectName("main-toolbar-action-label");
     mText->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
 
@@ -44,4 +45,14 @@ void ToolbarAction::setText(QString text)
     if (!text.isEmpty()) {
         mText->setText(text);
     }
+}
+
+void ToolbarAction::enterEvent(QEvent *event)
+{
+    setCursor(Qt::PointingHandCursor);
+}
+
+void ToolbarAction::leaveEvent(QEvent *event)
+{
+    setCursor(Qt::ArrowCursor);
 }

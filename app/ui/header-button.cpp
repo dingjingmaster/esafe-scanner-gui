@@ -8,6 +8,7 @@ HeaderButton::HeaderButton(QWidget *parent, Type type)
     : QPushButton{parent}
 {
     setFlat(true);
+    setMouseTracking(true);
 
     onTypeChanged(type);
 
@@ -25,6 +26,16 @@ void HeaderButton::setType(Type type)
         Q_EMIT typeChanged(type);
         mType = type;
     }
+}
+
+void HeaderButton::enterEvent(QEvent *event)
+{
+    setCursor(Qt::PointingHandCursor);
+}
+
+void HeaderButton::leaveEvent(QEvent *event)
+{
+    setCursor(Qt::ArrowCursor);
 }
 
 void HeaderButton::onTypeChanged(Type type)

@@ -16,6 +16,10 @@ public:
     Type getType ();
     void setType (Type type);
 
+protected:
+    void enterEvent(QEvent *event) override;
+    void leaveEvent(QEvent *event) override;
+
 Q_SIGNAL void typeChanged(Type);
 
 public Q_SLOTS:

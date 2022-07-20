@@ -14,6 +14,10 @@ public:
     void setIcon (QString pic);
     void setText (QString text);
 
+protected:
+    void enterEvent(QEvent *event) override;
+    void leaveEvent(QEvent *event) override;
+
 private:
     const int           mFixSize = 90;
     const int           mIconSize = 60;
