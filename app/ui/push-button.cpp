@@ -3,9 +3,10 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
-PushButton::PushButton(QWidget *parent)
-    : QWidget{parent}
+PushButton::PushButton(QWidget *parent, Type type)
+    : QWidget{parent}, mType(type)
 {
+    setMouseTracking(true);
     setFixedWidth(mMaxWidth);
     setContentsMargins(0, 0, 0, 0);
 
@@ -20,10 +21,33 @@ PushButton::PushButton(QWidget *parent)
     mLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     mLayout->addWidget(mLabel);
 
-    QWidget* widget = new QWidget;
-    widget->setFixedHeight(3);
-    widget->setStyleSheet("background-color:blue;");
-    mLayout->addWidget(widget);
+    if (Type1 == type) {
+        QWidget* widget = new QWidget;
+        widget->setFixedHeight(3);
+        widget->setStyleSheet("background-color:blue;");
+        mLayout->addWidget(widget);
+    }
 
     setLayout(mLayout);
+}
+
+void PushButton::setText(QString text)
+{
+    if (nullptr == text)        return;
+
+    mLabel->setText(text);
+}
+
+void PushButton::mouseReleaseEvent(QMouseEvent *event)
+{
+    Q_UNUSED(event)
+
+    Q_EMIT clicked ();
+}
+
+void PushButton::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    Q_UNUSED(event)
+
+    Q_EMIT doubleClicked();
 }

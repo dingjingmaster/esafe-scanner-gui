@@ -64,8 +64,18 @@ MainWindow::MainWindow(QWidget *parent)
     mScannerResultWidget = new ScannerResultWidget;
     mMainLayout->addWidget(mScannerTaskWidget);
     mMainLayout->addWidget(mScannerResultWidget);
-
     mScannerResultWidget->hide();
+
+    // change content
+    connect(mScannerTaskWidget, &ScannerTaskWidget::taskDetail, this, [=] (const ScannerTaskItem* const item) {
+        mScannerResultWidget->show();
+        mScannerTaskWidget->hide();
+    });
+
+    connect (mScannerResultWidget, &ScannerResultWidget::returnTaskList, this, [=] () {
+        mScannerResultWidget->hide();
+        mScannerTaskWidget->show();
+    });
 
     setLayout(mMainLayout);
 }

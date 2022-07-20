@@ -3,12 +3,13 @@
 #include <QDateTime>
 
 ScannerTaskItem::ScannerTaskItem(QObject *parent)
-    : QObject{parent}
+    : QObject(parent)
 {
 
 }
 
-ScannerTaskItem::ScannerTaskItem(QString name, Status status, qint64 startTime, qint64 stopTime, QString progress)
+ScannerTaskItem::ScannerTaskItem(QString name, Status status, qint64 startTime, qint64 stopTime, QString progress, QObject* parent)
+    : QObject(parent)
 {
     mName = name;
     mStatus = status;

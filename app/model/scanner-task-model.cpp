@@ -26,7 +26,7 @@ int ScannerTaskModel::rowCount(const QModelIndex &parent) const
 
 int ScannerTaskModel::columnCount(const QModelIndex &parent) const
 {
-    return 7;
+    return EnumSize;
 }
 
 QVariant ScannerTaskModel::data(const QModelIndex &index, int role) const

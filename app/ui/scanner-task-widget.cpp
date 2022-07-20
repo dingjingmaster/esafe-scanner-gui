@@ -19,8 +19,14 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
     mView->setItemDelegate(new ScannerTaskDelegate);
     setLayout(mMainLayout);
 
-    connect (mView, &QAbstractItemView::doubleClicked, this, [=] (const QModelIndex &index) {
+    connect (mView, &QAbstractItemView::clicked, this, [=] (const QModelIndex &index) {
         qDebug() << QString("r:%1, c:%2").arg(index.row()).arg(index.column()) << "clicked";
+
+        // 跳转到扫描结果显示页面
+        if (ScannerTaskModel::TaskOperation == index.column()) {
+            Q_EMIT taskDetail(static_cast<ScannerTaskItem*>(index.internalPointer()));
+        }
+
     });
 
     connect (mView, &QAbstractItemView::entered, this, [=] (const QModelIndex &index) {

@@ -10,7 +10,7 @@ public:
     enum Status { Scanning, Finish }; Q_ENUM(Status)
 public:
     explicit ScannerTaskItem(QObject *parent = nullptr);
-    ScannerTaskItem(QString name, Status status, qint64 startTime, qint64 stopTime, QString progress);
+    ScannerTaskItem(QString name, Status status, qint64 startTime, qint64 stopTime, QString progress, QObject *parent = nullptr);
 
     void setName (QString name);
     void setStatus (Status tatus);
@@ -25,7 +25,7 @@ public:
     QString getProgress ();
     QString getOperation ();
 
-public:
+private:
     QString                 mName;
     Status                  mStatus;
     qint64                  mStartTime;

@@ -6,20 +6,29 @@
 
 class QHBoxLayout;
 class QVBoxLayout;
+class ScannerResultModel;
+
 class ScannerResultWidget : public QWidget
 {
     Q_OBJECT
 public:
     explicit ScannerResultWidget(QWidget *parent = nullptr);
 
+    // 测试函数
+    void test ();
+
+Q_SIGNALS:
+    void returnTaskList ();
+
 private:
     QVBoxLayout*            mMainLayout;
 
+    QHBoxLayout*            mBtnLayout;
     QHBoxLayout*            mLeftLayout;
     QHBoxLayout*            mRightLayout;
 
     ScannerView*            mView;
-
+    ScannerResultModel*     mModel;
 };
 
 #endif // SCANNERRESULTWIDGET_H

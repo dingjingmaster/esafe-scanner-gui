@@ -9,7 +9,7 @@ class ScannerTaskModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    enum { TaskName = 1, TaskStatus, TaskStartTime, TaskStopTime, TaskScannerProcess, TaskOperation };
+    enum { TaskName = 1, TaskStatus, TaskStartTime, TaskStopTime, TaskScannerProcess, TaskOperation, EnumSize };
 public:
     explicit ScannerTaskModel(QObject *parent = nullptr);
 

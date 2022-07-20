@@ -18,6 +18,10 @@ public:
     // 测试函数
     void test ();
 
+Q_SIGNALS:
+    void clicked ();
+    void taskDetail (const ScannerTaskItem* const item);
+
 private:
     QVBoxLayout*            mMainLayout;
 
