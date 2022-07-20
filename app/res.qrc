@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>data/scanner.png</file>
+        <file>data/stylesheet.qss</file>
     </qresource>
 </RCC>

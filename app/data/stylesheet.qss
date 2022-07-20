@@ -1,0 +1,64 @@
+#main {
+    margin: 0px;
+    padding: 3px;
+    border-radius: 6px;
+}
+
+#main-header-title {
+    margin: 0px;
+    padding: 6px 0 0 10px;
+    color: rgba(255, 255, 255, 1);
+    font-size: 20px;
+    font: bold;
+    align: center;
+}
+
+#main-header-button {
+    margin: 0px;
+    padding: 3px;
+    width: 36px;
+    height: 36px;
+    color: rgb(255, 255, 255);
+
+}
+
+#main-header-button-close {
+    margin: 0px;
+    padding: 3px;
+    width: 36px;
+    height: 36px;
+    color: rgb(255, 255, 255);
+}
+
+#main-toolbar {
+    margin: 0px;
+    padding: 0px 10px 0px 10px;
+    background-color: rgba(255, 0, 0, 1);
+
+    color: rgba(255, 255, 255, 1);
+}
+
+#main-toolbar-action {
+    margin: 0px;
+    padding: 3px;
+
+    width: 90px;
+    height: 90px;
+}
+
+#main-toolbar-action-icon {
+    margin: 0px;
+    padding: 3px;
+
+    width: 60px;
+    height: 60px;
+}
+
+#main-toolbar-action-label {
+    margin: 0px;
+    padding: 0px;
+    font-size: 12px;
+    font: bold;
+    align: center;
+    color: rgb(255, 255, 255);
+}

@@ -9,19 +9,21 @@
 ToolbarAction::ToolbarAction(QWidget *parent)
     : QWidget (parent)
 {
-    setFixedSize(mMaxWidth, mMaxHeight);
+    setFixedSize(mFixSize, mFixSize);
+    setObjectName("main-toolbar-action");
 
     mMainLayout = new QVBoxLayout;
-    mMainLayout->setSpacing(10);
+    mMainLayout->setSpacing(1);
     mMainLayout->setContentsMargins(0, 0, 0, 0);
     mMainLayout->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
 
     mIcon = new QLabel;
-    mIcon->setFixedSize(mIconLabelSize, mIconLabelSize);
+    mIcon->setFixedSize(mFixSize, mIconSize);
     mIcon->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
+    mIcon->setObjectName("main-toolbar-action-icon");
 
     mText = new QLabel;
-    mText->setFixedSize(mMaxWidth, mTextsize);
+    mText->setObjectName("main-toolbar-action-label");
     mText->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
 
     mMainLayout->addWidget(mIcon);
@@ -33,7 +35,7 @@ ToolbarAction::ToolbarAction(QWidget *parent)
 void ToolbarAction::setIcon(QString pic)
 {
     if (!pic.isEmpty() && QFile::exists(pic)) {
-        mIcon->setPixmap(QPixmap(pic).scaled(mIconWidth, mIconHeight));
+        mIcon->setPixmap(QPixmap(pic).scaled(mIconSize, mIconSize));
     }
 }
 

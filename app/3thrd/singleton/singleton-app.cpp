@@ -2,6 +2,7 @@
 #include <pwd.h>
 #include <unistd.h>
 
+#include <QFont>
 #include <QTime>
 #include <QThread>
 #include <QDataStream>
@@ -12,6 +13,10 @@
 SingletonApp::SingletonApp(int &argc, char *argv[], const char *appName, bool allowSecondary, Options options, int timeout)
         : QApplication (argc, argv)
 {
+    QFont font = QApplication::font();
+    font.setStyleStrategy(QFont::PreferQuality);
+    setFont(font);
+
     bool            ret = false;
     unsigned long   blockSize = 0;
 

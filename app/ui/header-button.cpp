@@ -2,11 +2,12 @@
 
 #include <QDebug>
 
+static QPixmap transColor (const QPixmap& icon);
+
 HeaderButton::HeaderButton(QWidget *parent, Type type)
     : QPushButton{parent}
 {
     setFlat(true);
-    setFixedSize(32, 32);
 
     onTypeChanged(type);
 
@@ -32,18 +33,39 @@ void HeaderButton::onTypeChanged(Type type)
 
     switch (type) {
     case MIN:
-        setIcon(QIcon::fromTheme("window-minimize-symbolic"));
+        setIcon(QIcon(transColor(QIcon::fromTheme("window-minimize-symbolic").pixmap(width(), height()))));
         break;
     case MAX:
-        setIcon(QIcon::fromTheme("window-maximize-symbolic"));
+        setIcon(QIcon(transColor(QIcon::fromTheme("window-maximize-symbolic").pixmap(width(), height()))));
         break;
     case CLOSE:
-        setIcon(QIcon::fromTheme("window-close-symbolic"));
+        setIcon(QIcon(transColor(QIcon::fromTheme("window-close-symbolic").pixmap(width(), height()))));
         break;
     case RESTORE:
-        setIcon(QIcon::fromTheme("window-restore-symbolic"));
+        setIcon(QIcon(transColor(QIcon::fromTheme("window-restore-symbolic").pixmap(width(), height()))));
         break;
     default:
         break;
     }
+}
+
+
+static QPixmap transColor (const QPixmap& icon)
+{
+    if (icon.isNull())  return QPixmap();
+
+    QImage oldp = icon.toImage();
+
+    QImage newp(icon.width(), icon.height(), QImage::Format_ARGB32);
+
+    for (auto i = 0; i < oldp.width(); ++i) {
+        for (auto j = 0; j < oldp.height(); ++j) {
+            QColor c = QColor(oldp.pixel(i, j));
+            if ((c.alpha() != 0) && (c.red() != 0) && (c.green() != 0) && (c.blue() != 0)) {
+                newp.setPixel(i, j, qRgb(255, 255, 255));
+            }
+        }
+    }
+
+    return QPixmap::fromImage(newp);
 }

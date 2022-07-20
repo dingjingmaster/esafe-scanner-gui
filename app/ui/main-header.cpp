@@ -13,20 +13,26 @@ MainHeader::MainHeader(QWidget *parent)
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
     mMainLayout = new QHBoxLayout;
+    mMainLayout->setContentsMargins(0, 0, 0, 0);
+
     mHeaderName = new QLabel;
+    mHeaderName->setObjectName("main-header-title");
 
     mLeftLayout = new QHBoxLayout;
     mRightLayout = new QHBoxLayout;
     mRightLayout->setSpacing(3);
 
     // title
-    mHeaderName->setText(tr("Scan self-check tool"));
+    mHeaderName->setText(tr("扫描自查工具"));
     mLeftLayout->addWidget(mHeaderName);
 
     // button
     mMinBtn = new HeaderButton(nullptr, HeaderButton::MIN);
     mMaxBtn = new HeaderButton(nullptr, HeaderButton::MAX);
     mCloseBtn = new HeaderButton(nullptr, HeaderButton::CLOSE);
+    mMinBtn->setObjectName("main-header-button");
+    mMaxBtn->setObjectName("main-header-button");
+    mCloseBtn->setObjectName("main-header-button-close");
     connect(mMinBtn,    &QPushButton::clicked, this, &MainHeader::windowMin);
     connect(mMaxBtn,    &QPushButton::clicked, this, &MainHeader::windowMax);
     connect(mCloseBtn,  &QPushButton::clicked, this, &MainHeader::windowClose);

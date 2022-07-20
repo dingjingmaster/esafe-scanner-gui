@@ -15,12 +15,10 @@ public:
     void setText (QString text);
 
 private:
-    const int           mMaxWidth = 100;
-    const int           mMaxHeight = 80;
-    const int           mIconLabelSize = 80;
-    const int           mIconWidth = 60;
-    const int           mIconHeight = mIconWidth;
-    const int           mTextsize = 20;
+    const int           mFixSize = 90;
+    const int           mIconSize = 60;
+    const int           mLabelWidth = 90;
+    const int           mLabelHeight = mFixSize - mIconSize;
 
     QVBoxLayout*        mMainLayout;
 
