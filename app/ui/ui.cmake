@@ -22,4 +22,7 @@ file(GLOB UI_SRC
 
     ${CMAKE_SOURCE_DIR}/app/ui/scanner-result-widget.cpp
     ${CMAKE_SOURCE_DIR}/app/ui/scanner-result-widget.h
+
+    ${CMAKE_SOURCE_DIR}/app/ui/scanner-task-delegate.cpp
+    ${CMAKE_SOURCE_DIR}/app/ui/scanner-task-delegate.h
 )

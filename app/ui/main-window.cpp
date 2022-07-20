@@ -3,6 +3,8 @@
 #include "main-toolbar.h"
 #include "main-window.h"
 #include "push-button.h"
+#include "scanner-result-widget.h"
+#include "scanner-task-widget.h"
 #include "toolbar-action.h"
 
 #include <QDebug>
@@ -11,7 +13,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QWidget{parent}
 {
-    setMinimumSize(800, 600);
+    setMinimumSize(mMinWidth, mMinHeight);
     setContentsMargins(0, 0, 0, 0);
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
@@ -58,7 +60,20 @@ MainWindow::MainWindow(QWidget *parent)
     mMainLayout->addItem(btnLayout);
 
     // content View
+    mScannerTaskWidget = new ScannerTaskWidget;
+    mScannerResultWidget = new ScannerResultWidget;
+    mMainLayout->addWidget(mScannerTaskWidget);
+    mMainLayout->addWidget(mScannerResultWidget);
 
+    mScannerResultWidget->hide();
 
     setLayout(mMainLayout);
+}
+
+void MainWindow::resizeEvent(QResizeEvent *)
+{
+    mScannerResultWidget->setFixedWidth(width());
+    mScannerTaskWidget->setFixedWidth(width());
+
+    qDebug() << "resize";
 }

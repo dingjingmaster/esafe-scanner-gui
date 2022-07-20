@@ -1,6 +1,9 @@
 #ifndef SCANNERTASKWIDGET_H
 #define SCANNERTASKWIDGET_H
 
+#include "view/scanner-view.h"
+#include "model/scanner-task-model.h"
+
 #include <QWidget>
 
 class QVBoxLayout;
@@ -12,8 +15,14 @@ class ScannerTaskWidget : public QWidget
 public:
     explicit ScannerTaskWidget(QWidget *parent = nullptr);
 
+    // 测试函数
+    void test ();
+
 private:
     QVBoxLayout*            mMainLayout;
+
+    ScannerView*            mView;
+    ScannerTaskModel*       mModel;
 };
 
 #endif // SCANNERTASKWIDGET_H

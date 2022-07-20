@@ -1,14 +1,27 @@
 #include "scanner-task-model.h"
 
+#include <QDebug>
+#include <QColor>
+#include <QSize>
+
 ScannerTaskModel::ScannerTaskModel(QObject *parent)
     : QAbstractTableModel{parent}
 {
 
 }
 
+void ScannerTaskModel::addItem(ScannerTaskItem* item)
+{
+    if (!item)      return;
+
+    mData.append(item);
+
+    insertRows(mData.count() - 1, 1);
+}
+
 int ScannerTaskModel::rowCount(const QModelIndex &parent) const
 {
-    return 3;
+    return mData.count();
 }
 
 int ScannerTaskModel::columnCount(const QModelIndex &parent) const
@@ -18,11 +31,35 @@ int ScannerTaskModel::columnCount(const QModelIndex &parent) const
 
 QVariant ScannerTaskModel::data(const QModelIndex &index, int role) const
 {
+    if (!index.isValid())       return QVariant();
+
+    auto item = static_cast<ScannerTaskItem*>(index.internalPointer());
+
     if (Qt::DisplayRole == role) {
         if (0 == index.column()) {
             return QString("%1").arg(index.row() + 1);
         }
+        if (TaskName == index.column()) {
+            return item->getName();
+        } else if (TaskStatus == index.column()) {
+            return item->getStatus();
+        } else if (TaskStartTime == index.column()) {
+            return item->getStartTime();
+        } else if (TaskStopTime == index.column()) {
+            return item->getStopTime();
+        } else if (TaskScannerProcess == index.column()) {
+            return item->getProgress();
+        } else if (TaskOperation == index.column()) {
+            return item->getOperation();
+        }
+
         return QString ("R%1, C%2").arg(index.row() + 1).arg(index.column() + 1);
+    } else if (Qt::BackgroundRole == role) {
+        if (0 == index.column()) {
+            return QColor::fromRgb(mBackgroundR, mBackgroundG, mBackgroundB);
+        }
+    } else if (Qt::TextAlignmentRole == role) {
+        return Qt::AlignCenter;
     }
 
     return QVariant();
@@ -31,30 +68,68 @@ QVariant ScannerTaskModel::data(const QModelIndex &index, int role) const
 QVariant ScannerTaskModel::headerData(int section, Qt::Orientation orentation, int role) const
 {
     if (Qt::DisplayRole == role && Qt::Horizontal == orentation) {
-        if (Qt::Horizontal == orentation) {
-            switch (section) {
-            case 0:
-                return QString("序号");
-            case 1:
-                return QString("任务名称");
-            case 2:
-                return QString("任务状态");
-            case 3:
-                return QString("开始时间");
-            case 4:
-                return QString("结束时间");
-            case 5:
-                return QString("扫描进度");
-            case 6:
-                return QString("操作");
-            default:
-                break;
-            }
-        } else {
-            return QString("%1").arg(section + 1);
+        switch (section) {
+        case 0:
+            return QString("序号");
+        case 1:
+            return QString("任务名称");
+        case 2:
+            return QString("任务状态");
+        case 3:
+            return QString("开始时间");
+        case 4:
+            return QString("结束时间");
+        case 5:
+            return QString("扫描进度");
+        case 6:
+            return QString("操作");
+        default:
+            break;
         }
 
+    } else if (Qt::BackgroundRole == role) {
+        return QColor::fromRgb(mBackgroundR, mBackgroundG, mBackgroundB);
+    } else if (Qt::TextAlignmentRole == role) {
+        return Qt::AlignCenter;
     }
 
     return QVariant();
+}
+
+QModelIndex ScannerTaskModel::index(int row, int column, const QModelIndex &parent) const
+{
+    if (!parent.isValid()) {
+        if (row < 0 || row > mData.count() - 1) {
+            return QModelIndex();
+        }
+
+        return createIndex(row, column, mData.at(row));
+    }
+
+    return QModelIndex();
+}
+
+Qt::ItemFlags ScannerTaskModel::flags(const QModelIndex &index) const
+{
+    if (!index.isValid()) {
+        return Qt::NoItemFlags;
+    }
+
+    return Qt::NoItemFlags | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
+bool ScannerTaskModel::insertRows(int row, int count, const QModelIndex &parent)
+{
+    beginInsertRows(parent, row, row + count - 1);
+    endInsertRows();
+
+    return true;
+}
+
+bool ScannerTaskModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    beginRemoveRows(parent, row, row + count - 1);
+    endRemoveRows();
+
+    return true;
 }
