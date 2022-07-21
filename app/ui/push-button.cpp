@@ -16,16 +16,28 @@ PushButton::PushButton(QWidget *parent, Type type)
 
     mLabel = new QLabel;
     mLabel->setMargin(6);
-    mLabel->setText(tr("扫描结果"));
     mLabel->setFixedWidth(mMaxWidth);
+    mLabel->setStyleSheet("font: blod;");
     mLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     mLayout->addWidget(mLabel);
 
-    if (Type1 == type) {
+    switch (type) {
+    case Type1: {
         QWidget* widget = new QWidget;
         widget->setFixedHeight(3);
+        mLabel->setStyleSheet("color: blue;");
         widget->setStyleSheet("background-color:blue;");
         mLayout->addWidget(widget);
+        break;
+    }
+    case Type2: {
+        mLabel->setStyleSheet("font: blod; color: rgb(255, 255, 255)");
+        break;
+    }
+    }
+
+    if (Type1 == type) {
+
     }
 
     setLayout(mLayout);

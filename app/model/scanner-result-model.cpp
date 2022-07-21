@@ -36,10 +36,8 @@ QVariant ScannerResultModel::data(const QModelIndex &index, int role) const
 
     if (Qt::DisplayRole == role) {
         if (0 == index.column()) {
-            return QString("%1").arg(index.row() + 1);
-        }
-
-        if (TaskName == index.column()) {
+            return item->getChecked();
+        } else if (TaskName == index.column()) {
             return item->getTaskName();
         } else if (FileName == index.column()) {
             return item->getFileName();

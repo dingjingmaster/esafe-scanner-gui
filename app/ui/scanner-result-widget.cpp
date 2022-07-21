@@ -1,7 +1,9 @@
 #include "model/scanner-result-item.h"
 #include "model/scanner-result-model.h"
 #include "push-button.h"
+#include "scanner-result-delegate.h"
 #include "scanner-result-widget.h"
+#include "view/header-view.h"
 
 #include <QDebug>
 #include <QPushButton>
@@ -49,15 +51,20 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mModel = new ScannerResultModel;
     mView = new ScannerView;
 
+    mView->setItemDelegate(new ScannerResultDelegate);
+    mView->setHorizontalHeader(new HeaderView(Qt::Horizontal, mView));
+
     mView->setModel(mModel);
     mMainLayout->addWidget(mView);
 
     connect (mView, &QAbstractItemView::clicked, this, [=] (const QModelIndex &index) {
         qDebug() << QString("r:%1, c:%2").arg(index.row()).arg(index.column()) << "clicked";
-
-        // 跳转到扫描结果显示页面
-//        Q_EMIT taskDetail(static_cast<ScannerTaskItem*>(index.internalPointer()));
-
+        if (!index.isValid())   return;
+        if (index.column() == 0) {
+            auto item = static_cast<ScannerResultItem*>(index.internalPointer());
+            if (item)   item->setChecked(!item->getChecked());
+            Q_EMIT mView->update(index);
+        }
     });
 
     connect (mView, &QAbstractItemView::entered, this, [=] (const QModelIndex &index) {

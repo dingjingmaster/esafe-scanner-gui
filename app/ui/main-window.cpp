@@ -26,7 +26,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     MainHeader* header = new MainHeader(this);
     header->setAutoFillBackground(true);
-    header->setStyleSheet("background-color:red;");
 
     connect(header, &MainHeader::windowClose,   this, [&] () {qApp->quit();});
     connect(header, &MainHeader::windowMin,     this, [&] () {setWindowState(Qt::WindowMinimized);});
@@ -55,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent)
     QHBoxLayout* btnLayout = new QHBoxLayout;
     btnLayout->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     PushButton* btn1 = new PushButton;
-//    btn1->set
+    btn1->setText(tr("扫描任务"));
     btnLayout->addWidget(btn1);
     mMainLayout->addItem(btnLayout);
 
@@ -68,11 +67,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     // change content
     connect(mScannerTaskWidget, &ScannerTaskWidget::taskDetail, this, [=] (const ScannerTaskItem* const item) {
+        btn1->setText(tr("扫描结果"));
         mScannerResultWidget->show();
         mScannerTaskWidget->hide();
     });
 
     connect (mScannerResultWidget, &ScannerResultWidget::returnTaskList, this, [=] () {
+        btn1->setText(tr("扫描任务"));
         mScannerResultWidget->hide();
         mScannerTaskWidget->show();
     });

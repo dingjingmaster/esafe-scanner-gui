@@ -7,6 +7,7 @@
 MainHeader::MainHeader(QWidget *parent)
     : QWidget{parent}
 {
+    setObjectName("main-header");
     setMaximumHeight(mMaxHeight);
     setContentsMargins(0, 0, 0, 0);
     setAttribute(Qt::WidgetAttribute::WA_StyledBackground);
