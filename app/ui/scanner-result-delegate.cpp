@@ -30,7 +30,7 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
 
     switch (index.column()) {
     case 0: {
-        QRect rectCB(rect.left() + 10, rect.top() + (rect.height() - 20) / 2, 20, 20);
+        QRect rectCB(rect.left() + (rect.width() - 20) / 2, rect.top() + (rect.height() - 20) / 2, 20, 20);
         QStyleOptionButton cbOp;
         cbOp.state |= QStyle::State_Enabled;
         cbOp.state |= index.model()->data(index).toBool() ? QStyle::State_On : QStyle::State_Off;

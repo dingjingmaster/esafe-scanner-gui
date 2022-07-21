@@ -1,8 +1,9 @@
 #include "scanner-task-delegate.h"
 
+#include <QStyle>
 #include <QDebug>
-#include <QItemDelegate>
 #include <QPainter>
+#include <QItemDelegate>
 
 ScannerTaskDelegate::ScannerTaskDelegate(QObject *parent)
     : QStyledItemDelegate{parent}
@@ -25,6 +26,8 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
 
     qDebug() << "delegate paint";
 
+    p->save();
+
     QString text = index.model()->data(index).toString();
     QRect rect = option.rect;
     Qt::Alignment align = option.displayAlignment;
@@ -33,7 +36,10 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
     case 0:
     case 1:
     case 2:
+        align |= Qt::AlignHCenter;
+        break;
     case 6:
+        p->setPen(Qt::blue);
         align |= Qt::AlignHCenter;
         break;
     default:
@@ -41,4 +47,6 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
     }
 
     p->drawText(rect, align, text);
+
+    p->restore();
 }

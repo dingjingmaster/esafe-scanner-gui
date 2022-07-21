@@ -38,8 +38,7 @@ QVariant ScannerTaskModel::data(const QModelIndex &index, int role) const
     if (Qt::DisplayRole == role) {
         if (0 == index.column()) {
             return QString("%1").arg(index.row() + 1);
-        }
-        if (TaskName == index.column()) {
+        } else if (TaskName == index.column()) {
             return item->getName();
         } else if (TaskStatus == index.column()) {
             return item->getStatus();
@@ -52,14 +51,21 @@ QVariant ScannerTaskModel::data(const QModelIndex &index, int role) const
         } else if (TaskOperation == index.column()) {
             return item->getOperation();
         }
-
-        return QString ("R%1, C%2").arg(index.row() + 1).arg(index.column() + 1);
     } else if (Qt::BackgroundRole == role) {
         if (0 == index.column()) {
             return QColor::fromRgb(mBackgroundR, mBackgroundG, mBackgroundB);
         }
     } else if (Qt::TextAlignmentRole == role) {
         return Qt::AlignCenter;
+    } else if (Qt::ForegroundRole == role) {
+        switch (index.column()) {
+        case 5: {
+            return QColor(0, 0, 255);
+            break;
+        }
+        default:
+            break;
+        }
     }
 
     return QVariant();
