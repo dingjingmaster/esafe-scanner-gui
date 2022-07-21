@@ -31,7 +31,7 @@ PushButton::PushButton(QWidget *parent, Type type)
         break;
     }
     case Type2: {
-        mLabel->setStyleSheet("font: blod; color: rgb(255, 255, 255)");
+        mLabel->setStyleSheet("font: blod; color: rgb(255, 255, 255); border-radius: 6px;");
         break;
     }
     }

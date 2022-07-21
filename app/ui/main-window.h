@@ -9,6 +9,8 @@ class QResizeEvent;
 class ScannerTaskWidget;
 class ScannerResultWidget;
 
+class MainSubToolBar;
+
 class MainWindow : public QWidget
 {
     Q_OBJECT
@@ -25,6 +27,8 @@ private:
     const int               mMinHeight = 600;
 
     QLayout*                mMainLayout;
+
+    MainSubToolBar*         mMainSubtoolbar;
 
     ScannerTaskWidget*      mScannerTaskWidget;
     ScannerResultWidget*    mScannerResultWidget;

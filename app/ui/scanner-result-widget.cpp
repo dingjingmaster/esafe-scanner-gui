@@ -68,7 +68,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     });
 
     connect (mView, &QAbstractItemView::entered, this, [=] (const QModelIndex &index) {
-        if (ScannerResultModel::FileName == index.column()) {
+        if (0 == index.column() || ScannerResultModel::FileName == index.column()) {
             setCursor(Qt::PointingHandCursor);
         } else {
             setCursor(Qt::ArrowCursor);

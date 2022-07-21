@@ -11,6 +11,9 @@ file(GLOB UI_SRC
     ${CMAKE_SOURCE_DIR}/app/ui/main-toolbar.cpp
     ${CMAKE_SOURCE_DIR}/app/ui/main-toolbar.h
 
+    ${CMAKE_SOURCE_DIR}/app/ui/main-subtoolbar.cpp
+    ${CMAKE_SOURCE_DIR}/app/ui/main-subtoolbar.h
+
     ${CMAKE_SOURCE_DIR}/app/ui/toolbar-action.cpp
     ${CMAKE_SOURCE_DIR}/app/ui/toolbar-action.h
 

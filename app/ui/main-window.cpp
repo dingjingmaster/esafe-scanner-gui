@@ -14,8 +14,9 @@ MainWindow::MainWindow(QWidget *parent)
     : QWidget{parent}
 {
     setObjectName("main");
-    setMinimumSize(mMinWidth, mMinHeight);
     setContentsMargins(0, 0, 0, 0);
+    setMinimumSize(mMinWidth, mMinHeight);
+//    setAttribute(Qt::WA_TranslucentBackground);
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
 
