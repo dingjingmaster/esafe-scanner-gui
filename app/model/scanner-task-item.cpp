@@ -8,14 +8,13 @@ ScannerTaskItem::ScannerTaskItem(QObject *parent)
 
 }
 
-ScannerTaskItem::ScannerTaskItem(QString name, Status status, qint64 startTime, qint64 stopTime, QString progress, QObject* parent)
+ScannerTaskItem::ScannerTaskItem(QString name, Status status, qint64 startTime, qint64 stopTime, QObject* parent)
     : QObject(parent)
 {
     mName = name;
     mStatus = status;
     mStartTime = startTime;
     mStopTime = stopTime;
-    mProgress = progress;
 }
 
 void ScannerTaskItem::setName(QString name)
@@ -38,9 +37,19 @@ void ScannerTaskItem::setStartTime(qint64 startTime)
     mStartTime = startTime;
 }
 
-void ScannerTaskItem::setProgress(QString progress)
+void ScannerTaskItem::setTaskFileCount(qint64 count)
 {
-    mProgress = progress;
+    mTaskFileCount = count;
+}
+
+void ScannerTaskItem::setScanFileCount(qint64 count)
+{
+    mScanFileCount = count;
+}
+
+void ScannerTaskItem::setScanFinishedFileCount(qint64 count)
+{
+    mScanFinishedFileCount = count;
 }
 
 QString ScannerTaskItem::getName()
@@ -55,6 +64,12 @@ QString ScannerTaskItem::getStatus()
         return tr("进行中");
     case Finish:
         return tr("已完成");
+    case Suspended:
+        return tr("暂停");
+    case Unknow:
+    default:
+        return tr("未知");
+
     }
 
     return tr("未知");
@@ -70,9 +85,29 @@ QString ScannerTaskItem::getStopTime()
     return QDateTime::fromMSecsSinceEpoch(mStartTime).toLocalTime().toString("yyyy-MM-dd_hh:mm:ss");
 }
 
+qint64 ScannerTaskItem::getTaskFileCount()
+{
+    return mTaskFileCount > 0 ? mTaskFileCount : 0;
+}
+
+qint64 ScannerTaskItem::getScanFileCount()
+{
+    return mScanFileCount > 0 ? mScanFileCount : 0;
+}
+
+qint64 ScannerTaskItem::getScanFinishedFileCount()
+{
+    return mScanFinishedFileCount > 0 ? mScanFinishedFileCount : 0;
+}
+
 QString ScannerTaskItem::getProgress()
 {
-    return mProgress;
+    return QString("已扫描文件数: %1\n"
+                   "文件总数: %2\n"
+                   "终端文件数: %3\n")
+            .arg(getScanFinishedFileCount())
+            .arg(getScanFileCount())
+            .arg(getTaskFileCount());
 }
 
 QString ScannerTaskItem::getOperation()
