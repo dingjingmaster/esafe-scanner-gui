@@ -98,7 +98,7 @@ SingletonApp::SingletonApp(int &argc, char *argv[], const char *appName, bool al
 
     connectToPrimary (timeout, NewInstance);
 
-    qDebug() << "init application fail!";
+    qDebug() << appName << " already running...";
     ::exit(EXIT_FAILURE);
 }
 

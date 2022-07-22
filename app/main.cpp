@@ -16,9 +16,8 @@ int main(int argc, char *argv[])
         file.close();
     }
 
-    w.show();
-
     if (app.isPrimary()) {
+        w.show();
     } else {
         qApp->exit();
     }
