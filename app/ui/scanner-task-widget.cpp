@@ -37,26 +37,27 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
         }
     });
 
-    test();
+    // 界面测试数据
+//    test();
 }
 
 void ScannerTaskWidget::test()
 {
-    auto sm1 = new ScannerTaskItem("任务1", ScannerTaskItem::Scanning, 0, 0, "已扫描文件数:50\n文件总数:100\n终端文件数:300");
-    auto sm2 = new ScannerTaskItem("任务2", ScannerTaskItem::Finish, 0, 0, "已扫描文件数:50\n文件总数:100\n终端文件数:300");
-    auto sm3 = new ScannerTaskItem("任务3", ScannerTaskItem::Scanning, 0, 0, "已扫描文件数:50\n文件总数:100\n终端文件数:300");
-    auto sm4 = new ScannerTaskItem("任务4", ScannerTaskItem::Scanning, 0, 0, "已扫描文件数:50\n文件总数:100\n终端文件数:300");
-    auto sm5 = new ScannerTaskItem("任务5", ScannerTaskItem::Scanning, 0, 0, "已扫描文件数:50\n文件总数:100\n终端文件数:300");
-    auto sm6 = new ScannerTaskItem("任务6", ScannerTaskItem::Scanning, 0, 0, "已扫描文件数:50\n文件总数:100\n终端文件数:300");
-    auto sm7 = new ScannerTaskItem("任务7", ScannerTaskItem::Finish, 0, 0, "已扫描文件数:50\n文件总数:100\n终端文件数:300");
-    auto sm8 = new ScannerTaskItem("任务8", ScannerTaskItem::Scanning, 0, 0, "已扫描文件数:50\n文件总数:100\n终端文件数:300");
-    auto sm9 = new ScannerTaskItem("任务9", ScannerTaskItem::Scanning, 0, 0, "已扫描文件数:50\n文件总数:100\n终端文件数:300");
-    auto sm10 = new ScannerTaskItem("任务10", ScannerTaskItem::Scanning, 0, 0, "已扫描文件数:50\n文件总数:100\n终端文件数:300");
-    auto sm11 = new ScannerTaskItem("任务11", ScannerTaskItem::Finish, 0, 0, "已扫描文件数:50\n文件总数:100\n终端文件数:300");
-    auto sm12 = new ScannerTaskItem("任务12", ScannerTaskItem::Finish, 0, 0, "已扫描文件数:50\n文件总数:100\n终端文件数:300");
-    auto sm13 = new ScannerTaskItem("任务13", ScannerTaskItem::Scanning, 0, 0, "已扫描文件数:50\n文件总数:100\n终端文件数:300");
-    auto sm14 = new ScannerTaskItem("任务14", ScannerTaskItem::Finish, 0, 0, "已扫描文件数:50\n文件总数:100\n终端文件数:300");
-    auto sm15 = new ScannerTaskItem("任务15", ScannerTaskItem::Scanning, 0, 0, "已扫描文件数:50\n文件总数:100\n终端文件数:300");
+    auto sm1 = new ScannerTaskItem("任务1", ScannerTaskItem::Scanning, 0, 0);
+    auto sm2 = new ScannerTaskItem("任务2", ScannerTaskItem::Finish, 0, 0);
+    auto sm3 = new ScannerTaskItem("任务3", ScannerTaskItem::Scanning, 0, 0);
+    auto sm4 = new ScannerTaskItem("任务4", ScannerTaskItem::Scanning, 0, 0);
+    auto sm5 = new ScannerTaskItem("任务5", ScannerTaskItem::Scanning, 0, 0);
+    auto sm6 = new ScannerTaskItem("任务6", ScannerTaskItem::Scanning, 0, 0);
+    auto sm7 = new ScannerTaskItem("任务7", ScannerTaskItem::Finish, 0, 0);
+    auto sm8 = new ScannerTaskItem("任务8", ScannerTaskItem::Scanning, 0, 0);
+    auto sm9 = new ScannerTaskItem("任务9", ScannerTaskItem::Scanning, 0, 0);
+    auto sm10 = new ScannerTaskItem("任务10", ScannerTaskItem::Scanning, 0, 0);
+    auto sm11 = new ScannerTaskItem("任务11", ScannerTaskItem::Finish, 0, 0);
+    auto sm12 = new ScannerTaskItem("任务12", ScannerTaskItem::Finish, 0, 0);
+    auto sm13 = new ScannerTaskItem("任务13", ScannerTaskItem::Scanning, 0, 0);
+    auto sm14 = new ScannerTaskItem("任务14", ScannerTaskItem::Finish, 0, 0);
+    auto sm15 = new ScannerTaskItem("任务15", ScannerTaskItem::Scanning, 0, 0);
 
     mModel->addItem(sm1);
     mModel->addItem(sm2);

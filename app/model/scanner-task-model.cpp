@@ -4,15 +4,32 @@
 #include <QColor>
 #include <QSize>
 
-ScannerTaskModel::ScannerTaskModel(QObject *parent)
-    : QAbstractTableModel{parent}
-{
+#include "../utils/scan-task-helper.h"
 
+ScannerTaskModel::ScannerTaskModel(QObject *parent)
+    : QAbstractTableModel{parent}/*, mScanTaskHelper(new , this))*/
+{
+    //
+    mScanTaskHelper = new ScanTaskHelper(QString(DB_PATH), this);
+
+    // 数据库与model连接
+    connect(mScanTaskHelper, &ScanTaskHelper::addNewTask, this, &ScannerTaskModel::addItem);
+
+    mScanTaskHelper->loadAllTask();
+}
+
+ScannerTaskModel::~ScannerTaskModel()
+{
+    mData.clear();
+
+    if (mScanTaskHelper)        delete mScanTaskHelper;
 }
 
 void ScannerTaskModel::addItem(ScannerTaskItem* item)
 {
     if (!item)      return;
+
+    qDebug() << "add task item: " << item->getName();
 
     mData.append(item);
 

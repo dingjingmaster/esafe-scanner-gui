@@ -33,6 +33,11 @@ void ScannerResultItem::setFileName(QString fileName)
     mFileName = fileName;
 }
 
+void ScannerResultItem::setStatus(int status)
+{
+
+}
+
 void ScannerResultItem::setStatus(Status status)
 {
     mStatus = status;

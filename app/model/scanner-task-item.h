@@ -7,11 +7,12 @@ class ScannerTaskItem : public QObject
 {
     Q_OBJECT
 public:
-    enum Status { Unknow, Scanning, Suspended, Finish }; Q_ENUM(Status)
+    enum Status { Unknow = 0, Scanning, Suspended, Finish }; Q_ENUM(Status)
 public:
     explicit ScannerTaskItem(QObject *parent = nullptr);
     ScannerTaskItem(QString name, Status status, qint64 startTime, qint64 stopTime, QObject *parent = nullptr);
 
+    void setStatus (int tatus);
     void setName (QString name);
     void setStatus (Status tatus);
     void setStopTime (qint64 stopTime);

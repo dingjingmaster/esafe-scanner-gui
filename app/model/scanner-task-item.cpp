@@ -17,6 +17,25 @@ ScannerTaskItem::ScannerTaskItem(QString name, Status status, qint64 startTime, 
     mStopTime = stopTime;
 }
 
+void ScannerTaskItem::setStatus(int status)
+{
+    switch (status) {
+    case Scanning:
+        mStatus = Scanning;
+        break;
+    case Finish:
+        mStatus = Finish;
+        break;
+    case Suspended:
+        mStatus = Suspended;
+        break;
+    case Unknow:
+    default:
+        mStatus = Unknow;
+        break;
+    }
+}
+
 void ScannerTaskItem::setName(QString name)
 {
     mName = name;
@@ -54,7 +73,7 @@ void ScannerTaskItem::setScanFinishedFileCount(qint64 count)
 
 QString ScannerTaskItem::getName()
 {
-    return (mName == nullptr || mName.isEmpty()) ? "" : mName;
+    return (nullptr == mName || mName.isNull() || mName.isEmpty()) ? " " : mName;
 }
 
 QString ScannerTaskItem::getStatus()
@@ -68,8 +87,7 @@ QString ScannerTaskItem::getStatus()
         return tr("暂停");
     case Unknow:
     default:
-        return tr("未知");
-
+        break;
     }
 
     return tr("未知");

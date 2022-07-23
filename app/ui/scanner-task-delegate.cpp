@@ -15,7 +15,7 @@ QSize ScannerTaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QM
 {
     QSize size = QStyledItemDelegate::sizeHint(option, index);
 
-    qDebug() << "delegate size hint";
+//    qDebug() << "delegate size hint";
 
     return size;
 }
@@ -24,7 +24,7 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
 {
     Q_UNUSED(index);
 
-    qDebug() << "delegate paint";
+//    qDebug() << "delegate paint";
 
     p->save();
 
@@ -46,7 +46,7 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
         break;
     }
 
-    p->drawText(rect, align, text);
+    if (nullptr != text && !text.isNull() && !text.isEmpty())  p->drawText(rect, align, text);
 
     p->restore();
 }

@@ -18,18 +18,16 @@ class ScanTaskHelper : public QObject
 {
     Q_OBJECT
 public:
-    explicit ScanTaskHelper(QString dbPath, QObject *parent = nullptr);
+    explicit ScanTaskHelper(QString dbPath, QObject* parent = nullptr);
     ~ScanTaskHelper();
+
+    void loadAllTask ();
 
 private:
 
 Q_SIGNALS:
     void addNewTask (ScannerTaskItem* it);
     void delOldTask (ScannerTaskItem* it);
-
-public Q_SLOTS:
-    void onDBChanged ();
-
 
 private:
     ScanTaskHelperPrivate*  d_ptr;

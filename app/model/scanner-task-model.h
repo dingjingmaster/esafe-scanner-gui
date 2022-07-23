@@ -5,6 +5,8 @@
 
 #include "scanner-task-item.h"
 
+class ScanTaskHelper;
+
 class ScannerTaskModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -12,9 +14,10 @@ public:
     enum { TaskName = 1, TaskStatus, TaskStartTime, TaskStopTime, TaskScannerProcess, TaskOperation, EnumSize };
 public:
     explicit ScannerTaskModel(QObject *parent = nullptr);
+    ~ScannerTaskModel();
 
+public Q_SLOTS:
     void addItem (ScannerTaskItem* item);
-
 
 public:
     int rowCount (const QModelIndex& parent = QModelIndex()) const override;
@@ -37,6 +40,7 @@ private:
 
     //
     QList<ScannerTaskItem*>     mData;
+    ScanTaskHelper*             mScanTaskHelper;
 
 };
 

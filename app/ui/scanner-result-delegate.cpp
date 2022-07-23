@@ -14,7 +14,7 @@ QSize ScannerResultDelegate::sizeHint(const QStyleOptionViewItem &option, const 
 {
     QSize size = QStyledItemDelegate::sizeHint(option, index);
 
-    qDebug() << "delegate size hint";
+//    qDebug() << "delegate size hint";
 
     return size;
 }
@@ -23,7 +23,7 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
 {
     Q_UNUSED(index);
 
-    qDebug() << "delegate paint";
+//    qDebug() << "delegate paint";
 
     QRect rect = option.rect;
     Qt::Alignment align = option.displayAlignment;
