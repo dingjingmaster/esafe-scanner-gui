@@ -169,9 +169,6 @@ ScannerTaskItem *ScanTaskHelperPrivate::selectTaskByIDV2(QString taskID)
                       " FROM scan_task "
                       " WHERE task_id='%1'").arg(taskID);
 
-    mOldTaskID = mNewTaskID;
-    mNewTaskID.clear();
-
     sqlite3_stmt* stmt = NULL;
     int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
     if (SQLITE_OK == ret) {

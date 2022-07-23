@@ -205,9 +205,6 @@ ScannerResultItem *ScanResultHelperPrivate::selectFileByFileMD5(QString fileMD5)
                       " FROM scan_result "
                       " WHERE scan_file_name_md5='%1'").arg(fileMD5);
 
-    mOldTaskID = mNewTaskID;
-    mNewTaskID.clear();
-
     sqlite3_stmt* stmt = NULL;
     int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
     if (SQLITE_OK == ret) {
