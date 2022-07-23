@@ -15,6 +15,8 @@ ScannerResultModel::ScannerResultModel(QObject* parent)
     connect(this, &ScannerResultModel::clearData, mScanResultHelper, &ScanResultHelper::clearData);
     connect(this, &ScannerResultModel::showData, mScanResultHelper, &ScanResultHelper::loadTaskResult);
 
+    connect(this, &ScannerResultModel::clearData, this, [=] () { beginResetModel(); mData.clear(); endResetModel(); mScanResultHelper->clearData(); });
+
     mScanResultHelper->loadTaskResult();
 }
 

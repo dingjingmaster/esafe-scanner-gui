@@ -110,7 +110,7 @@ QString ScannerTaskItem::getStopTime()
 
 QString ScannerTaskItem::getFilterName()
 {
-    return (nullptr != mFilterName && !mFilterName.isNull() && !mFilterName.isEmpty()) ? "" : mFilterName;
+    return (nullptr != mFilterName && !mFilterName.isNull() && !mFilterName.isEmpty()) ? mFilterName : "";
 }
 
 qint64 ScannerTaskItem::getTaskFileCount()

@@ -163,7 +163,9 @@ bool ScanResultHelperPrivate::selectFileMD5ByFilterName()
     sqlite3_stmt* stmt = NULL;
 
     for (auto ik : k) {
-        QString sql = QString("SELECT scan_file_name_md5 FROM scan_result WHERE status=0 AND filter_name LIKE '%%1%'").arg(ik);
+        qDebug() << "filter name --> " << ik;
+        if (nullptr == ik || ik.isNull() || ik.isEmpty() || "" == ik)   continue;
+        QString sql = QString("SELECT scan_file_name_md5 FROM scan_result WHERE status=0 AND filter_name LIKE '%") + ik + "%'";
         qDebug() << "sql ==> " << sql;
         int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
         if (SQLITE_OK == ret) {
