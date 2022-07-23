@@ -26,12 +26,14 @@ public:
     QString getStatus ();
     QString getFileCreateTime ();
     QString getFileModifyTime ();
+    QString getFilterName ();
 
 private:
     bool                mChecked = false;
     QString             mTaskName;
     QString             mFileName;
     QString             mStatus;
+    QString             mFilterName;
     qint64              mFileCreateTime;
     qint64              mFileModifyTime;
 

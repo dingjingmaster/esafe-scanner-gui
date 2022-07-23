@@ -15,16 +15,12 @@ QSize ScannerTaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QM
 {
     QSize size = QStyledItemDelegate::sizeHint(option, index);
 
-//    qDebug() << "delegate size hint";
-
     return size;
 }
 
 void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     Q_UNUSED(index);
-
-//    qDebug() << "delegate paint";
 
     p->save();
 

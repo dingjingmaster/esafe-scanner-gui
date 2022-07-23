@@ -108,7 +108,7 @@ ScannerTaskItem* ScanTaskHelperPrivate::selectTaskByID(QString taskID)
     item->setName(taskID);
 
     QString sql = QString("SELECT `task_status`, `task_start_time`, `task_stop_time`, `task_scan_finished_file_count`,"
-                      " `task_scan_file_count`, `task_file_count` "
+                      " `task_scan_file_count`, `task_file_count`, `scan_task_filter_name` "
                       " FROM scan_task "
                       " WHERE task_id='%1'").arg(taskID);
 
@@ -125,7 +125,6 @@ ScannerTaskItem* ScanTaskHelperPrivate::selectTaskByID(QString taskID)
 
 bool ScanTaskHelperPrivate::selectAllTaskIDV2()
 {
-    int row = 0;
     QString sql = QString("SELECT task_id FROM scan_task WHERE scan_task_self_check=0");
 
     mOldTaskID = mNewTaskID;
@@ -135,7 +134,6 @@ bool ScanTaskHelperPrivate::selectAllTaskIDV2()
     int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
     if (SQLITE_OK == ret) {
         while (SQLITE_DONE != sqlite3_step(stmt)) {
-            ++row;
             const unsigned char* id = sqlite3_column_text(stmt, 0);
             qDebug() << "task id:" << id;
             mNewTaskID += QString(reinterpret_cast<const char*>(id));
@@ -167,7 +165,7 @@ ScannerTaskItem *ScanTaskHelperPrivate::selectTaskByIDV2(QString taskID)
     item->setName(taskID);
 
     QString sql = QString("SELECT `task_status`, `task_start_time`, `task_stop_time`, `task_scan_finished_file_count`,"
-                      " `task_scan_file_count`, `task_file_count` "
+                      " `task_scan_file_count`, `task_file_count`, `scan_task_filter_name` "
                       " FROM scan_task "
                       " WHERE task_id='%1'").arg(taskID);
 
@@ -184,13 +182,15 @@ ScannerTaskItem *ScanTaskHelperPrivate::selectTaskByIDV2(QString taskID)
             item->setScanFinishedFileCount(sqlite3_column_int64(stmt, 3));
             item->setScanFileCount(sqlite3_column_int64(stmt, 4));
             item->setTaskFileCount(sqlite3_column_int64(stmt, 5));
+            item->setFilterName(QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 6))));
 
             qDebug() << "status: " << item->getStatus() << "\n"
                      << "startTime: " << item->getStartTime() << "\n"
                      << "stopTime: " << item->getStopTime() << "\n"
                      << "scan finished file: " << item->getScanFinishedFileCount() << "\n"
                      << "scan file count: " << item->getScanFileCount() << "\n"
-                     << "task file count: " << item->getTaskFileCount();
+                     << "task file count: " << item->getTaskFileCount() << "\n"
+                     << "filter name: " << item->getFilterName() << "\n\n\n";
         }
     }
 

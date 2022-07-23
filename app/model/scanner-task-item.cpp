@@ -66,6 +66,11 @@ void ScannerTaskItem::setScanFileCount(qint64 count)
     mScanFileCount = count;
 }
 
+void ScannerTaskItem::setFilterName(QString filterName)
+{
+    mFilterName = filterName;
+}
+
 void ScannerTaskItem::setScanFinishedFileCount(qint64 count)
 {
     mScanFinishedFileCount = count;
@@ -101,6 +106,11 @@ QString ScannerTaskItem::getStartTime()
 QString ScannerTaskItem::getStopTime()
 {
     return QDateTime::fromMSecsSinceEpoch(mStartTime).toLocalTime().toString("yyyy-MM-dd_hh:mm:ss");
+}
+
+QString ScannerTaskItem::getFilterName()
+{
+    return (nullptr != mFilterName && !mFilterName.isNull() && !mFilterName.isEmpty()) ? "" : mFilterName;
 }
 
 qint64 ScannerTaskItem::getTaskFileCount()

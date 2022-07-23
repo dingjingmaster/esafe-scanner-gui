@@ -20,12 +20,14 @@ public:
 
     void setTaskFileCount(qint64 count);
     void setScanFileCount(qint64 count);
+    void setFilterName (QString filterName);
     void setScanFinishedFileCount(qint64 count);
 
     QString getName ();
     QString getStatus ();
     QString getStartTime ();
     QString getStopTime ();
+    QString getFilterName ();
     qint64 getTaskFileCount();
     qint64 getScanFileCount();
     qint64 getScanFinishedFileCount();
@@ -42,6 +44,7 @@ private:
     qint64                  mScanFileCount;
     qint64                  mScanFinishedFileCount;
 
+    QString                 mFilterName;
     QString                 mOperation;
 };
 

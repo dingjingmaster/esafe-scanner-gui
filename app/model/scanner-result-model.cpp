@@ -3,10 +3,19 @@
 
 #include <QColor>
 
-ScannerResultModel::ScannerResultModel(QObject* parent)
-    : QAbstractTableModel{parent}
-{
+#include "../utils/scan-result-helper.h"
 
+ScannerResultModel::ScannerResultModel(QObject* parent)
+    : QAbstractTableModel{parent}, mScanResultHelper(new ScanResultHelper(QString(DB_PATH), this))
+{
+    // 数据库与model连接
+    connect(mScanResultHelper, &ScanResultHelper::addNewFile, this, &ScannerResultModel::addItem);
+
+    // 清空数据 showData (QString TaskName, QString filterName);
+    connect(this, &ScannerResultModel::clearData, mScanResultHelper, &ScanResultHelper::clearData);
+    connect(this, &ScannerResultModel::showData, mScanResultHelper, &ScanResultHelper::loadTaskResult);
+
+    mScanResultHelper->loadTaskResult();
 }
 
 void ScannerResultModel::addItem(ScannerResultItem* item)

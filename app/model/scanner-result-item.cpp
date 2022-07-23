@@ -35,7 +35,7 @@ void ScannerResultItem::setFileName(QString fileName)
 
 void ScannerResultItem::setStatus(int status)
 {
-
+    mStatus = Untreated;
 }
 
 void ScannerResultItem::setStatus(Status status)
@@ -81,4 +81,9 @@ QString ScannerResultItem::getFileCreateTime()
 QString ScannerResultItem::getFileModifyTime()
 {
     return QDateTime::fromMSecsSinceEpoch(mFileModifyTime).toLocalTime().toString("yyyy-MM-dd_hh:mm:ss");
+}
+
+QString ScannerResultItem::getFilterName()
+{
+    return mFilterName;
 }

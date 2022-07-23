@@ -17,6 +17,9 @@ public:
     // 测试函数
     void test ();
 
+    void clearData ();
+    void loadTaskResult (QString taskName, QString taskFilter);
+
 Q_SIGNALS:
     void returnTaskList ();
 

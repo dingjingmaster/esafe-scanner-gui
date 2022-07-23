@@ -3,6 +3,7 @@
 
 #include <QAbstractTableModel>
 
+class ScanResultHelper;
 class ScannerResultItem;
 
 class ScannerResultModel : public QAbstractTableModel
@@ -15,6 +16,9 @@ public:
 
     void addItem (ScannerResultItem* item);
 
+Q_SIGNALS:
+    void clearData ();
+    void showData (QString TaskName, QString filterName);
 
 public:
     int rowCount (const QModelIndex& parent = QModelIndex()) const override;
@@ -37,6 +41,7 @@ private:
 
     //
     QList<ScannerResultItem*>   mData;
+    ScanResultHelper*           mScanResultHelper;
 };
 
 #endif // SCANNERRESULTMODEL_H

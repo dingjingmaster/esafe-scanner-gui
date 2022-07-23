@@ -68,7 +68,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     // change content
     connect(mScannerTaskWidget, &ScannerTaskWidget::taskDetail, this, [=] (const ScannerTaskItem* const item) {
+        if (!item)      return;
+
         btn1->setText(tr("扫描结果"));
+        //
+        ScannerTaskItem* it = const_cast<ScannerTaskItem*> (item);
+        mScannerResultWidget->loadTaskResult(it->getName(), it->getFilterName());
+
         mScannerResultWidget->show();
         mScannerTaskWidget->hide();
     });
@@ -77,6 +83,7 @@ MainWindow::MainWindow(QWidget *parent)
         btn1->setText(tr("扫描任务"));
         mScannerResultWidget->hide();
         mScannerTaskWidget->show();
+        mScannerResultWidget->clearData();
     });
 
     setLayout(mMainLayout);

@@ -21,7 +21,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     retBtn->setStyleSheet("background-color:red;");
     mLeftLayout->addWidget(retBtn);
 
-    connect (retBtn, &PushButton::clicked, this, [=] () { Q_EMIT returnTaskList(); });
+    connect (retBtn, &PushButton::clicked, this, [=] () { Q_EMIT returnTaskList(); Q_EMIT mModel->clearData(); });
 
     mRightLayout = new QHBoxLayout;
     mRightLayout->setSpacing(6);
@@ -75,7 +75,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         }
     });
 
-    test();
+//    test();
 
     setLayout(mMainLayout);
 }
@@ -113,4 +113,18 @@ void ScannerResultWidget::test()
     mModel->addItem(sm13);
     mModel->addItem(sm14);
     mModel->addItem(sm15);
+}
+
+void ScannerResultWidget::clearData()
+{
+    if (!mModel)        return;
+
+    mModel->clearData();
+}
+
+void ScannerResultWidget::loadTaskResult(QString taskName, QString taskFilter)
+{
+    if (!mModel)        return;
+
+    Q_EMIT mModel->showData(taskName, taskFilter);
 }

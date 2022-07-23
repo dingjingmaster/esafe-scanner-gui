@@ -7,11 +7,8 @@
 #include "../utils/scan-task-helper.h"
 
 ScannerTaskModel::ScannerTaskModel(QObject *parent)
-    : QAbstractTableModel{parent}/*, mScanTaskHelper(new , this))*/
+    : QAbstractTableModel{parent}, mScanTaskHelper(new ScanTaskHelper(QString(DB_PATH), this))
 {
-    //
-    mScanTaskHelper = new ScanTaskHelper(QString(DB_PATH), this);
-
     // 数据库与model连接
     connect(mScanTaskHelper, &ScanTaskHelper::addNewTask, this, &ScannerTaskModel::addItem);
 
