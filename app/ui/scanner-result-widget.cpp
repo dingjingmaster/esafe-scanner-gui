@@ -3,11 +3,15 @@
 #include "push-button.h"
 #include "scanner-result-delegate.h"
 #include "scanner-result-widget.h"
+#include "utils/export-scan-result.h"
 #include "view/header-view.h"
 
 #include <QDebug>
 #include <QPushButton>
+#include <QMessageBox>
 #include <QVBoxLayout>
+#include <QFileDialog>
+#include <QStandardPaths>
 
 ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     : QWidget{parent}
@@ -30,16 +34,43 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     delBtn->setStyleSheet("background-color:red;");
     delBtn->setText(tr("删除"));
     mRightLayout->addWidget(delBtn);
+    delBtn->connect(delBtn, &PushButton::clicked, this, [=] () {
+
+        //ScannerResultItem
+    });
 
     PushButton* misBtn = new PushButton(this, PushButton::Type2);
     misBtn->setStyleSheet("background-color:red;");
     misBtn->setText(tr("误报"));
     mRightLayout->addWidget(misBtn);
+    misBtn->connect(misBtn, &PushButton::clicked, this, [=] () {
+        //
+    });
 
     PushButton* expBtn = new PushButton(this, PushButton::Type2);
     expBtn->setStyleSheet("background-color:red;");
     expBtn->setText(tr("导出"));
     mRightLayout->addWidget(expBtn);
+    expBtn->connect(expBtn, &PushButton::clicked, this, [=] () {
+        QList<const ScannerResultItem*> ls = mModel->getSelectedItem();
+        if (ls.count() <= 0) {
+            QMessageBox::warning(this, "警告", "请选中需要导出的数据后，再执行导出操作！", QMessageBox::Ok);
+            return;
+        }
+
+        QFileDialog dlg;
+        dlg.setDefaultSuffix(".csv");
+        dlg.setNameFilter("*.csv");
+        dlg.setAcceptMode(QFileDialog::AcceptSave);
+        dlg.setDirectory(QStandardPaths::displayName(QStandardPaths::DesktopLocation));
+        if (dlg.exec() && !dlg.selectedFiles().isEmpty()) {
+            QString path = dlg.selectedFiles().first();
+            ExportScanResult exp(path, this);
+            for (auto l : ls) {
+                exp.write(*const_cast<ScannerResultItem*>(l));
+            }
+        }
+    });
 
     mBtnLayout->addItem(mLeftLayout);
     mBtnLayout->addStretch();

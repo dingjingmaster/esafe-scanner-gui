@@ -8,6 +8,7 @@ PushButton::PushButton(QWidget *parent, Type type)
 {
     setMouseTracking(true);
     setFixedWidth(mMaxWidth);
+    setCursor(Qt::PointingHandCursor);
     setContentsMargins(0, 0, 0, 0);
 
     mLayout = new QVBoxLayout;

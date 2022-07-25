@@ -1,6 +1,7 @@
 #include "scanner-result-item.h"
 #include "scanner-result-model.h"
 
+#include <QList>
 #include <QColor>
 
 #include "../utils/scan-result-helper.h"
@@ -27,6 +28,19 @@ void ScannerResultModel::addItem(ScannerResultItem* item)
     mData.append(item);
 
     insertRows(mData.count() - 1, 1);
+}
+
+QList<const ScannerResultItem *> ScannerResultModel::getSelectedItem()
+{
+    QList<const ScannerResultItem *> ls;
+
+    for (auto i = mData.constBegin(); i != mData.constEnd(); ++i) {
+        if (i.i->t()->getChecked()) {
+            ls.append(i.i->t());
+        }
+    }
+
+    return ls;
 }
 
 int ScannerResultModel::rowCount(const QModelIndex &parent) const

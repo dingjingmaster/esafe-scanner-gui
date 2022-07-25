@@ -15,6 +15,7 @@ public:
     explicit ScannerResultModel(QObject *parent = nullptr);
 
     void addItem (ScannerResultItem* item);
+    QList<const ScannerResultItem*> getSelectedItem ();
 
 Q_SIGNALS:
     void clearData ();

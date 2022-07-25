@@ -4,4 +4,7 @@ file(GLOB UTILS_SRC
 
     ${CMAKE_SOURCE_DIR}/app/utils/scan-result-helper.h
     ${CMAKE_SOURCE_DIR}/app/utils/scan-result-helper.cpp
+
+    ${CMAKE_SOURCE_DIR}/app/utils/export-scan-result.h
+    ${CMAKE_SOURCE_DIR}/app/utils/export-scan-result.cpp
 )
