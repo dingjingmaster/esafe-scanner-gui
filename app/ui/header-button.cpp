@@ -9,6 +9,7 @@ HeaderButton::HeaderButton(QWidget *parent, Type type)
 {
     setFlat(true);
     setMouseTracking(true);
+    setFocusPolicy(Qt::NoFocus);
 
     onTypeChanged(type);
 
