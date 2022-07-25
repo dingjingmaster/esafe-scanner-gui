@@ -49,9 +49,10 @@ void HeaderView::paintSection(QPainter *p, const QRect &rect, int logicalIndex) 
 
 void HeaderView::mousePressEvent(QMouseEvent *e)
 {
-    setChecked(!isChecked());
-
-    Q_EMIT checkBoxClicked(isChecked());
+    if (!logicalIndexAt(e->pos())) {
+        setChecked(!isChecked());
+        Q_EMIT checkBoxClicked(isChecked());
+    }
 }
 
 void HeaderView::redrawCheckBox()
