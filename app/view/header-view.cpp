@@ -36,15 +36,23 @@ void HeaderView::paintSection(QPainter *p, const QRect &rect, int logicalIndex) 
     QHeaderView::paintSection(p, rect, logicalIndex);
     p->restore();
 
+    p->save();
+
+    QPalette pal;
+    p->setBrush(pal.windowText());
+
     if (logicalIndex == 0) {
         QRect rectCB(rect.left() + (rect.width() - 20) / 2, rect.top() + (rect.height() - 20) / 2, 20, 20);
         QStyleOptionButton cbOp;
         cbOp.initFrom(this);
+        cbOp.palette = pal;
         cbOp.state |= QStyle::State_Enabled;
         cbOp.state |= mChecked ? QStyle::State_On : QStyle::State_Off;
         cbOp.rect = rectCB;
         QApplication::style()->drawControl(QStyle::CE_CheckBox, &cbOp, p);
     }
+
+    p->restore();
 }
 
 void HeaderView::mousePressEvent(QMouseEvent *e)

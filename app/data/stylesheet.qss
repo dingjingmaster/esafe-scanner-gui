@@ -8,8 +8,6 @@
     margin: 0px;
     padding: 0px;
     background-color: rgb(255, 0, 0);
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
 }
 
 #main-header-title {

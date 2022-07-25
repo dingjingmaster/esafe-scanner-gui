@@ -1,6 +1,7 @@
 #include "main-subtoolbar.h"
 #include "push-button.h"
 
+#include <QSpacerItem>
 #include <QHBoxLayout>
 
 MainSubToolBar::MainSubToolBar(QWidget *parent)
@@ -10,6 +11,7 @@ MainSubToolBar::MainSubToolBar(QWidget *parent)
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
     mMainLayout = new QHBoxLayout;
+    mMainLayout->setContentsMargins(0, 0, 0, 0);
     mMainLayout->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 }
 

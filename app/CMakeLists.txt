@@ -8,10 +8,10 @@ include(model/model.cmake)
 
 FILE(GLOB MAIN_SRC ${CMAKE_SOURCE_DIR}/app/main.cpp)
 
-add_executable(esafe-scanner-gui ${CMAKE_SOURCE_DIR}/app/main.cpp
-    ${SINGLEAPP_SRC} ${UI_SRC} ${CMAKE_SOURCE_DIR}/app/res.qrc ${VIEW_SRC} ${MODEL_SRC} ${UTILS_SRC})
-target_link_directories(esafe-scanner-gui PUBLIC
-    ${CMAKE_SOURCE_DIR}/app/
-    ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${SQLITE3_INCLUDE_DIRS}
-)
-target_link_libraries(esafe-scanner-gui Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets ${SQLITE3_LIBRARIES})
+include_directories(${CMAKE_SOURCE_DIR}/app/
+    ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${SQLITE3_INCLUDE_DIRS} ${GIO_INCLUDE_DIRS})
+
+add_executable(esafe-scanner-gui ${MAIN_SRC} ${CMAKE_SOURCE_DIR}/app/res.qrc
+    ${SINGLEAPP_SRC} ${UI_SRC} ${VIEW_SRC} ${MODEL_SRC} ${UTILS_SRC} ${QGSETTINGS_SRC})
+
+target_link_libraries(esafe-scanner-gui Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets ${SQLITE3_LIBRARIES} ${GIO_LIBRARIES})

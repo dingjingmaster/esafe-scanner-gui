@@ -14,17 +14,17 @@ QSize ScannerResultDelegate::sizeHint(const QStyleOptionViewItem &option, const 
 {
     QSize size = QStyledItemDelegate::sizeHint(option, index);
 
-//    qDebug() << "delegate size hint";
-
     return size;
 }
 
 void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     Q_UNUSED(index);
+    p->save();
 
     QRect rect = option.rect;
     Qt::Alignment align = option.displayAlignment;
+    QPalette pal;
 
     switch (index.column()) {
     case 0: {
@@ -33,8 +33,9 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
         cbOp.state |= QStyle::State_Enabled;
         cbOp.state |= index.model()->data(index).toBool() ? QStyle::State_On : QStyle::State_Off;
         cbOp.rect = rectCB;
+        p->setBrush(pal.windowText());
+        p->setPen(pal.windowText().color());
         QApplication::style()->drawControl(QStyle::CE_CheckBox, &cbOp, p);
-
         break;
     }
     case 1:
@@ -44,6 +45,7 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
     case 5: {
         QString text = index.model()->data(index).toString();
         align |= Qt::AlignHCenter;
+        p->setBrush(pal.windowText());
         p->drawText(rect, align, text);
         break;
     }
@@ -51,4 +53,5 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
         break;
     }
 
+    p->restore();
 }

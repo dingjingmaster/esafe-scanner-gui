@@ -9,7 +9,7 @@
 ToolbarAction::ToolbarAction(QWidget *parent)
     : QWidget (parent)
 {
-    setContentsMargins(0, 0, 0, 0);
+    setContentsMargins(10, 0, 0, 0);
     setFixedSize(mFixSize, mFixSize);
     setObjectName("main-toolbar-action");
 
