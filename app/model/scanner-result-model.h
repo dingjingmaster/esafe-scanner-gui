@@ -17,6 +17,9 @@ public:
     void addItem (ScannerResultItem* item);
     QList<const ScannerResultItem*> getSelectedItem ();
 
+public Q_SLOTS:
+    void selectAll (bool s);
+
 Q_SIGNALS:
     void clearData ();
     void showData (QString TaskName, QString filterName);

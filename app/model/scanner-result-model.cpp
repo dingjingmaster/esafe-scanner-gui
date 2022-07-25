@@ -43,6 +43,18 @@ QList<const ScannerResultItem *> ScannerResultModel::getSelectedItem()
     return ls;
 }
 
+void ScannerResultModel::selectAll(bool s)
+{
+    int all = rowCount();
+    for (auto i = 0; i < all; ++i) {
+        QModelIndex idx = index(i, 0);
+        if (!idx.isValid()) continue;
+        static_cast<ScannerResultItem*>(idx.internalPointer())->setChecked(s);
+        Q_EMIT dataChanged(idx, idx);
+
+    }
+}
+
 int ScannerResultModel::rowCount(const QModelIndex &parent) const
 {
     return mData.count();

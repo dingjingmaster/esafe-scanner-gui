@@ -68,6 +68,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             ExportScanResult exp(path, this);
             for (auto l : ls) {
                 exp.write(*const_cast<ScannerResultItem*>(l));
+                const_cast<ScannerResultItem*>(l)->setChecked(false);
             }
         }
     });
@@ -83,10 +84,15 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mView = new ScannerView;
 
     mView->setItemDelegate(new ScannerResultDelegate);
-    mView->setHorizontalHeader(new HeaderView(Qt::Horizontal, mView));
+    HeaderView* headerView = new HeaderView(Qt::Horizontal, mView);
+    mView->setHorizontalHeader(headerView);
 
     mView->setModel(mModel);
     mMainLayout->addWidget(mView);
+
+    connect (headerView, &HeaderView::checkBoxClicked, this, [=] (bool s) {
+        mModel->selectAll(s);
+    });
 
     connect (mView, &QAbstractItemView::clicked, this, [=] (const QModelIndex &index) {
         qDebug() << QString("r:%1, c:%2").arg(index.row()).arg(index.column()) << "clicked";

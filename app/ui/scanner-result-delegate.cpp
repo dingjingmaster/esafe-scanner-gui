@@ -23,8 +23,6 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
 {
     Q_UNUSED(index);
 
-//    qDebug() << "delegate paint";
-
     QRect rect = option.rect;
     Qt::Alignment align = option.displayAlignment;
 

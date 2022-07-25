@@ -6,6 +6,8 @@ ExportScanResult::ExportScanResult(QString path, QObject *parent)
     : QObject{parent}, mExportPath(path)
 {
     mOutStream.open(path.toUtf8().toStdString(), ios::out | ios::trunc);
+
+    mOutStream << "任务名," << "文件路径," << "处理状态," << "文件创建时间," << "文件修改时间" << endl;
 }
 
 ExportScanResult::~ExportScanResult()
