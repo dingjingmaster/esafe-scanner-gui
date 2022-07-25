@@ -31,10 +31,17 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
         QRect rectCB(rect.left() + (rect.width() - 20) / 2, rect.top() + (rect.height() - 20) / 2, 20, 20);
         QStyleOptionButton cbOp;
         cbOp.state |= QStyle::State_Enabled;
-        cbOp.state |= index.model()->data(index).toBool() ? QStyle::State_On : QStyle::State_Off;
         cbOp.rect = rectCB;
-        p->setBrush(pal.windowText());
-        p->setPen(pal.windowText().color());
+
+        QBrush bth;
+        bth.setColor(Qt::darkRed);
+        if (index.model()->data(index).toBool()) {
+            cbOp.state |= QStyle::State_On;
+        } else {
+            cbOp.state |= QStyle::State_Off;
+        }
+
+        p->setBrush(bth);
         QApplication::style()->drawControl(QStyle::CE_CheckBox, &cbOp, p);
         break;
     }

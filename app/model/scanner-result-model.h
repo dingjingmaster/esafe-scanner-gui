@@ -14,6 +14,7 @@ public:
 public:
     explicit ScannerResultModel(QObject *parent = nullptr);
 
+    bool isCheckAllItems ();
     void addItem (ScannerResultItem* item);
     QList<const ScannerResultItem*> getSelectedItem ();
 

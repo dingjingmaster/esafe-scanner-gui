@@ -101,6 +101,8 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             auto item = static_cast<ScannerResultItem*>(index.internalPointer());
             if (item)   item->setChecked(!item->getChecked());
             Q_EMIT mView->update(index);
+
+            headerView->setChecked(mModel->isCheckAllItems());
         }
     });
 
