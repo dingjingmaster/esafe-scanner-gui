@@ -1,22 +1,27 @@
+#include "push-button.h"
+#include "view/header-view.h"
+#include "scanner-result-widget.h"
+#include "utils/notify-to-filter.h"
+#include "scanner-result-delegate.h"
+#include "utils/export-scan-result.h"
+#include "utils/message-with-fp.pb.h"
 #include "model/scanner-result-item.h"
 #include "model/scanner-result-model.h"
-#include "push-button.h"
-#include "scanner-result-delegate.h"
-#include "scanner-result-widget.h"
-#include "utils/export-scan-result.h"
-#include "view/header-view.h"
 
 #include <QDebug>
+#include <QToolTip>
 #include <QPushButton>
 #include <QMessageBox>
 #include <QVBoxLayout>
 #include <QFileDialog>
 #include <QStandardPaths>
-#include <QToolTip>
+
 
 ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     : QWidget{parent}
 {
+    GOOGLE_PROTOBUF_VERIFY_VERSION;
+
     mMainLayout = new QVBoxLayout;
 
     mBtnLayout = new QHBoxLayout;
@@ -36,8 +41,24 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     delBtn->setText(tr("删除"));
     mRightLayout->addWidget(delBtn);
     delBtn->connect(delBtn, &PushButton::clicked, this, [=] () {
+        QList<const ScannerResultItem*> ls = mModel->getSelectedItem();
+        if (ls.count() <= 0) {
+            QMessageBox::warning(this, "警告", "请选中需要删除的数据后，再执行删除操作！", QMessageBox::Ok);
+            return;
+        }
 
-        //ScannerResultItem
+        for (auto l : ls) {
+            com::esafenet::scanner::client::ScannerClientMessage msg;
+            msg.Clear();
+            msg.set_filename(const_cast<ScannerResultItem*>(l)->getFileName().toStdString());
+
+            // FIXME://
+            msg.set_id(0);
+            msg.set_operation(OP_DELETE);
+            qDebug() << "delete: " << msg.DebugString().c_str();
+            NotifyToFilter::getInstance()->sendData(msg.SerializeAsString());
+        }
+
     });
 
     PushButton* misBtn = new PushButton(this, PushButton::Type2);
@@ -45,7 +66,23 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     misBtn->setText(tr("误报"));
     mRightLayout->addWidget(misBtn);
     misBtn->connect(misBtn, &PushButton::clicked, this, [=] () {
-        //
+        QList<const ScannerResultItem*> ls = mModel->getSelectedItem();
+        if (ls.count() <= 0) {
+            QMessageBox::warning(this, "警告", "请选中误报的数据后，再执行操作！", QMessageBox::Ok);
+            return;
+        }
+
+        for (auto l : ls) {
+            com::esafenet::scanner::client::ScannerClientMessage msg;
+            msg.Clear();
+            msg.set_filename(const_cast<ScannerResultItem*>(l)->getFileName().toStdString());
+
+            // FIXME://
+            msg.set_id(0);
+            msg.set_operation(OP_MISINFO);
+            qDebug() << "misinformation: " << msg.DebugString().c_str();
+            NotifyToFilter::getInstance()->sendData(msg.SerializeAsString());
+        }
     });
 
     PushButton* expBtn = new PushButton(this, PushButton::Type2);
@@ -77,7 +114,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mBtnLayout->addItem(mLeftLayout);
     mBtnLayout->addStretch();
     mBtnLayout->addItem(mRightLayout);
-
     mMainLayout->addItem(mBtnLayout);
 
     // tabview
@@ -124,6 +160,11 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
 //    test();
 
     setLayout(mMainLayout);
+}
+
+ScannerResultWidget::~ScannerResultWidget()
+{
+    google::protobuf::ShutdownProtobufLibrary();
 }
 
 void ScannerResultWidget::test()

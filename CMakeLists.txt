@@ -19,6 +19,7 @@ add_definitions(
     -w
     -D QT_NO_KEYWORDS
     -D APP_NAME=\\"esafe-scanner-gui\\"
+    -D LOCAL_SOCKET_NAME=\\"esafe-scanner-gui\\"
 )
 
 if(DEBUG)
@@ -34,7 +35,8 @@ find_package(Qt5 COMPONENTS Core Network Widgets Gui REQUIRED)
 
 pkg_check_modules(GIO REQUIRED gio-2.0)
 pkg_check_modules(SQLITE3 REQUIRED sqlite3)
+pkg_check_modules(PROTOBUF REQUIRED protobuf)
 
 add_subdirectory(app)
-#add_subdirectory(demo)
+add_subdirectory(demo)
 

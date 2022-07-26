@@ -11,8 +11,10 @@ class ScannerResultModel;
 class ScannerResultWidget : public QWidget
 {
     Q_OBJECT
+    enum Operation { OP_DELETE = 1, OP_MISINFO };
 public:
     explicit ScannerResultWidget(QWidget *parent = nullptr);
+    ~ScannerResultWidget();
 
     // 测试函数
     void test ();
