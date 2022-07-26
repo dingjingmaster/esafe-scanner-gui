@@ -12,6 +12,7 @@
 #include <QVBoxLayout>
 #include <QFileDialog>
 #include <QStandardPaths>
+#include <QToolTip>
 
 ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     : QWidget{parent}
@@ -107,10 +108,16 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     });
 
     connect (mView, &QAbstractItemView::entered, this, [=] (const QModelIndex &index) {
+        if (!index.isValid())   return;
         if (0 == index.column() || ScannerResultModel::FileName == index.column()) {
             setCursor(Qt::PointingHandCursor);
         } else {
             setCursor(Qt::ArrowCursor);
+        }
+
+        if (2 == index.column() && index.row() >= 0) {
+            QPoint p = mView->visualRect(index).bottomRight();
+            QToolTip::showText(mapToGlobal(p), static_cast<ScannerResultItem*>(index.internalPointer())->getFileName());
         }
     });
 
