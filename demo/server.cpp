@@ -23,7 +23,6 @@ int main (int argc, char* argv[])
                 return;
             }
 
-//            QByteArray byte = socket->readAll();
             char byte[20480] = {0};
             int size = socket->read(byte, sizeof byte);
 
