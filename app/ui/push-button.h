@@ -25,6 +25,7 @@ Q_SIGNALS:
 
 private:
     const int           mMaxWidth = 120;
+    const int           mLabelMargin = 6;
 
     QLabel*             mLabel;
     QVBoxLayout*        mLayout;

@@ -85,8 +85,8 @@ QVariant ScannerResultModel::data(const QModelIndex &index, int role) const
     if (Qt::DisplayRole == role) {
         if (0 == index.column()) {
             return item->getChecked();
-        } else if (TaskName == index.column()) {
-            return item->getTaskName();
+//        } else if (TaskName == index.column()) {
+//            return item->getTaskName();
         } else if (FileName == index.column()) {
             return item->getFileName();
         } else if (Status == index.column()) {
@@ -114,15 +114,15 @@ QVariant ScannerResultModel::headerData(int section, Qt::Orientation orentation,
         switch (section) {
         case 0:
             return QString("");
+//        case 1:
+//            return QString("任务名称");
         case 1:
-            return QString("任务名称");
-        case 2:
             return QString("文件名称");
-        case 3:
+        case 2:
             return QString("处理状态");
-        case 4:
+        case 3:
             return QString("文件创建时间");
-        case 5:
+        case 4:
             return QString("文件修改时间");
         default:
             break;

@@ -16,13 +16,13 @@ PushButton::PushButton(QWidget *parent, Type type)
     mLayout->setContentsMargins(0, 0, 0, 0);
 
     mLabel = new QLabel;
-    mLabel->setMargin(6);
+    mLabel->setMargin(mLabelMargin);
     mLabel->setFixedWidth(mMaxWidth);
     mLabel->setStyleSheet("font: blod;");
     mLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     mLayout->addWidget(mLabel);
 
-    switch (type) {
+    switch (mType) {
     case Type1: {
         QWidget* widget = new QWidget;
         widget->setFixedHeight(3);
@@ -37,10 +37,6 @@ PushButton::PushButton(QWidget *parent, Type type)
     }
     }
 
-    if (Type1 == type) {
-
-    }
-
     setLayout(mLayout);
 }
 
@@ -49,6 +45,18 @@ void PushButton::setText(QString text)
     if (nullptr == text)        return;
 
     mLabel->setText(text);
+
+    if (Type1 == mType) {
+        int w = QFontMetrics(mLabel->font()).width(text) + 2 * mLabelMargin + 12;
+        if (w > mMaxWidth) {
+            setFixedWidth(w);
+            mLabel->setFixedWidth(w);
+            mLabel->update();
+        } else {
+            setFixedWidth(mMaxWidth);
+            mLabel->setFixedWidth(mMaxWidth);
+        }
+    }
 }
 
 void PushButton::mouseReleaseEvent(QMouseEvent *event)

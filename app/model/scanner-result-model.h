@@ -10,7 +10,7 @@ class ScannerResultModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    enum { TaskName = 1, FileName, Status, CreateTime, ModifyTime, EnumSize };
+    enum { /*TaskName = 1,*/ FileName = 1, Status, CreateTime, ModifyTime, EnumSize };
 public:
     explicit ScannerResultModel(QObject *parent = nullptr);
 

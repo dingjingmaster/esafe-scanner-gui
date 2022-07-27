@@ -74,10 +74,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(mScannerTaskWidget, &ScannerTaskWidget::taskDetail, this, [=] (const ScannerTaskItem* const item) {
         if (!item)      return;
 
-        btn1->setText(tr("扫描结果"));
         //
         ScannerTaskItem* it = const_cast<ScannerTaskItem*> (item);
         qDebug() << "===> task name: " << it->getName() << "set filter name: " << it->getFilterName();
+
+        btn1->setText(QString("扫描结果: %1").arg(it->getName()));
 
         mScannerResultWidget->loadTaskResult(it->getName(), it->getFilterName());
 
