@@ -75,8 +75,8 @@ static const ::_pb::Message* const file_default_instances[] = {
 const char descriptor_table_protodef_message_2dwith_2dfp_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\025message-with-fp.proto\022\033com.esafenet.sc"
   "anner.client\"G\n\024ScannerClientMessage\022\n\n\002"
-  "id\030\001 \001(\003\022\020\n\010fileName\030\002 \001(\t\022\021\n\toperation\030"
-  "\003 \001(\005"
+  "id\030\001 \002(\003\022\020\n\010fileName\030\002 \001(\t\022\021\n\toperation\030"
+  "\003 \002(\005"
   ;
 static ::_pbi::once_flag descriptor_table_message_2dwith_2dfp_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_message_2dwith_2dfp_2eproto = {
@@ -113,6 +113,9 @@ class ScannerClientMessage::_Internal {
   }
   static void set_has_operation(HasBits* has_bits) {
     (*has_bits)[0] |= 4u;
+  }
+  static bool MissingRequiredFields(const HasBits& has_bits) {
+    return ((has_bits[0] & 0x00000006) ^ 0x00000006) != 0;
   }
 };
 
@@ -208,7 +211,7 @@ const char* ScannerClientMessage::_InternalParse(const char* ptr, ::_pbi::ParseC
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // optional int64 id = 1;
+      // required int64 id = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           _Internal::set_has_id(&has_bits);
@@ -229,7 +232,7 @@ const char* ScannerClientMessage::_InternalParse(const char* ptr, ::_pbi::ParseC
         } else
           goto handle_unusual;
         continue;
-      // optional int32 operation = 3;
+      // required int32 operation = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
           _Internal::set_has_operation(&has_bits);
@@ -269,7 +272,7 @@ uint8_t* ScannerClientMessage::_InternalSerialize(
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  // optional int64 id = 1;
+  // required int64 id = 1;
   if (cached_has_bits & 0x00000002u) {
     target = stream->EnsureSpace(target);
     target = ::_pbi::WireFormatLite::WriteInt64ToArray(1, this->_internal_id(), target);
@@ -285,7 +288,7 @@ uint8_t* ScannerClientMessage::_InternalSerialize(
         2, this->_internal_filename(), target);
   }
 
-  // optional int32 operation = 3;
+  // required int32 operation = 3;
   if (cached_has_bits & 0x00000004u) {
     target = stream->EnsureSpace(target);
     target = ::_pbi::WireFormatLite::WriteInt32ToArray(3, this->_internal_operation(), target);
@@ -299,34 +302,48 @@ uint8_t* ScannerClientMessage::_InternalSerialize(
   return target;
 }
 
+size_t ScannerClientMessage::RequiredFieldsByteSizeFallback() const {
+// @@protoc_insertion_point(required_fields_byte_size_fallback_start:com.esafenet.scanner.client.ScannerClientMessage)
+  size_t total_size = 0;
+
+  if (_internal_has_id()) {
+    // required int64 id = 1;
+    total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(this->_internal_id());
+  }
+
+  if (_internal_has_operation()) {
+    // required int32 operation = 3;
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_operation());
+  }
+
+  return total_size;
+}
 size_t ScannerClientMessage::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:com.esafenet.scanner.client.ScannerClientMessage)
   size_t total_size = 0;
 
+  if (((_impl_._has_bits_[0] & 0x00000006) ^ 0x00000006) == 0) {  // All required fields are present.
+    // required int64 id = 1;
+    total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(this->_internal_id());
+
+    // required int32 operation = 3;
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_operation());
+
+  } else {
+    total_size += RequiredFieldsByteSizeFallback();
+  }
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  // optional string fileName = 2;
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000007u) {
-    // optional string fileName = 2;
-    if (cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_filename());
-    }
-
-    // optional int64 id = 1;
-    if (cached_has_bits & 0x00000002u) {
-      total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(this->_internal_id());
-    }
-
-    // optional int32 operation = 3;
-    if (cached_has_bits & 0x00000004u) {
-      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_operation());
-    }
-
+  if (cached_has_bits & 0x00000001u) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_filename());
   }
+
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -369,6 +386,7 @@ void ScannerClientMessage::CopyFrom(const ScannerClientMessage& from) {
 }
 
 bool ScannerClientMessage::IsInitialized() const {
+  if (_Internal::MissingRequiredFields(_impl_._has_bits_)) return false;
   return true;
 }
 

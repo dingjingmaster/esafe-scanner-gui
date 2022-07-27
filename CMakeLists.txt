@@ -31,7 +31,7 @@ endif()
 
 
 find_package (PkgConfig)
-find_package(Qt5 COMPONENTS Core Network Widgets Gui REQUIRED)
+find_package(Qt5 COMPONENTS Core Network Widgets Gui DBus REQUIRED)
 
 pkg_check_modules(GIO REQUIRED gio-2.0)
 pkg_check_modules(SQLITE3 REQUIRED sqlite3)

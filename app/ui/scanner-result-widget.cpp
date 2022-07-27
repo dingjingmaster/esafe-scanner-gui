@@ -14,7 +14,13 @@
 #include <QMessageBox>
 #include <QVBoxLayout>
 #include <QFileDialog>
+#include <QDBusMessage>
 #include <QStandardPaths>
+#include <QDBusConnection>
+#include <QDBusPendingCall>
+
+#define FREEDESKTOP_FM_DBUS             "org.freedesktop.FileManager1"
+#define FREEDESKTOP_FM_DBUS_PATH        "/org/freedesktop/FileManager1"
 
 
 ScannerResultWidget::ScannerResultWidget(QWidget *parent)
@@ -138,8 +144,18 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             auto item = static_cast<ScannerResultItem*>(index.internalPointer());
             if (item)   item->setChecked(!item->getChecked());
             Q_EMIT mView->update(index);
-
             headerView->setChecked(mModel->isCheckAllItems());
+        } else if (2 == index.column() && index.row() >= 0) {
+            QDBusConnection dbus = QDBusConnection::connectToBus (QDBusConnection::SessionBus, FREEDESKTOP_FM_DBUS);
+            if (dbus.isConnected()) {
+                QDBusMessage msg = QDBusMessage::createMethodCall(FREEDESKTOP_FM_DBUS, FREEDESKTOP_FM_DBUS_PATH, FREEDESKTOP_FM_DBUS, "ShowItems");
+//                QStringList file
+                msg.setArguments(QList<QVariant>() << (QStringList() << "file://" + static_cast<ScannerResultItem*>(index.internalPointer())->getFileName()) << "");
+                QDBusMessage reply = dbus.call(msg);
+                if (reply.isDelayedReply() && QDBusMessage::ErrorMessage == reply.ReplyMessage) {
+                    qDebug() << reply.errorMessage();
+                }
+            }
         }
     });
 

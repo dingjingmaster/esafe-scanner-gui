@@ -215,7 +215,7 @@ class ScannerClientMessage final :
   std::string* _internal_mutable_filename();
   public:
 
-  // optional int64 id = 1;
+  // required int64 id = 1;
   bool has_id() const;
   private:
   bool _internal_has_id() const;
@@ -228,7 +228,7 @@ class ScannerClientMessage final :
   void _internal_set_id(int64_t value);
   public:
 
-  // optional int32 operation = 3;
+  // required int32 operation = 3;
   bool has_operation() const;
   private:
   bool _internal_has_operation() const;
@@ -244,6 +244,9 @@ class ScannerClientMessage final :
   // @@protoc_insertion_point(class_scope:com.esafenet.scanner.client.ScannerClientMessage)
  private:
   class _Internal;
+
+  // helper for ByteSizeLong()
+  size_t RequiredFieldsByteSizeFallback() const;
 
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
@@ -269,7 +272,7 @@ class ScannerClientMessage final :
 #endif  // __GNUC__
 // ScannerClientMessage
 
-// optional int64 id = 1;
+// required int64 id = 1;
 inline bool ScannerClientMessage::_internal_has_id() const {
   bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
   return value;
@@ -363,7 +366,7 @@ inline void ScannerClientMessage::set_allocated_filename(std::string* filename) 
   // @@protoc_insertion_point(field_set_allocated:com.esafenet.scanner.client.ScannerClientMessage.fileName)
 }
 
-// optional int32 operation = 3;
+// required int32 operation = 3;
 inline bool ScannerClientMessage::_internal_has_operation() const {
   bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
   return value;
