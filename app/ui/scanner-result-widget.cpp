@@ -18,6 +18,7 @@
 #include <QStandardPaths>
 #include <QDBusConnection>
 #include <QDBusPendingCall>
+#include <QDateTime>
 
 #define FREEDESKTOP_FM_DBUS             "org.freedesktop.FileManager1"
 #define FREEDESKTOP_FM_DBUS_PATH        "/org/freedesktop/FileManager1"
@@ -102,13 +103,38 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             return;
         }
 
+#if 0
+        QString name = QString("%1_%2_%3")
+            .arg(const_cast<ScannerResultItem*>(ls.first())->getTaskName())
+            .arg(QDate::currentDate().toString("yyyyMMdd"))
+            .arg(QDateTime::currentDateTime().toString("hhmmss"));
         QFileDialog dlg;
         dlg.setDefaultSuffix(".csv");
         dlg.setNameFilter("*.csv");
+        dlg.setFileMode(QFileDialog::AnyFile);
         dlg.setAcceptMode(QFileDialog::AcceptSave);
-        dlg.setDirectory(QStandardPaths::displayName(QStandardPaths::DesktopLocation));
+        dlg.setLabelText(QFileDialog::FileName, name);
+        dlg.setDirectory(QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
+
         if (dlg.exec() && !dlg.selectedFiles().isEmpty()) {
             QString path = dlg.selectedFiles().first();
+#else
+        QString name = QString ("%1/%2")
+                            .arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation))
+                            .arg(QString("%1_%2_%3.csv")
+                                .arg(const_cast<ScannerResultItem*>(ls.first())->getTaskName())
+                                .arg(QDate::currentDate().toString("yyyyMMdd"))
+                                .arg(QDateTime::currentDateTime().toString("hhmmss")));
+                            
+        qDebug() << "0000: " << QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+        qDebug() << "name: " << name;
+                            
+        QString path = QFileDialog::getSaveFileName(this, "保存文件", name, "Document (*.csv)");
+        if (!path.isEmpty()) {
+#endif
+
+            qDebug() << "name: " << name;
+            qDebug() << "path: " << path;
             ExportScanResult exp(path, this);
             for (auto l : ls) {
                 exp.write(*const_cast<ScannerResultItem*>(l));
