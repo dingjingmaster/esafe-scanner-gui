@@ -271,7 +271,13 @@ void ScanTaskHelperPrivate::onDBChanged()
 
     QSet<QString> delT = mOldTaskID - mNewTaskID;
     QSet<QString> newT = mNewTaskID - mOldTaskID;
-    for (auto id : newT) {
+    QStringList deltSorted = delT.toList();
+    deltSorted.sort();
+
+    QStringList newtSorted = newT.toList();
+    newtSorted.sort();
+
+    for (auto id : newtSorted) {
         if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
         if (auto t = selectTaskByIDV2(id)) {
             qDebug() << "add task '" << id << "'";
@@ -280,7 +286,7 @@ void ScanTaskHelperPrivate::onDBChanged()
         }
     }
 
-    for (auto id : delT) {
+    for (auto id : deltSorted) {
         if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
         if (mData.contains(id)) {
             auto it = mData[id];

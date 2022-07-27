@@ -1,9 +1,11 @@
 #include "scanner-task-widget.h"
+#include "model/model-item-sort.h"
 #include "model/scanner-task-item.h"
 #include "scanner-task-delegate.h"
 
 #include <QDebug>
 #include <QVBoxLayout>
+
 
 ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
     : QWidget{parent}
@@ -12,14 +14,19 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
 
     mView = new ScannerView;
     mModel = new ScannerTaskModel;
+    mProxyModel = new ModelItemSort(this);
 
-    mView->setModel(mModel);
+    mProxyModel->setSourceModel(mModel);
+
+    mView->setModel(mProxyModel);
+    mView->setSortingEnabled(true);
     mMainLayout->addWidget(mView);
 
     mView->setItemDelegate(new ScannerTaskDelegate);
     setLayout(mMainLayout);
 
-    connect (mView, &QAbstractItemView::clicked, this, [=] (const QModelIndex &index) {
+    connect (mView, &QAbstractItemView::clicked, this, [=] (const QModelIndex &indexT) {
+        QModelIndex index = mProxyModel->mapToSource(indexT);
         qDebug() << QString("r:%1, c:%2").arg(index.row()).arg(index.column()) << "clicked";
 
         // 跳转到扫描结果显示页面
@@ -29,7 +36,8 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
 
     });
 
-    connect (mView, &QAbstractItemView::entered, this, [=] (const QModelIndex &index) {
+    connect (mView, &QAbstractItemView::entered, this, [=] (const QModelIndex &indexT) {
+        QModelIndex index = mProxyModel->mapToSource(indexT);
         if (ScannerTaskModel::TaskOperation == index.column()) {
             setCursor(Qt::PointingHandCursor);
         } else {

@@ -8,6 +8,7 @@
 
 class QVBoxLayout;
 class QHBoxLayout;
+class ModelItemSort;
 
 class ScannerTaskWidget : public QWidget
 {
@@ -27,6 +28,7 @@ private:
 
     ScannerView*            mView;
     ScannerTaskModel*       mModel;
+    ModelItemSort*          mProxyModel;
 };
 
 #endif // SCANNERTASKWIDGET_H
