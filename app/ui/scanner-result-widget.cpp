@@ -149,8 +149,11 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             QDBusConnection dbus = QDBusConnection::connectToBus (QDBusConnection::SessionBus, FREEDESKTOP_FM_DBUS);
             if (dbus.isConnected()) {
                 QDBusMessage msg = QDBusMessage::createMethodCall(FREEDESKTOP_FM_DBUS, FREEDESKTOP_FM_DBUS_PATH, FREEDESKTOP_FM_DBUS, "ShowItems");
-//                QStringList file
-                msg.setArguments(QList<QVariant>() << (QStringList() << "file://" + static_cast<ScannerResultItem*>(index.internalPointer())->getFileName()) << "");
+                QString file = static_cast<ScannerResultItem*>(index.internalPointer())->getFileName();
+                if (!QFile::exists(file)) {
+                    QMessageBox::warning(this, "文件打开失败", QString("文件 '%1' 不存在!").arg(file), QMessageBox::Ok);
+                }
+                msg.setArguments(QList<QVariant>() << (QStringList() << "file://" + file) << "");
                 QDBusMessage reply = dbus.call(msg);
                 if (reply.isDelayedReply() && QDBusMessage::ErrorMessage == reply.ReplyMessage) {
                     qDebug() << reply.errorMessage();
