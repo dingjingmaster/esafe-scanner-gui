@@ -2,6 +2,7 @@ project(app)
 
 include(ui/ui.cmake)
 include(view/view.cmake)
+include(style/style.cmake)
 include(3thrd/3thrd.cmake)
 include(utils/utils.cmake)
 include(model/model.cmake)
@@ -14,7 +15,7 @@ include_directories(${CMAKE_SOURCE_DIR}/app/
 
 add_executable(esafe-scanner-gui
     ${MAIN_SRC} ${CMAKE_SOURCE_DIR}/app/res.qrc
-    ${SINGLEAPP_SRC} ${UI_SRC} ${VIEW_SRC} ${MODEL_SRC} ${UTILS_SRC} ${QGSETTINGS_SRC})
+    ${SINGLEAPP_SRC} ${UI_SRC} ${VIEW_SRC} ${MODEL_SRC} ${UTILS_SRC} ${QGSETTINGS_SRC} ${STYLE_SRC})
 
 target_link_libraries(esafe-scanner-gui
     Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets Qt5::DBus ${SQLITE3_LIBRARIES} ${GIO_LIBRARIES} ${PROTOBUF_LIBRARIES})

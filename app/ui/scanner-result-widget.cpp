@@ -126,7 +126,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mModel = new ScannerResultModel;
     mView = new ScannerView;
 
-    mView->setItemDelegate(new ScannerResultDelegate);
+    mView->setItemDelegate(new ScannerResultDelegate(this));
     HeaderView* headerView = new HeaderView(Qt::Horizontal, mView);
     mView->setHorizontalHeader(headerView);
 

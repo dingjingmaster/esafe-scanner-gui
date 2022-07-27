@@ -30,6 +30,7 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
     case 0: {
         QRect rectCB(rect.left() + (rect.width() - 20) / 2, rect.top() + (rect.height() - 20) / 2, 20, 20);
         QStyleOptionButton cbOp;
+        cbOp.initFrom(static_cast<QWidget*>(parent()));
         cbOp.state |= QStyle::State_Enabled;
         cbOp.rect = rectCB;
 
