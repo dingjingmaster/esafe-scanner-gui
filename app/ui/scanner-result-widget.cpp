@@ -39,7 +39,10 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     retBtn->setStyleSheet("background-color:red;");
     mLeftLayout->addWidget(retBtn);
 
-    connect (retBtn, &PushButton::clicked, this, [=] () { Q_EMIT returnTaskList(); Q_EMIT mModel->clearData(); });
+    connect (retBtn, &PushButton::clicked, this, [=] () { 
+        Q_EMIT returnTaskList();
+        Q_EMIT mModel->clearData();
+    });
 
     mRightLayout = new QHBoxLayout;
     mRightLayout->setSpacing(6);
@@ -159,6 +162,14 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
 
     mView->setModel(mModel);
     mMainLayout->addWidget(mView);
+    
+    // 更新状态
+    connect (mModel, &ScannerResultModel::dataChanged, this, [=] (const QModelIndex &topLeft,
+             const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>()) {
+        
+       Q_EMIT statusString (QString("任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%5), 删除: (%5)")
+                .arg(mTaskName).arg(mModel->getAllCount ()).arg (mModel->getNoFixCount ()).arg (mModel->getMisReportCount ()).arg (mModel->getDeleteCount ()));
+    });
 
     connect (headerView, &HeaderView::checkBoxClicked, this, [=] (bool s) {
         mModel->selectAll(s);
@@ -209,7 +220,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         }
     });
 
-//    test()u;
+//    test();
 
     setLayout(mMainLayout);
 }
@@ -265,5 +276,7 @@ void ScannerResultWidget::loadTaskResult(QString taskName, QString taskFilter)
 {
     if (!mModel)        return;
 
+    mTaskName = taskName;
+    
     Q_EMIT mModel->showData(taskName, taskFilter);
 }

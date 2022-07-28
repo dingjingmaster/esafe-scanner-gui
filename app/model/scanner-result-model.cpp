@@ -18,6 +18,11 @@ ScannerResultModel::ScannerResultModel(QObject* parent)
     connect(this, &ScannerResultModel::showData, mScanResultHelper, &ScanResultHelper::loadTaskResult);
 
     connect(this, &ScannerResultModel::clearData, this, [=] () { beginResetModel(); mData.clear(); endResetModel(); mScanResultHelper->clearData(); });
+    
+    
+    void fixChanged (int);
+    void delChanged (int);
+    void misReportChanged (int);
 
     mScanResultHelper->loadTaskResult();
 }
@@ -38,30 +43,86 @@ void ScannerResultModel::addItem(ScannerResultItem* item)
     if (!item)      return;
 
     mData.append(item);
-
     insertRows(mData.count() - 1, 1);
+    
+    switch (item->getStatus2 ()) {
+    case ScannerResultItem::MisReport:
+        ++mMisReport;
+        break;
+    case ScannerResultItem::Deleted:
+        ++mDelete;
+        break;
+    default:
+        ++mNoFix;
+        break;
+    }
+    
+    QModelIndex idx = getIndexByItem(item);
+    
+    Q_EMIT dataChanged (idx, idx);
 }
 
 void ScannerResultModel::delItem(ScannerResultItem *item)
 {
     if (!item)      return;
     
-    QModelIndex idx;
+    QModelIndex idx = getIndexByItem(item);
+    
+    if (!idx.isValid())     return;
+    
+    if (mData.contains (item))  mData.removeOne (item);
+    
+    removeRow (idx.row());
+    
+    switch (item->getStatus2 ()) {
+    case ScannerResultItem::MisReport:
+        --mMisReport;
+        break;
+    case ScannerResultItem::Deleted:
+        --mDelete;
+        break;
+    default:
+        --mNoFix;
+        break;
+    }
+    
+    Q_EMIT dataChanged (idx, idx);
+}
+
+int ScannerResultModel::getNoFixCount() 
+{
+    return mNoFix; 
+}
+
+int ScannerResultModel::getDeleteCount() 
+{
+    return mDelete; 
+}
+
+int ScannerResultModel::getMisReportCount() 
+{
+    return mMisReport;
+}
+
+int ScannerResultModel::getAllCount()
+{
+    return rowCount(); 
+}
+
+QModelIndex ScannerResultModel::getIndexByItem(const ScannerResultItem *item)
+{
+    if (!item)      return QModelIndex();
+    
     int rows = rowCount();
     for (auto i = 0; i < rows; ++i) {
         QModelIndex ii = index(i, 0);
         const ScannerResultItem* it = static_cast <const ScannerResultItem*> (ii.internalPointer());
         if (it == item) {
-            idx = ii;
-            break;
+            return ii;
         }
     }
     
-    if (!idx.isValid())     return;
-    
-    if (mData.contains (item))  mData.removeOne (item);
-
-    removeRow (idx.row());
+    return QModelIndex();
 }
 
 QList<const ScannerResultItem *> ScannerResultModel::getSelectedItem()

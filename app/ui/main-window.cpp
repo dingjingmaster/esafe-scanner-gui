@@ -10,7 +10,6 @@
 #include <QDebug>
 #include <QApplication>
 
-#define SCAN_RESULT_STATUS  "任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%5), 删除: (%5)"
 
 MainWindow::MainWindow(QWidget *parent)
     : QWidget{parent}
@@ -63,7 +62,6 @@ MainWindow::MainWindow(QWidget *parent)
     btn1->setText(tr("扫描任务"));
     
     mStatusLabel = new QLabel;
-    mStatusLabel->setText(SCAN_RESULT_STATUS);
     mStatusLabel->hide();
      
     btnLayout->addWidget(btn1);

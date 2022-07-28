@@ -35,6 +35,16 @@ void ScannerResultItem::setFileName(QString fileName)
 
 void ScannerResultItem::setStatus(int status)
 {
+    switch (status) {
+    case MisReport:
+        mStatus = MisReport;
+        break;
+    case Deleted:
+        mStatus = Deleted;
+        break;
+    default:
+        break;
+    }
     mStatus = Untreated;
 }
 
@@ -70,7 +80,21 @@ QString ScannerResultItem::getFileName()
 
 QString ScannerResultItem::getStatus()
 {
+    switch (mStatus) {
+    case MisReport:
+        return "误报";
+    case Deleted:
+        return "删除";
+    default:
+        break;
+    }
+    
     return "未处理";
+}
+
+ScannerResultItem::Status ScannerResultItem::getStatus2()
+{
+    return mStatus;
 }
 
 QString ScannerResultItem::getFileCreateTime()
