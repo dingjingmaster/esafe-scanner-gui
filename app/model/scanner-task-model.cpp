@@ -102,7 +102,7 @@ QVariant ScannerTaskModel::headerData(int section, Qt::Orientation orentation, i
         case 5:
             return QString("扫描进度");
         case 6:
-            return QString("操作");
+            return QString("扫描结果");
         default:
             break;
         }

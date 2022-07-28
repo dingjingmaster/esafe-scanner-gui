@@ -11,6 +11,7 @@ ScannerResultModel::ScannerResultModel(QObject* parent)
 {
     // 数据库与model连接
     connect(mScanResultHelper, &ScanResultHelper::addNewFile, this, &ScannerResultModel::addItem);
+    connect(mScanResultHelper, &ScanResultHelper::delOldFile, this, &ScannerResultModel::delItem);
 
     // 清空数据 showData (QString TaskName, QString filterName);
     connect(this, &ScannerResultModel::clearData, mScanResultHelper, &ScanResultHelper::clearData);
@@ -39,6 +40,28 @@ void ScannerResultModel::addItem(ScannerResultItem* item)
     mData.append(item);
 
     insertRows(mData.count() - 1, 1);
+}
+
+void ScannerResultModel::delItem(ScannerResultItem *item)
+{
+    if (!item)      return;
+    
+    QModelIndex idx;
+    int rows = rowCount();
+    for (auto i = 0; i < rows; ++i) {
+        QModelIndex ii = index(i, 0);
+        const ScannerResultItem* it = static_cast <const ScannerResultItem*> (ii.internalPointer());
+        if (it == item) {
+            idx = ii;
+            break;
+        }
+    }
+    
+    if (!idx.isValid())     return;
+    
+    if (mData.contains (item))  mData.removeOne (item);
+
+    removeRow (idx.row());
 }
 
 QList<const ScannerResultItem *> ScannerResultModel::getSelectedItem()
@@ -121,7 +144,7 @@ QVariant ScannerResultModel::headerData(int section, Qt::Orientation orentation,
         case 2:
             return QString("处理状态");
         case 3:
-            return QString("文件创建时间");
+            return QString("文件扫描时间");
         case 4:
             return QString("文件修改时间");
         default:
@@ -155,8 +178,18 @@ Qt::ItemFlags ScannerResultModel::flags(const QModelIndex &index) const
     if (!index.isValid()) {
         return Qt::NoItemFlags;
     }
+    
+    Qt::ItemFlags flags = Qt::NoItemFlags | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    
+    switch (index.column ()) {
+    case 2:
+        flags |= Qt::ItemIsEditable;
+        break;
+    default:
+        break;
+    }
 
-    return Qt::NoItemFlags | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    return flags;
 }
 
 bool ScannerResultModel::insertRows(int row, int count, const QModelIndex &parent)

@@ -10,6 +10,8 @@
 #include <QDebug>
 #include <QApplication>
 
+#define SCAN_RESULT_STATUS  "任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%5), 删除: (%5)"
+
 MainWindow::MainWindow(QWidget *parent)
     : QWidget{parent}
 {
@@ -59,7 +61,15 @@ MainWindow::MainWindow(QWidget *parent)
     btnLayout->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     PushButton* btn1 = new PushButton;
     btn1->setText(tr("扫描任务"));
+    
+    mStatusLabel = new QLabel;
+    mStatusLabel->setText(SCAN_RESULT_STATUS);
+    mStatusLabel->hide();
+     
     btnLayout->addWidget(btn1);
+    btnLayout->addStretch();
+    btnLayout->addWidget(mStatusLabel);
+    btnLayout->addSpacing(20);
     mMainLayout->addItem(btnLayout);
 
     // content View
@@ -68,6 +78,10 @@ MainWindow::MainWindow(QWidget *parent)
     mMainLayout->addWidget(mScannerTaskWidget);
     mMainLayout->addWidget(mScannerResultWidget);
     mScannerResultWidget->hide();
+    
+    connect (mScannerResultWidget, &ScannerResultWidget::statusString, this, [=] (QString status) {
+        mStatusLabel->setText(status);
+    });
 
     // change content
     connect(mScannerTaskWidget, &ScannerTaskWidget::taskDetail, this, [=] (const ScannerTaskItem* const item) {
@@ -76,17 +90,19 @@ MainWindow::MainWindow(QWidget *parent)
         //
         ScannerTaskItem* it = const_cast<ScannerTaskItem*> (item);
         qDebug() << "===> task name: " << it->getName() << "set filter name: " << it->getFilterName();
-
-        btn1->setText(QString("扫描结果: %1").arg(it->getName()));
-
+        
         mScannerResultWidget->loadTaskResult(it->getName(), it->getFilterName());
 
+        btn1->setText(QString("扫描结果"));
+
+        mStatusLabel->show();
         mScannerResultWidget->show();
         mScannerTaskWidget->hide();
     });
 
     connect (mScannerResultWidget, &ScannerResultWidget::returnTaskList, this, [=] () {
         btn1->setText(tr("扫描任务"));
+        mStatusLabel->hide();
         mScannerResultWidget->hide();
         mScannerTaskWidget->show();
         mScannerResultWidget->clearData();

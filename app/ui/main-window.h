@@ -29,6 +29,7 @@ private:
     QLayout*                mMainLayout;
 
     MainSubToolBar*         mMainSubtoolbar;
+    QLabel*                 mStatusLabel;
 
     ScannerTaskWidget*      mScannerTaskWidget;
     ScannerResultWidget*    mScannerResultWidget;

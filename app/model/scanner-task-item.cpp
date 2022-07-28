@@ -20,14 +20,23 @@ ScannerTaskItem::ScannerTaskItem(QString name, Status status, qint64 startTime, 
 void ScannerTaskItem::setStatus(int status)
 {
     switch (status) {
+    case NoBegin:
+        mStatus = NoBegin;
+        break;
     case Scanning:
         mStatus = Scanning;
+        break;
+    case Stop:
+        mStatus = Stop;
         break;
     case Finish:
         mStatus = Finish;
         break;
     case Suspended:
         mStatus = Suspended;
+        break;
+    case Error:
+        mStatus = Error;
         break;
     case Unknow:
     default:
@@ -81,15 +90,25 @@ QString ScannerTaskItem::getName()
     return (nullptr == mName || mName.isNull() || mName.isEmpty()) ? " " : mName;
 }
 
+/**
+ * @brief 任务状态：未开始、扫描中、已停止、已完成、已暂停、扫描发生错误
+ *  Unknow = 0, NoBegin, Scanning, Stop, Finish, Suspended, Error
+ */
 QString ScannerTaskItem::getStatus()
 {
     switch (mStatus) {
+    case NoBegin:
+        return tr("未开始");
     case Scanning:
-        return tr("进行中");
+        return tr("扫描中");
+    case Stop:
+        return tr("已停止");
     case Finish:
         return tr("已完成");
     case Suspended:
-        return tr("暂停");
+        return tr("已暂停");
+    case Error:
+        return tr("扫描发生错误");
     case Unknow:
     default:
         break;

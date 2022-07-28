@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QPainter>
+#include <QComboBox>
 #include <QApplication>
 
 ScannerResultDelegate::ScannerResultDelegate(QObject *parent)
@@ -46,8 +47,33 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
         QApplication::style()->drawControl(QStyle::CE_CheckBox, &cbOp, p);
         break;
     }
+    case 2: 
+#if 1
+    {
+        QStyleOptionComboBox cbOp;
+        cbOp.initFrom(static_cast<QWidget*>(parent()));
+        cbOp.state |= QStyle::State_Enabled;
+        cbOp.rect = rect;
+        
+        cbOp.currentText = "hallo";//  # just for testing
+        cbOp.editable = true;
+        cbOp.frame = false;
+
+        QBrush bth;
+        bth.setColor(Qt::darkRed);
+        if (index.model()->data(index).toBool()) {
+            cbOp.state |= QStyle::State_On;
+        } else {
+            cbOp.state |= QStyle::State_Off;
+        }
+
+        p->setBrush(bth);
+        QApplication::style()->drawComplexControl (QStyle::CC_ComboBox, &cbOp, p);
+        break;
+        
+    } 
+#endif
     case 1:
-    case 2:
     case 3:
     case 4:
     case 5: {
@@ -62,4 +88,69 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
     }
 
     p->restore();
+}
+
+void ScannerResultDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+{
+    if (!index.isValid ())      return;
+    
+    switch (index.column()) {
+    case 2: 
+    {
+        return ;
+    } 
+    case 0:
+    case 1:
+    case 3:
+    case 4:
+    case 5:
+    default:
+        break;
+    }
+
+    QStyledItemDelegate::setEditorData(editor, index);
+}
+
+QWidget *ScannerResultDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    if (!index.isValid ())      return nullptr;
+    
+    switch (index.column()) {
+    case 2: 
+    {
+        QComboBox* cb = new QComboBox(parent);
+        cb->addItems(QStringList() << tr("误报") << tr("删除") << tr("未处理"));
+        return cb;
+    } 
+    case 0:
+    case 1:
+    case 3:
+    case 4:
+    case 5:
+    default:
+        break;
+    }
+
+    return QStyledItemDelegate::createEditor(parent, option, index); 
+}
+
+void ScannerResultDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+{
+    if (!index.isValid ())      return;
+    
+    switch (index.column()) {
+    case 2: 
+    {
+        return ;
+    } 
+    case 0:
+    case 1:
+    case 3:
+    case 4:
+    case 5:
+    default:
+        break;
+    }
+
+    return QStyledItemDelegate::setModelData(editor, model, index); 
 }

@@ -24,6 +24,7 @@ public:
 
 Q_SIGNALS:
     void returnTaskList ();
+    void statusString (QString);        //"任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%5), 删除: (%5)");
 
 private:
     QVBoxLayout*            mMainLayout;

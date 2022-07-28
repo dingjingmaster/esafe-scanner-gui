@@ -19,6 +19,7 @@
 #include <QDBusConnection>
 #include <QDBusPendingCall>
 #include <QDateTime>
+#include <QFontMetrics>
 
 #define FREEDESKTOP_FM_DBUS             "org.freedesktop.FileManager1"
 #define FREEDESKTOP_FM_DBUS_PATH        "/org/freedesktop/FileManager1"
@@ -199,11 +200,16 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
 
         if (ScannerResultModel::FileName == index.column() && index.row() >= 0) {
             QPoint p = mView->visualRect(index).bottomRight();
-            QToolTip::showText(mapToGlobal(p), static_cast<ScannerResultItem*>(index.internalPointer())->getFileName());
+            QString text = static_cast<ScannerResultItem*>(index.internalPointer())->getFileName();
+            QFontMetrics fm(font());
+            int w = fm.horizontalAdvance(text);
+            int h = fm.height();
+            // void showText(const QPoint &pos, const QString &text, QWidget *w, const QRect &rect, int msecDisplayTime)
+            QToolTip::showText(mapToGlobal(p), text, this, QRect(p.x(), p.y(), w, h), 3000000);
         }
     });
 
-//    test();
+//    test()u;
 
     setLayout(mMainLayout);
 }

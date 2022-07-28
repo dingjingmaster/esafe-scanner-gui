@@ -16,6 +16,8 @@ public:
 
     bool isCheckAllItems ();
     void addItem (ScannerResultItem* item);
+    void delItem (ScannerResultItem* item);
+    
     QList<const ScannerResultItem*> getSelectedItem ();
 
 public Q_SLOTS:
@@ -43,6 +45,12 @@ private:
     const int                   mBackgroundR = 235;
     const int                   mBackgroundG = 241;
     const int                   mBackgroundB = 248;
+    
+    // 数据状态记录
+    //"任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%5), 删除: (%5)");
+    int                         mFix = 0;
+    int                         mDelete = 0;
+    int                         mMisReport = 0;
 
     //
     QList<ScannerResultItem*>   mData;
