@@ -53,6 +53,17 @@ void ScannerResultItem::setStatus(Status status)
     mStatus = status;
 }
 
+void ScannerResultItem::setStatus(QString status)
+{
+    if ("误报" == status) {
+        mStatus = MisReport;
+    } else if ("删除" == status) {
+        mStatus = Deleted;
+    } else {
+        mStatus = Untreated;
+    }
+}
+
 void ScannerResultItem::setFileCreateTime(qint64 time)
 {
     mFileCreateTime = time;

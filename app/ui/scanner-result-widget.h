@@ -40,6 +40,7 @@ private:
     
     PushButton*             mMisBtn;
     PushButton*             mDelBtn;
+    PushButton*             mExpBtn;
 
     ScannerView*            mView;
     ScannerResultModel*     mModel;

@@ -59,13 +59,15 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
                 break;
             }
         }
+        QStyledItemDelegate::paint (p, option, index);   
+        break;
             
         QStyleOptionComboBox cbOp;
         cbOp.initFrom(static_cast<QWidget*>(parent()));
         cbOp.state |= QStyle::State_Enabled;
         cbOp.rect = rect;
         
-        cbOp.currentText = "hallo";
+        cbOp.currentText = index.model()->data(index).toString();
         cbOp.editable = true;
         cbOp.frame = false;
 
@@ -132,6 +134,7 @@ QWidget *ScannerResultDelegate::createEditor(QWidget *parent, const QStyleOption
             if (!sr->hasChecked()) {
                 QComboBox* cb = new QComboBox(parent);
                 cb->addItems(QStringList() << tr("误报") << tr("删除") << tr("未处理"));
+                cb->setCurrentIndex (0);
                 return cb;
             }
         }
@@ -154,8 +157,10 @@ void ScannerResultDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
     if (!index.isValid ())      return;
     
     switch (index.column()) {
-    case 2: 
-    {
+    case 2: {
+        if (editor) {
+            model->setData (index, static_cast<QComboBox*>(editor)->currentText ());
+        }
         return ;
     } 
     case 0:

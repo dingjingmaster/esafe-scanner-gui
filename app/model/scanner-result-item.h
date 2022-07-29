@@ -16,6 +16,7 @@ public:
     void setChecked (bool);
     void setStatus (int status);
     void setStatus (Status status);
+    void setStatus (QString status);
     void setTaskName (QString name);
     void setFileName (QString fileName);
     void setFileCreateTime (qint64 time);

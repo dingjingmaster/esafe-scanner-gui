@@ -106,12 +106,11 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         }
     });
 
-    PushButton* expBtn = new PushButton(this, PushButton::Type2);
-    expBtn->setStyleSheet("background-color:red;");
-    expBtn->setText(tr("导出"));
-    Q_EMIT expBtn->enable (true);
-    mRightLayout->addWidget(expBtn);
-    expBtn->connect(expBtn, &PushButton::clicked, this, [=] () {
+    mExpBtn = new PushButton(this, PushButton::Type2);
+    mExpBtn->setStyleSheet("background-color:red;");
+    mExpBtn->setText(tr("导出"));
+    mRightLayout->addWidget(mExpBtn);
+    mExpBtn->connect(mExpBtn, &PushButton::clicked, this, [=] () {
         QList<const ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
             QMessageBox::warning(this, "警告", "请选中需要导出的数据后，再执行导出操作！", QMessageBox::Ok);
@@ -220,6 +219,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     connect (this, &ScannerResultWidget::checkedItem, this, [=] (bool b) {
         Q_EMIT mDelBtn->enable (b);
         Q_EMIT mMisBtn->enable (b);
+        Q_EMIT mExpBtn->enable (b);
     });
 
     connect (mView, &QAbstractItemView::entered, this, [=] (const QModelIndex &index) {

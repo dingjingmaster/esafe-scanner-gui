@@ -280,3 +280,55 @@ QSize MainStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, cons
 
     return sz;
 }
+
+void MainStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex *option, QPainter *painter, const QWidget *widget) const
+{
+    switch (control) {
+    case CC_ComboBox: {
+        break;
+        if (const QStyleOptionComboBox* cbOption = qstyleoption_cast <const QStyleOptionComboBox*> (option)) {
+            painter->save();
+            QRect rect = subControlRect (CC_ComboBox, option, SC_ComboBoxFrame, widget).adjusted (+1, +1, -1, -1);
+            painter->setBrush(QColor("#128bf1"));
+            painter->drawRect(rect);            
+                    
+            rect = subControlRect (CC_ComboBox, option, SC_ComboBoxEditField, widget).adjusted (+2, +2, -2, -2);
+            QLinearGradient gradient (rect.topLeft(), rect.bottomRight());
+            gradient.setColorAt(0.0, QColor("#fa709a"));
+            gradient.setColorAt(1.0, QColor("#fee140"));
+            painter->setPen(Qt::NoPen);
+            painter->setBrush(gradient);
+            painter->drawRect(rect);
+                    
+            rect = subControlRect (CC_ComboBox, option, SC_ComboBoxArrow, widget).adjusted(+1, +1, -1, -1);
+            painter->setPen(Qt::transparent);
+            painter->translate(option->rect.x(), option->rect.y());
+                    
+            QLinearGradient grandient2 (rect.topLeft(), rect.bottomRight());
+            grandient2.setColorAt (0.0, QColor("#84fab0"));
+            grandient2.setColorAt (1.0, QColor("#8fd3f4"));
+                    
+            painter->setBrush (grandient2);
+            painter->drawRect(rect);
+            painter->restore();
+                    
+            QStyleOption arrowOpt (*cbOption);
+            arrowOpt.rect = rect.adjusted (+rect.width() * 0.3, +rect.height() * 0.3, -rect.width() * 0.3, -rect.height() * 0.3);
+            //drawPrimitive (PE_IndicatorArrowDown, &arrowOpt, painter);
+            
+            if (option->activeSubControls == SC_ComboBoxEditField || option->activeSubControls == SC_ComboBoxArrow) {
+                painter->save();
+                QColor s(0, 0, 0, 63);
+                painter->setBrush (s);
+                painter->drawRect(widget->rect());
+                painter->restore();
+            }
+        }
+        return;
+    }
+    default:
+        break;
+    }
+    
+    QProxyStyle::drawComplexControl (control, option, painter, widget);
+}

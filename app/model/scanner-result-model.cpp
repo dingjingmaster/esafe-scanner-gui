@@ -230,6 +230,21 @@ QVariant ScannerResultModel::headerData(int section, Qt::Orientation orentation,
     return QVariant();
 }
 
+bool ScannerResultModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    ScannerResultItem* item = static_cast<ScannerResultItem*> (index.internalPointer ());
+    switch (index.column ()) {
+    case 2:
+        item->setStatus (value.toString ());
+        Q_EMIT dataChanged (index, index);
+        return true;
+    default:
+        break;
+    }
+    
+    return false;
+}
+
 QModelIndex ScannerResultModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!parent.isValid()) {
