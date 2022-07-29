@@ -19,6 +19,8 @@ public:
     void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
     QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
     
+private:
+    QObject*        mObj;
 };
 
 #endif // SCANNERRESULTDELEGATE_H

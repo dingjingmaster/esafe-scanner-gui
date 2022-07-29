@@ -14,6 +14,11 @@ public:
     explicit PushButton(QWidget *parent = nullptr, Type t=Type1);
 
     void setText (QString text);
+    bool isEnable ();
+    void setEnable();
+    
+private Q_SLOTS:
+    void setEnable(bool);
 
 protected:
     void mouseReleaseEvent(QMouseEvent* event) override;
@@ -21,11 +26,14 @@ protected:
 
 Q_SIGNALS:
     void clicked ();
+    void enable(bool);
     void doubleClicked ();
 
 private:
     const int           mMaxWidth = 120;
     const int           mLabelMargin = 6;
+    
+    bool                mIsEnable = false;
 
     QLabel*             mLabel;
     QVBoxLayout*        mLayout;

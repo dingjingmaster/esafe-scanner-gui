@@ -14,6 +14,7 @@ public:
 public:
     explicit ScannerResultModel(QObject *parent = nullptr);
 
+    bool hasChecked ();
     bool isCheckAllItems ();
     void addItem (ScannerResultItem* item);
     void delItem (ScannerResultItem* item);

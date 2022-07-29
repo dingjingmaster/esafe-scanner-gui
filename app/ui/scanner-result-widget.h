@@ -4,6 +4,7 @@
 #include "view/scanner-view.h"
 #include <QWidget>
 
+class PushButton;
 class QHBoxLayout;
 class QVBoxLayout;
 class ScannerResultModel;
@@ -20,9 +21,12 @@ public:
     void test ();
 
     void clearData ();
+    bool hasChecked ();                 // 是否有选中条目
     void loadTaskResult (QString taskName, QString taskFilter);
     
 Q_SIGNALS:
+    void updateView();
+    void checkedItem(bool);
     void returnTaskList ();
     void statusString (QString);        //"任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%5), 删除: (%5)");
 
@@ -33,6 +37,9 @@ private:
     QHBoxLayout*            mBtnLayout;
     QHBoxLayout*            mLeftLayout;
     QHBoxLayout*            mRightLayout;
+    
+    PushButton*             mMisBtn;
+    PushButton*             mDelBtn;
 
     ScannerView*            mView;
     ScannerResultModel*     mModel;

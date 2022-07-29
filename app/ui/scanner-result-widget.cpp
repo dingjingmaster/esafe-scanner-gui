@@ -36,28 +36,34 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mLeftLayout = new QHBoxLayout;
     PushButton* retBtn = new PushButton(this, PushButton::Type2);
     retBtn->setText(tr("返回"));
+    Q_EMIT retBtn->enable (true);
     retBtn->setStyleSheet("background-color:red;");
     mLeftLayout->addWidget(retBtn);
-
+    
     connect (retBtn, &PushButton::clicked, this, [=] () { 
         Q_EMIT returnTaskList();
+        Q_EMIT checkedItem(false); 
         Q_EMIT mModel->clearData();
     });
 
     mRightLayout = new QHBoxLayout;
     mRightLayout->setSpacing(6);
 
-    PushButton* delBtn = new PushButton(this, PushButton::Type2);
-    delBtn->setStyleSheet("background-color:red;");
-    delBtn->setText(tr("删除"));
-    mRightLayout->addWidget(delBtn);
-    delBtn->connect(delBtn, &PushButton::clicked, this, [=] () {
+    mDelBtn = new PushButton(this, PushButton::Type2);
+    mDelBtn->setStyleSheet("background-color:red;");
+    mDelBtn->setText(tr("删除"));
+    mRightLayout->addWidget(mDelBtn);
+    mDelBtn->connect(mDelBtn, &PushButton::clicked, this, [=] () {
         QList<const ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
             QMessageBox::warning(this, "警告", "请选中需要删除的数据后，再执行删除操作！", QMessageBox::Ok);
             return;
         }
-
+        
+        if (QMessageBox::Rejected == QMessageBox::information (this, "数据删除", "确定删除选中的数据吗?", QMessageBox::Ok | QMessageBox::Cancel)) {
+            return;
+        }
+        
         for (auto l : ls) {
             com::esafenet::scanner::client::ScannerClientMessage msg;
             msg.Clear();
@@ -72,14 +78,18 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
 
     });
 
-    PushButton* misBtn = new PushButton(this, PushButton::Type2);
-    misBtn->setStyleSheet("background-color:red;");
-    misBtn->setText(tr("误报"));
-    mRightLayout->addWidget(misBtn);
-    misBtn->connect(misBtn, &PushButton::clicked, this, [=] () {
+    mMisBtn = new PushButton(this, PushButton::Type2);
+    mMisBtn->setStyleSheet("background-color:red;");
+    mMisBtn->setText(tr("误报"));
+    mRightLayout->addWidget(mMisBtn);
+    mMisBtn->connect(mMisBtn, &PushButton::clicked, this, [=] () {
         QList<const ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
             QMessageBox::warning(this, "警告", "请选中误报的数据后，再执行操作！", QMessageBox::Ok);
+            return;
+        }
+        
+        if (QMessageBox::Rejected == QMessageBox::information (this, "数据误报", "确定选中条目是误报数据吗?", QMessageBox::Ok | QMessageBox::Cancel)) {
             return;
         }
 
@@ -99,6 +109,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     PushButton* expBtn = new PushButton(this, PushButton::Type2);
     expBtn->setStyleSheet("background-color:red;");
     expBtn->setText(tr("导出"));
+    Q_EMIT expBtn->enable (true);
     mRightLayout->addWidget(expBtn);
     expBtn->connect(expBtn, &PushButton::clicked, this, [=] () {
         QList<const ScannerResultItem*> ls = mModel->getSelectedItem();
@@ -173,6 +184,8 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
 
     connect (headerView, &HeaderView::checkBoxClicked, this, [=] (bool s) {
         mModel->selectAll(s);
+        Q_EMIT checkedItem(s); 
+        mView->updateView();
     });
 
     connect (mView, &QAbstractItemView::clicked, this, [=] (const QModelIndex &index) {
@@ -182,7 +195,10 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             auto item = static_cast<ScannerResultItem*>(index.internalPointer());
             if (item)   item->setChecked(!item->getChecked());
             Q_EMIT mView->update(index);
-            headerView->setChecked(mModel->isCheckAllItems());
+            bool checkAll = mModel->isCheckAllItems();
+            headerView->setChecked(checkAll);
+            Q_EMIT checkedItem(checkAll || mModel->hasChecked ()); 
+            mView->updateView();
         } else if (ScannerResultModel::FileName == index.column() && index.row() >= 0) {
             QDBusConnection dbus = QDBusConnection::connectToBus (QDBusConnection::SessionBus, FREEDESKTOP_FM_DBUS);
             if (dbus.isConnected()) {
@@ -199,6 +215,11 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
                 }
             }
         }
+    });
+    
+    connect (this, &ScannerResultWidget::checkedItem, this, [=] (bool b) {
+        Q_EMIT mDelBtn->enable (b);
+        Q_EMIT mMisBtn->enable (b);
     });
 
     connect (mView, &QAbstractItemView::entered, this, [=] (const QModelIndex &index) {
@@ -221,6 +242,8 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     });
 
 //    test();
+    
+    connect (this, &ScannerResultWidget::updateView, mView, &ScannerView::updateView);
 
     setLayout(mMainLayout);
 }
@@ -263,6 +286,13 @@ void ScannerResultWidget::test()
     mModel->addItem(sm13);
     mModel->addItem(sm14);
     mModel->addItem(sm15);
+}
+
+bool ScannerResultWidget::hasChecked()
+{
+   if (mMisBtn)     return mMisBtn->isEnable ();
+   
+   return true;
 }
 
 void ScannerResultWidget::clearData()

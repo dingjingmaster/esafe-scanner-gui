@@ -97,7 +97,7 @@ MainWindow::MainWindow(QWidget *parent)
         mScannerResultWidget->show();
         mScannerTaskWidget->hide();
     });
-
+    
     connect (mScannerResultWidget, &ScannerResultWidget::returnTaskList, this, [=] () {
         btn1->setText(tr("扫描任务"));
         mStatusLabel->hide();

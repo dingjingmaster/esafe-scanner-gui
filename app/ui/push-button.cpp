@@ -1,6 +1,7 @@
 #include "push-button.h"
 
 #include <QLabel>
+#include <QDebug>
 #include <QVBoxLayout>
 
 PushButton::PushButton(QWidget *parent, Type type)
@@ -10,7 +11,7 @@ PushButton::PushButton(QWidget *parent, Type type)
     setFixedWidth(mMaxWidth);
     setCursor(Qt::PointingHandCursor);
     setContentsMargins(0, 0, 0, 0);
-
+    
     mLayout = new QVBoxLayout;
     mLayout->setSpacing(0);
     mLayout->setContentsMargins(0, 0, 0, 0);
@@ -33,6 +34,9 @@ PushButton::PushButton(QWidget *parent, Type type)
     }
     case Type2: {
         mLabel->setStyleSheet("font: blod; color: rgb(255, 255, 255); border-radius: 6px;");
+        setEnable();
+        
+        connect (this, &PushButton::enable, this, QOverload<bool>::of(&PushButton::setEnable));
         break;
     }
     }
@@ -59,16 +63,44 @@ void PushButton::setText(QString text)
     }
 }
 
+bool PushButton::isEnable()
+{
+    return mIsEnable;
+}
+
+void PushButton::setEnable()
+{
+    if (mIsEnable) {
+        setCursor(Qt::PointingHandCursor);
+        mLabel->setStyleSheet("background-color:red; font: blod; color: rgb(255, 255, 255); border-radius: 6px;");
+    } else {
+        setCursor(Qt::ArrowCursor);
+        mLabel->setStyleSheet("background-color:#696969; font: blod; color: rgb(255, 255, 255); border-radius: 6px;");
+    } 
+}
+
+void PushButton::setEnable(bool e)
+{
+    mIsEnable = e;
+    setEnable();    
+}
+
 void PushButton::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event)
+    
+    qDebug() << "mouseReleaseEvent";
 
-    Q_EMIT clicked ();
+    if (mIsEnable) {
+        Q_EMIT clicked ();
+    }
 }
 
 void PushButton::mouseDoubleClickEvent(QMouseEvent *event)
 {
     Q_UNUSED(event)
-
-    Q_EMIT doubleClicked();
+    
+    if (mIsEnable) {
+        doubleClicked();
+    }
 }

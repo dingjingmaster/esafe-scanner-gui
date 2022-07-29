@@ -27,6 +27,15 @@ ScannerResultModel::ScannerResultModel(QObject* parent)
     mScanResultHelper->loadTaskResult();
 }
 
+bool ScannerResultModel::hasChecked()
+{
+    for (auto i = mData.constBegin(); i != mData.constEnd(); ++i) {
+        if (i.i->t()->getChecked()) {
+            return true;
+        }
+    }
+}
+
 bool ScannerResultModel::isCheckAllItems()
 {
     for (auto i = mData.constBegin(); i != mData.constEnd(); ++i) {

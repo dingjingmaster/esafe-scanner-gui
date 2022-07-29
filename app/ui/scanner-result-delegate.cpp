@@ -1,12 +1,14 @@
 #include "scanner-result-delegate.h"
 
+#include "scanner-result-widget.h"
+
 #include <QDebug>
 #include <QPainter>
 #include <QComboBox>
 #include <QApplication>
 
 ScannerResultDelegate::ScannerResultDelegate(QObject *parent)
-    : QStyledItemDelegate{parent}
+    : QStyledItemDelegate{parent}, mObj(parent)
 {
 
 }
@@ -50,12 +52,20 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
     case 2: 
 #if 1
     {
+        if (auto sr = static_cast <ScannerResultWidget*>(mObj)) {
+            if (sr->hasChecked()) {
+                QStyledItemDelegate::paint (p, option, index);   
+                sr->update ();
+                break;
+            }
+        }
+            
         QStyleOptionComboBox cbOp;
         cbOp.initFrom(static_cast<QWidget*>(parent()));
         cbOp.state |= QStyle::State_Enabled;
         cbOp.rect = rect;
         
-        cbOp.currentText = "hallo";//  # just for testing
+        cbOp.currentText = "hallo";
         cbOp.editable = true;
         cbOp.frame = false;
 
@@ -87,7 +97,7 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
         break;
     }
 
-    p->restore();
+    p->restore();    
 }
 
 void ScannerResultDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
@@ -118,9 +128,14 @@ QWidget *ScannerResultDelegate::createEditor(QWidget *parent, const QStyleOption
     switch (index.column()) {
     case 2: 
     {
-        QComboBox* cb = new QComboBox(parent);
-        cb->addItems(QStringList() << tr("误报") << tr("删除") << tr("未处理"));
-        return cb;
+        if (auto sr = static_cast <ScannerResultWidget*>(mObj)) {
+            if (!sr->hasChecked()) {
+                QComboBox* cb = new QComboBox(parent);
+                cb->addItems(QStringList() << tr("误报") << tr("删除") << tr("未处理"));
+                return cb;
+            }
+        }
+        return nullptr;
     } 
     case 0:
     case 1:
