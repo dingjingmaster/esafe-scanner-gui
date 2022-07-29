@@ -25,7 +25,7 @@ public:
     int getMisReportCount ();
     int getAllCount ();
     
-    QModelIndex getIndexByItem (const ScannerResultItem* it);
+    QModelIndex getIndexByItem (const ScannerResultItem* it, int column=0);
     
     QList<const ScannerResultItem*> getSelectedItem ();
 

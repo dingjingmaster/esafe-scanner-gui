@@ -2,6 +2,7 @@
 #include "scanner-result-model.h"
 
 #include <QList>
+#include <QDebug>
 #include <QColor>
 
 #include "../utils/scan-result-helper.h"
@@ -118,19 +119,24 @@ int ScannerResultModel::getAllCount()
     return rowCount(); 
 }
 
-QModelIndex ScannerResultModel::getIndexByItem(const ScannerResultItem *item)
+QModelIndex ScannerResultModel::getIndexByItem(const ScannerResultItem *item, int column)
 {
-    if (!item)      return QModelIndex();
+    if (!item) {
+        qDebug() << "item is null";
+        return QModelIndex();
+    }
     
     int rows = rowCount();
     for (auto i = 0; i < rows; ++i) {
-        QModelIndex ii = index(i, 0);
+        QModelIndex ii = index(i, column);
         const ScannerResultItem* it = static_cast <const ScannerResultItem*> (ii.internalPointer());
         if (it == item) {
             return ii;
         }
     }
     
+    qDebug() << "item not found!";
+        
     return QModelIndex();
 }
 
@@ -232,6 +238,10 @@ QVariant ScannerResultModel::headerData(int section, Qt::Orientation orentation,
 
 bool ScannerResultModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    qDebug() << index;
+    
+    if (!index.isValid ())          return false;
+    
     ScannerResultItem* item = static_cast<ScannerResultItem*> (index.internalPointer ());
     switch (index.column ()) {
     case 2:

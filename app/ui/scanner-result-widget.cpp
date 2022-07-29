@@ -35,6 +35,17 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mBtnLayout = new QHBoxLayout;
     mLeftLayout = new QHBoxLayout;
     PushButton* retBtn = new PushButton(this, PushButton::Type2);
+    mRightLayout = new QHBoxLayout;
+    
+    mDelBtn = new PushButton(this, PushButton::Type2);
+    mMisBtn = new PushButton(this, PushButton::Type2);
+    mExpBtn = new PushButton(this, PushButton::Type2);
+    
+    mModel = new ScannerResultModel;
+    mView = new ScannerView;
+    mView->setItemDelegate(new ScannerResultDelegate(this));
+    HeaderView* headerView = new HeaderView(Qt::Horizontal, mView);
+    
     retBtn->setText(tr("返回"));
     Q_EMIT retBtn->enable (true);
     retBtn->setStyleSheet("background-color:red;");
@@ -46,10 +57,8 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         Q_EMIT mModel->clearData();
     });
 
-    mRightLayout = new QHBoxLayout;
     mRightLayout->setSpacing(6);
 
-    mDelBtn = new PushButton(this, PushButton::Type2);
     mDelBtn->setStyleSheet("background-color:red;");
     mDelBtn->setText(tr("删除"));
     mRightLayout->addWidget(mDelBtn);
@@ -65,20 +74,22 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         }
         
         for (auto l : ls) {
+#if 0
             com::esafenet::scanner::client::ScannerClientMessage msg;
             msg.Clear();
             msg.set_filename(const_cast<ScannerResultItem*>(l)->getFileName().toStdString());
-
             // FIXME://
             msg.set_id(0);
             msg.set_operation(OP_DELETE);
             qDebug() << "delete: " << msg.DebugString().c_str();
             NotifyToFilter::getInstance()->sendData(msg.SerializeAsString());
+#endif
+            qDebug() << "del option";
+            mModel->setData (mModel->getIndexByItem (l, 2), "删除");
         }
 
     });
 
-    mMisBtn = new PushButton(this, PushButton::Type2);
     mMisBtn->setStyleSheet("background-color:red;");
     mMisBtn->setText(tr("误报"));
     mRightLayout->addWidget(mMisBtn);
@@ -94,6 +105,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         }
 
         for (auto l : ls) {
+#if 0
             com::esafenet::scanner::client::ScannerClientMessage msg;
             msg.Clear();
             msg.set_filename(const_cast<ScannerResultItem*>(l)->getFileName().toStdString());
@@ -103,10 +115,11 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             msg.set_operation(OP_MISINFO);
             qDebug() << "misinformation: " << msg.DebugString().c_str();
             NotifyToFilter::getInstance()->sendData(msg.SerializeAsString());
+#endif
+            mModel->setData (mModel->getIndexByItem (l, 2), "误报");
         }
     });
 
-    mExpBtn = new PushButton(this, PushButton::Type2);
     mExpBtn->setStyleSheet("background-color:red;");
     mExpBtn->setText(tr("导出"));
     mRightLayout->addWidget(mExpBtn);
@@ -153,6 +166,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             for (auto l : ls) {
                 exp.write(*const_cast<ScannerResultItem*>(l));
                 const_cast<ScannerResultItem*>(l)->setChecked(false);
+                headerView->setChecked (false);
             }
         }
     });
@@ -163,11 +177,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mMainLayout->addItem(mBtnLayout);
 
     // tabview
-    mModel = new ScannerResultModel;
-    mView = new ScannerView;
-
-    mView->setItemDelegate(new ScannerResultDelegate(this));
-    HeaderView* headerView = new HeaderView(Qt::Horizontal, mView);
     mView->setHorizontalHeader(headerView);
 
     mView->setModel(mModel);
