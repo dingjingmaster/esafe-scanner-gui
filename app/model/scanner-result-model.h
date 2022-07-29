@@ -2,6 +2,7 @@
 #define SCANNERRESULTMODEL_H
 
 #include <QAbstractTableModel>
+#include "scanner-result-item.h"
 
 class ScanResultHelper;
 class ScannerResultItem;
@@ -51,19 +52,21 @@ public:
     bool removeRows (int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
 private:
-    const int                   mBackgroundR = 235;
-    const int                   mBackgroundG = 241;
-    const int                   mBackgroundB = 248;
+    const int                                           mBackgroundR = 235;
+    const int                                           mBackgroundG = 241;
+    const int                                           mBackgroundB = 248;
     
     // 数据状态记录
     //"任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%5), 删除: (%5)");
-    int                         mNoFix = 0;
-    int                         mDelete = 0;
-    int                         mMisReport = 0;
+    int                                                 mNoFix = 0;
+    int                                                 mDelete = 0;
+    int                                                 mMisReport = 0;
 
-    //
-    QList<ScannerResultItem*>   mData;
-    ScanResultHelper*           mScanResultHelper;
+    ScanResultHelper*                                   mScanResultHelper;
+    
+    // FIXME:// 不应该释放Item内存，这块需要用 智能指针 优化
+    QList<ScannerResultItem*>                           mData;
+    QMap<ScannerResultItem*, ScannerResultItem::Status> mChangedItem;
 };
 
 #endif // SCANNERRESULTMODEL_H

@@ -103,7 +103,7 @@ void MainStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
         if (const QStyleOptionButton *checkbox = qstyleoption_cast<const QStyleOptionButton*>(option)) {
             const bool useDarkPalette = false;
             bool enable = checkbox->state & State_Enabled;
-            bool mouseOver = checkbox->state & State_MouseOver;
+            bool mouseOver = false; //checkbox->state & State_MouseOver;
             bool sunKen = checkbox->state & State_Sunken;
             bool on = checkbox->state & State_On;
             bool noChange = checkbox->state & State_NoChange;

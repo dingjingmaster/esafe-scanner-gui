@@ -34,14 +34,14 @@ public:
     bool removeRows (int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
 private:
-    const int                   mBackgroundR = 235;
-    const int                   mBackgroundG = 241;
-    const int                   mBackgroundB = 248;
+    const int                                           mBackgroundR = 235;
+    const int                                           mBackgroundG = 241;
+    const int                                           mBackgroundB = 248;
 
-    //
-    QList<ScannerTaskItem*>     mData;
-    ScanTaskHelper*             mScanTaskHelper;
-
+    ScanTaskHelper*                                     mScanTaskHelper;
+    
+    // ScannerxxItem
+    QList<ScannerTaskItem*>                             mData;
 };
 
 #endif // SCANNERTASKMODEL_H
