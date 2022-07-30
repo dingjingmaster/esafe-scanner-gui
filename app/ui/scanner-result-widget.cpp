@@ -52,6 +52,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     connect (this, &ScannerResultWidget::applyData, this, [=] () {
         QMessageBox* box = new QMessageBox(this);
         box->setText ("确认提交您对数据的更改吗？");
+        box->setWindowTitle("提示");
 
         QPushButton* apply = new QPushButton(box);
         QPushButton* cancel = new QPushButton(box);
