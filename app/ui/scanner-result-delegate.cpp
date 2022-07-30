@@ -122,15 +122,22 @@ void ScannerResultDelegate::setEditorData(QWidget *editor, const QModelIndex &in
 QWidget *ScannerResultDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     if (!index.isValid ())      return nullptr;
-    
+
+    QString text = index.model()->data(index).toString();
+
     switch (index.column()) {
-    case 2: 
-    {
+    case 2: {
         if (auto sr = static_cast <ScannerResultWidget*>(mObj)) {
             if (!sr->hasChecked()) {
                 QComboBox* cb = new QComboBox(parent);
                 cb->addItems(QStringList() << tr("误报") << tr("删除") << tr("未处理"));
-                cb->setCurrentIndex (0);
+                if (text == "误报") {
+                    cb->setCurrentIndex (0);
+                } else if (text == "删除") {
+                    cb->setCurrentIndex (1);
+                } else {
+                    cb->setCurrentIndex (2);
+                }
                 return cb;
             }
         }

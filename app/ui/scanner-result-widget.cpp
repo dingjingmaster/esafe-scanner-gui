@@ -247,18 +247,9 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         mView->updateView();
     });
 
-    connect (mView, &QAbstractItemView::clicked, this, [=] (const QModelIndex &index) {
-        qDebug() << QString("r:%1, c:%2").arg(index.row()).arg(index.column()) << "clicked";
+    connect (mView, &QAbstractItemView::doubleClicked, this, [=] (const QModelIndex& index) {
         if (!index.isValid())   return;
-        if (index.column() == 0) {
-            auto item = static_cast<ScannerResultItem*>(index.internalPointer());
-            if (item)   item->setChecked(!item->getChecked());
-            Q_EMIT mView->update(index);
-            bool checkAll = mModel->isCheckAllItems();
-            headerView->setChecked(checkAll);
-            Q_EMIT checkedItem(checkAll || mModel->hasChecked ()); 
-            mView->updateView();
-        } else if (ScannerResultModel::FileName == index.column() && index.row() >= 0) {
+        if (ScannerResultModel::FileName == index.column() && index.row() >= 0) {
             QDBusConnection dbus = QDBusConnection::connectToBus (QDBusConnection::SessionBus, FREEDESKTOP_FM_DBUS);
             if (dbus.isConnected()) {
                 QDBusMessage msg = QDBusMessage::createMethodCall(FREEDESKTOP_FM_DBUS, FREEDESKTOP_FM_DBUS_PATH, FREEDESKTOP_FM_DBUS, "ShowItems");
@@ -273,6 +264,37 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
                     qDebug() << reply.errorMessage();
                 }
             }
+        }
+
+    });
+
+    connect (mView, &QAbstractItemView::clicked, this, [=] (const QModelIndex &index) {
+        if (!index.isValid())   return;
+        if (index.column() == 0) {
+            auto item = static_cast<ScannerResultItem*>(index.internalPointer());
+            if (item)   item->setChecked(!item->getChecked());
+            Q_EMIT mView->update(index);
+            bool checkAll = mModel->isCheckAllItems();
+            headerView->setChecked(checkAll);
+            Q_EMIT checkedItem(checkAll || mModel->hasChecked ()); 
+            mView->updateView();
+        } else if (ScannerResultModel::FileName == index.column() && index.row() >= 0) {
+#if 0
+            QDBusConnection dbus = QDBusConnection::connectToBus (QDBusConnection::SessionBus, FREEDESKTOP_FM_DBUS);
+            if (dbus.isConnected()) {
+                QDBusMessage msg = QDBusMessage::createMethodCall(FREEDESKTOP_FM_DBUS, FREEDESKTOP_FM_DBUS_PATH, FREEDESKTOP_FM_DBUS, "ShowItems");
+                QString file = static_cast<ScannerResultItem*>(index.internalPointer())->getFileName();
+                if (!QFile::exists(file)) {
+                    QMessageBox::warning(this, "文件打开失败", QString("文件 '%1' 不存在!").arg(file), QMessageBox::Ok);
+                    return;
+                }
+                msg.setArguments(QList<QVariant>() << (QStringList() << "file://" + file) << "");
+                QDBusMessage reply = dbus.call(msg);
+                if (reply.isDelayedReply() && QDBusMessage::ErrorMessage == reply.ReplyMessage) {
+                    qDebug() << reply.errorMessage();
+                }
+            }
+#endif
         }
     });
     
