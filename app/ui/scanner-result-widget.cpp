@@ -186,7 +186,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     connect (mModel, &ScannerResultModel::dataChanged, this, [=] (const QModelIndex &topLeft,
              const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>()) {
         
-       Q_EMIT statusString (QString("任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%5), 删除: (%5)")
+       Q_EMIT statusString (QString("任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%4), 删除: (%5)")
                 .arg(mTaskName).arg(mModel->getAllCount ()).arg (mModel->getNoFixCount ()).arg (mModel->getMisReportCount ()).arg (mModel->getDeleteCount ()));
     });
 

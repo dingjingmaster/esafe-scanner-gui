@@ -42,10 +42,11 @@ void ScannerResultItem::setStatus(int status)
     case Deleted:
         mStatus = Deleted;
         break;
+    case Untreated:
     default:
+        mStatus = Untreated;
         break;
     }
-    mStatus = Untreated;
 }
 
 void ScannerResultItem::setStatus(Status status)
@@ -106,6 +107,17 @@ QString ScannerResultItem::getStatus()
 ScannerResultItem::Status ScannerResultItem::getStatus2()
 {
     return mStatus;
+}
+
+int ScannerResultItem::getStatus(QString status)
+{
+    if ("误报" == status) {
+        return static_cast<int>(MisReport);
+    } else if ("删除" == status) {
+        return static_cast<int>(Deleted);
+    }
+    
+    return static_cast<int>(Untreated);
 }
 
 QString ScannerResultItem::getFileCreateTime()

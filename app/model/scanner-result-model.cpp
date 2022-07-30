@@ -18,7 +18,15 @@ ScannerResultModel::ScannerResultModel(QObject* parent)
     connect(this, &ScannerResultModel::clearData, mScanResultHelper, &ScanResultHelper::clearData);
     connect(this, &ScannerResultModel::showData, mScanResultHelper, &ScanResultHelper::loadTaskResult);
 
-    connect(this, &ScannerResultModel::clearData, this, [=] () { beginResetModel(); mData.clear(); endResetModel(); mScanResultHelper->clearData(); });
+    connect(this, &ScannerResultModel::clearData, this, [=] () {
+        beginResetModel();
+        mData.clear();
+        endResetModel();
+        mScanResultHelper->clearData();
+        mDelete = 0;
+        mNoFix = 0;
+        mMisReport = 0;
+    });
     
     
     void fixChanged (int);
@@ -55,17 +63,7 @@ void ScannerResultModel::addItem(ScannerResultItem* item)
     mData.append(item);
     insertRows(mData.count() - 1, 1);
     
-    switch (item->getStatus2 ()) {
-    case ScannerResultItem::MisReport:
-        ++mMisReport;
-        break;
-    case ScannerResultItem::Deleted:
-        ++mDelete;
-        break;
-    default:
-        ++mNoFix;
-        break;
-    }
+    changeItemCount(item->getStatus2 ());
     
     QModelIndex idx = getIndexByItem(item);
     
@@ -84,17 +82,7 @@ void ScannerResultModel::delItem(ScannerResultItem *item)
     
     removeRow (idx.row());
     
-    switch (item->getStatus2 ()) {
-    case ScannerResultItem::MisReport:
-        --mMisReport;
-        break;
-    case ScannerResultItem::Deleted:
-        --mDelete;
-        break;
-    default:
-        --mNoFix;
-        break;
-    }
+    changeItemCount(item->getStatus2 (), false);
     
     Q_EMIT dataChanged (idx, idx);
 }
@@ -151,6 +139,23 @@ QList<const ScannerResultItem *> ScannerResultModel::getSelectedItem()
     }
 
     return ls;
+}
+
+void ScannerResultModel::changeItemCount(int status, bool isAdd)
+{
+    switch (status) {
+    case ScannerResultItem::MisReport:
+        if (isAdd) ++mMisReport; else --mMisReport;
+        break;
+    case ScannerResultItem::Deleted:
+        if (isAdd) ++mDelete; else --mDelete;
+        break;
+    case ScannerResultItem::Untreated:
+        if (isAdd) ++mNoFix; else --mNoFix;
+        break;
+    default:
+        break;
+    }
 }
 
 void ScannerResultModel::selectAll(bool s)
@@ -243,11 +248,40 @@ bool ScannerResultModel::setData(const QModelIndex &index, const QVariant &value
     if (!index.isValid ())          return false;
     
     ScannerResultItem* item = static_cast<ScannerResultItem*> (index.internalPointer ());
+    auto toChange = ScannerResultItem::getStatus(value.toString());
+
     switch (index.column ()) {
-    case 2:
+    case 2: {
+        //ScannerResultItem
+        if (mChangedItem.contains(item)) {
+            auto kv = mChangedItem[item];
+            auto savedStatus = kv.first;
+            auto lastStatus = kv.second;
+            
+            // 修改计数
+            changeItemCount(toChange);
+            changeItemCount(lastStatus, false);
+            
+            // 说明未变
+            if (savedStatus == toChange) {
+                mChangedItem.remove (item);
+            } else {
+                QPair<int, int> changedKV(savedStatus, toChange);
+                mChangedItem[item] = changedKV;
+            }
+        } else {
+            QPair<int, int> kv(item->getStatus2 (), toChange);
+            mChangedItem[item] = kv;
+            changeItemCount(toChange);
+            changeItemCount(item->getStatus2 (), false);
+        }
+        
+        // 更新当前 model 里 status 状态
         item->setStatus (value.toString ());
         Q_EMIT dataChanged (index, index);
+        
         return true;
+    }
     default:
         break;
     }

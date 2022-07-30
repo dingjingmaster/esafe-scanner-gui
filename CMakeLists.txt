@@ -1,4 +1,4 @@
-project(esafe-scanner-gui LANGUAGES CXX)
+project(dsip_sit LANGUAGES CXX)
 
 cmake_minimum_required(VERSION 3.5)
 
@@ -25,7 +25,7 @@ add_definitions(
 if(DEBUG)
     add_definitions(-D DB_PATH=\\"${CMAKE_SOURCE_DIR}/demo/scan\\")
 else()
-    add_definitions(-D DB_PATH=\\"\\")
+    add_definitions(-D DB_PATH=\\"/usr/local/ultrasec/dat/db_task/EstDlpSEDataBase.db\\")
 endif()
 
 

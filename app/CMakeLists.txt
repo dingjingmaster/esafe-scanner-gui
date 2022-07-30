@@ -13,10 +13,10 @@ include_directories(${CMAKE_SOURCE_DIR}/app/
     ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS}
     ${SQLITE3_INCLUDE_DIRS} ${GIO_INCLUDE_DIRS} ${PROTOBUF_INCLUDE_DIRS})
 
-add_executable(esafe-scanner-gui
+add_executable(dsip_sit
     ${MAIN_SRC} ${CMAKE_SOURCE_DIR}/app/res.qrc
     ${SINGLEAPP_SRC} ${UI_SRC} ${VIEW_SRC} ${MODEL_SRC} ${UTILS_SRC} ${QGSETTINGS_SRC} ${STYLE_SRC})
 
-target_link_libraries(esafe-scanner-gui
+target_link_libraries(dsip_sit
     Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets Qt5::DBus ${SQLITE3_LIBRARIES} ${GIO_LIBRARIES} ${PROTOBUF_LIBRARIES})
 

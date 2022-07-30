@@ -23,13 +23,15 @@ public:
     void setFileModifyTime (qint64 time);
 
     bool getChecked ();
-    QString getStatus ();
-    Status getStatus2 ();
     QString getTaskName ();
     QString getFileName ();
     QString getFilterName ();
     QString getFileCreateTime ();
     QString getFileModifyTime ();
+    
+    QString getStatus ();
+    Status getStatus2 ();
+    static int getStatus (QString status);
 
 private:
     bool                mChecked = false;

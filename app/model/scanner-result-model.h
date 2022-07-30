@@ -1,11 +1,11 @@
 #ifndef SCANNERRESULTMODEL_H
 #define SCANNERRESULTMODEL_H
-
+#include <QMap>
+#include <QPair>
 #include <QAbstractTableModel>
 #include "scanner-result-item.h"
 
 class ScanResultHelper;
-class ScannerResultItem;
 
 class ScannerResultModel : public QAbstractTableModel
 {
@@ -28,6 +28,9 @@ public:
     QModelIndex getIndexByItem (const ScannerResultItem* it, int column=0);
     
     QList<const ScannerResultItem*> getSelectedItem ();
+    
+private:
+    void changeItemCount(int status, bool isAdd=true);
 
 public Q_SLOTS:
     void selectAll (bool s);
@@ -66,7 +69,7 @@ private:
     
     // FIXME:// 不应该释放Item内存，这块需要用 智能指针 优化
     QList<ScannerResultItem*>                           mData;
-    QMap<ScannerResultItem*, ScannerResultItem::Status> mChangedItem;
+    QMap<ScannerResultItem*, QPair<int, int>>           mChangedItem;
 };
 
 #endif // SCANNERRESULTMODEL_H
