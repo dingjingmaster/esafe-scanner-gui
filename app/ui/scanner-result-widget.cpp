@@ -55,6 +55,8 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         Q_EMIT returnTaskList();
         Q_EMIT checkedItem(false); 
         Q_EMIT mModel->clearData();
+        headerView->setChecked(false);
+        Q_EMIT headerView->checkBoxClicked (false);
     });
 
     mRightLayout->setSpacing(6);
@@ -66,10 +68,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         QList<const ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
             QMessageBox::warning(this, "警告", "请选中需要删除的数据后，再执行删除操作！", QMessageBox::Ok);
-            return;
-        }
-        
-        if (QMessageBox::Rejected == QMessageBox::information (this, "数据删除", "确定删除选中的数据吗?", QMessageBox::Ok | QMessageBox::Cancel)) {
             return;
         }
         
@@ -100,10 +98,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             return;
         }
         
-        if (QMessageBox::Rejected == QMessageBox::information (this, "数据误报", "确定选中条目是误报数据吗?", QMessageBox::Ok | QMessageBox::Cancel)) {
-            return;
-        }
-
         for (auto l : ls) {
 #if 0
             com::esafenet::scanner::client::ScannerClientMessage msg;
