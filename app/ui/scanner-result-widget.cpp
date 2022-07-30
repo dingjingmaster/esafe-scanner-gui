@@ -85,7 +85,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
                     continue;
                 }
 
-                // FIXME://
                 msg.set_id(item->getID ());
                 msg.set_operation(op);
 

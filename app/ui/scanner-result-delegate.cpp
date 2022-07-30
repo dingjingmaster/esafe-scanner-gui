@@ -6,6 +6,7 @@
 #include <QPainter>
 #include <QComboBox>
 #include <QApplication>
+#include <QPainterPath>
 
 ScannerResultDelegate::ScannerResultDelegate(QObject *parent)
     : QStyledItemDelegate{parent}, mObj(parent)
@@ -49,9 +50,7 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
         QApplication::style()->drawControl(QStyle::CE_CheckBox, &cbOp, p);
         break;
     }
-    case 2: 
-#if 1
-    {
+    case 2: {
         if (auto sr = static_cast <ScannerResultWidget*>(mObj)) {
             if (sr->hasChecked()) {
                 QStyledItemDelegate::paint (p, option, index);   
@@ -59,32 +58,29 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
                 break;
             }
         }
-        QStyledItemDelegate::paint (p, option, index);   
-        break;
-            
-        QStyleOptionComboBox cbOp;
-        cbOp.initFrom(static_cast<QWidget*>(parent()));
-        cbOp.state |= QStyle::State_Enabled;
-        cbOp.rect = rect;
-        
-        cbOp.currentText = index.model()->data(index).toString();
-        cbOp.editable = true;
-        cbOp.frame = false;
 
-        QBrush bth;
-        bth.setColor(Qt::darkRed);
-        if (index.model()->data(index).toBool()) {
-            cbOp.state |= QStyle::State_On;
-        } else {
-            cbOp.state |= QStyle::State_Off;
-        }
+        QStyledItemDelegate::paint (p, option, index);
+        p->save();
+        QRect rect1 = rect;
+        rect1.setX (rect.left () + rect.width () - 8 - 6);
+        rect1.setY (rect.top () + (float)(rect.height () - 5) / 2);
+        rect1.setWidth (8);
+        rect1.setHeight (5);
+        QPainterPath path;
+        path.moveTo (rect1.topLeft ());
+        path.lineTo (rect1.topRight ());
+        path.lineTo (rect1.bottomRight () - QPoint(4, 0));
+        path.lineTo (rect1.topLeft());
+        path.closeSubpath();
 
-        p->setBrush(bth);
-        QApplication::style()->drawComplexControl (QStyle::CC_ComboBox, &cbOp, p);
+        p->setBrush (pal.color (QPalette::ButtonText));
+        p->setRenderHint (QPainter::HighQualityAntialiasing, true);
+
+        p->drawPath (path);
+        p->restore();
+
         break;
-        
     } 
-#endif
     case 1:
     case 3:
     case 4:

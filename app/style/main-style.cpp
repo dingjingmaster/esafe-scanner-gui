@@ -48,37 +48,37 @@ QRect MainStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
         return visualRect(opt->direction, opt->rect, opt->rect.adjusted(radioWidth + spacing, 0, 0, 0));
     }
 
-//    case SE_CheckBoxFocusRect: {
-//        if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
-//            if (btn->icon.isNull() && btn->text.isEmpty()) {
-//                r = subElementRect(SE_CheckBoxIndicator, opt, widget);
-//                r.adjust(1, 1, -1, -1);
-//                break;
-//            }
-//            // As above, deal with the logical first, then convert it back to screen coords.
-//            QRect cr = visualRect(btn->direction, btn->rect,
-//                                  subElementRect(SE_CheckBoxContents, btn, widget));
+    case SE_CheckBoxFocusRect: {
+        if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
+            if (btn->icon.isNull() && btn->text.isEmpty()) {
+                r = subElementRect(SE_CheckBoxIndicator, opt, widget);
+                r.adjust(1, 1, -1, -1);
+                break;
+            }
+            // As above, deal with the logical first, then convert it back to screen coords.
+            QRect cr = visualRect(btn->direction, btn->rect,
+                                  subElementRect(SE_CheckBoxContents, btn, widget));
 
-//            QRect iconRect, textRect;
-//            if (!btn->text.isEmpty()) {
-//                textRect = itemTextRect(opt->fontMetrics, cr, Qt::AlignAbsolute | Qt::AlignLeft
-//                                        | Qt::AlignVCenter | Qt::TextShowMnemonic,
-//                                        btn->state & State_Enabled, btn->text);
-//            }
-//            if (!btn->icon.isNull()) {
-//                iconRect = itemPixmapRect(cr, Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter
-//                                        | Qt::TextShowMnemonic,
-//                                   btn->icon.pixmap(qt_getWindow(widget), btn->iconSize, QIcon::Normal));
-//                if (!textRect.isEmpty())
-//                    textRect.translate(iconRect.right() + 4, 0);
-//            }
-//            r = iconRect | textRect;
-//            r.adjust(-3, -2, 3, 2);
-//            r = r.intersected(btn->rect);
-//            r = visualRect(btn->direction, btn->rect, r);
-//        }
-//        break;
-//    }
+            QRect iconRect, textRect;
+            if (!btn->text.isEmpty()) {
+                textRect = itemTextRect(opt->fontMetrics, cr, Qt::AlignAbsolute | Qt::AlignLeft
+                                        | Qt::AlignVCenter | Qt::TextShowMnemonic,
+                                        btn->state & State_Enabled, btn->text);
+            }
+            if (!btn->icon.isNull()) {
+                iconRect = itemPixmapRect(cr, Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter
+                                        | Qt::TextShowMnemonic,
+                                   btn->icon.pixmap(qt_getWindow(widget), btn->iconSize, QIcon::Normal));
+                if (!textRect.isEmpty())
+                    textRect.translate(iconRect.right() + 4, 0);
+            }
+            r = iconRect | textRect;
+            r.adjust(-3, -2, 3, 2);
+            r = r.intersected(btn->rect);
+            r = visualRect(btn->direction, btn->rect, r);
+        }
+        break;
+    }
     case SE_CheckBoxClickRect: {
         r = subElementRect(SE_CheckBoxFocusRect, opt, widget);
         r |= subElementRect(SE_CheckBoxIndicator, opt, widget);

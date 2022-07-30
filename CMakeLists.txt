@@ -18,8 +18,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_definitions(
     -w -g
     -D QT_NO_KEYWORDS
-    -D APP_NAME=\\"esafe-scanner-gui\\"
-    -D LOCAL_SOCKET_NAME=\\"esafe-scanner-gui\\"
+    -D APP_NAME=\\"dsip_sit\\"
+    -D LOCAL_SOCKET_NAME=\\"dsip_sit\\"
 )
 
 if(DEBUG)
