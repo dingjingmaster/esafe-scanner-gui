@@ -21,6 +21,8 @@
 #include <QDateTime>
 #include <QFontMetrics>
 
+#include <QApplication>
+
 #define FREEDESKTOP_FM_DBUS             "org.freedesktop.FileManager1"
 #define FREEDESKTOP_FM_DBUS_PATH        "/org/freedesktop/FileManager1"
 
@@ -45,13 +47,69 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mView = new ScannerView;
     mView->setItemDelegate(new ScannerResultDelegate(this));
     HeaderView* headerView = new HeaderView(Qt::Horizontal, mView);
-    
+
+
+    connect (this, &ScannerResultWidget::applyData, this, [=] () {
+        QMessageBox* box = new QMessageBox(this);
+        box->setText ("确认提交您对数据的更改吗？");
+
+        QPushButton* apply = new QPushButton(box);
+        QPushButton* cancel = new QPushButton(box);
+
+        apply->setText ("提交更改");
+        cancel->setText ("取消");
+
+        box->addButton (apply, QMessageBox::AcceptRole);
+        box->addButton (cancel, QMessageBox::RejectRole);
+
+        box->connect (apply, &QPushButton::clicked, this, [=] () {
+            // 保存数据
+            auto ls = mModel->getChangedItem ();
+
+            for (auto l : ls) {
+                com::esafenet::scanner::client::ScannerClientMessage msg;
+                ScannerResultItem* item = const_cast<ScannerResultItem*>(l);
+                QString fileName = item->getFileName ();
+
+                msg.Clear();
+                msg.set_filename(fileName.toStdString());
+
+                int op = -1;
+                int status = item->getStatus2 ();
+                if (ScannerResultItem::MisReport == status) {
+                    op = OP_MISINFO;
+                } else if (ScannerResultItem::Deleted == status) {
+                    op = OP_DELETE;
+                } else {
+                    qDebug() << "not apply: " << fileName;
+                    continue;
+                }
+
+                // FIXME://
+                msg.set_id(item->getID ());
+                msg.set_operation(op);
+
+                qDebug() << "apply " << item->getStatus () << " data: " << msg.DebugString().c_str();
+                NotifyToFilter::getInstance()->sendData(msg.SerializeAsString());
+            }
+
+            box->deleteLater ();
+        });
+        if (mModel->hasChanged ()) {
+            box->exec ();
+        } else {
+            box->deleteLater ();
+        }
+    });
+
+
     retBtn->setText(tr("返回"));
     Q_EMIT retBtn->enable (true);
     retBtn->setStyleSheet("background-color:red;");
     mLeftLayout->addWidget(retBtn);
     
     connect (retBtn, &PushButton::clicked, this, [=] () { 
+        Q_EMIT applyData ();
         Q_EMIT returnTaskList();
         Q_EMIT checkedItem(false); 
         Q_EMIT mModel->clearData();

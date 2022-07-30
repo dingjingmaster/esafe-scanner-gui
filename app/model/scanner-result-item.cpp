@@ -18,6 +18,11 @@ ScannerResultItem::ScannerResultItem(QString taskName, QString fileName, Status 
     mFileModifyTime = modifyTime;
 }
 
+void ScannerResultItem::setID(qint64 id)
+{
+    mID = id;
+}
+
 void ScannerResultItem::setChecked(bool checked)
 {
     mChecked = checked;
@@ -73,6 +78,11 @@ void ScannerResultItem::setFileCreateTime(qint64 time)
 void ScannerResultItem::setFileModifyTime(qint64 time)
 {
     mFileModifyTime = time;
+}
+
+qint64 ScannerResultItem::getID()
+{
+    return mID;
 }
 
 bool ScannerResultItem::getChecked()

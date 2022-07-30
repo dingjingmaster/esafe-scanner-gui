@@ -26,6 +26,7 @@ ScannerResultModel::ScannerResultModel(QObject* parent)
         mDelete = 0;
         mNoFix = 0;
         mMisReport = 0;
+        mChangedItem.clear ();
     });
     
     
@@ -34,6 +35,11 @@ ScannerResultModel::ScannerResultModel(QObject* parent)
     void misReportChanged (int);
 
     mScanResultHelper->loadTaskResult();
+}
+
+bool ScannerResultModel::hasChanged()
+{
+    return mChangedItem.count () > 0;
 }
 
 bool ScannerResultModel::hasChecked()
@@ -104,7 +110,12 @@ int ScannerResultModel::getMisReportCount()
 
 int ScannerResultModel::getAllCount()
 {
-    return rowCount(); 
+    return rowCount();
+}
+
+QList<const ScannerResultItem *> ScannerResultModel::getChangedItem()
+{
+    return mChangedItem.keys ();
 }
 
 QModelIndex ScannerResultModel::getIndexByItem(const ScannerResultItem *item, int column)

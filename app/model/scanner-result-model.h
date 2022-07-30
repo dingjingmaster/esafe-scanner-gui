@@ -15,6 +15,7 @@ public:
 public:
     explicit ScannerResultModel(QObject *parent = nullptr);
 
+    bool hasChanged ();
     bool hasChecked ();
     bool isCheckAllItems ();
     void addItem (ScannerResultItem* item);
@@ -24,6 +25,8 @@ public:
     int getDeleteCount ();
     int getMisReportCount ();
     int getAllCount ();
+
+    QList<const ScannerResultItem*> getChangedItem ();
     
     QModelIndex getIndexByItem (const ScannerResultItem* it, int column=0);
     
@@ -69,7 +72,7 @@ private:
     
     // FIXME:// 不应该释放Item内存，这块需要用 智能指针 优化
     QList<ScannerResultItem*>                           mData;
-    QMap<ScannerResultItem*, QPair<int, int>>           mChangedItem;
+    QMap<const ScannerResultItem*, QPair<int, int>>           mChangedItem;
 };
 
 #endif // SCANNERRESULTMODEL_H

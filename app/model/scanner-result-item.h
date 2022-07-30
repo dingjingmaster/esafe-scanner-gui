@@ -13,6 +13,7 @@ public:
     explicit ScannerResultItem(QObject *parent = nullptr);
     ScannerResultItem(QString taskName, QString fileName, Status status, qint64 createTime, qint64 modifyTime, QObject *parent = nullptr);
 
+    void setID(qint64 id);
     void setChecked (bool);
     void setStatus (int status);
     void setStatus (Status status);
@@ -21,6 +22,8 @@ public:
     void setFileName (QString fileName);
     void setFileCreateTime (qint64 time);
     void setFileModifyTime (qint64 time);
+
+    qint64 getID();
 
     bool getChecked ();
     QString getTaskName ();
@@ -36,6 +39,7 @@ public:
 private:
     bool                mChecked = false;
     
+    qint64              mID;
     Status              mStatus;
     QString             mTaskName;
     QString             mFileName;

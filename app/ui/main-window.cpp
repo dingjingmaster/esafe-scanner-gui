@@ -20,15 +20,30 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
     mMainLayout = new QVBoxLayout;
+    QHBoxLayout* btnLayout = new QHBoxLayout;
+
+    MainHeader* header = new MainHeader(this);
+
+    MainToolBar* toolbar = new MainToolBar(this);
+    ToolbarAction* action1 = new ToolbarAction(this);
+
+    mScannerTaskWidget = new ScannerTaskWidget(this);
+    mScannerResultWidget = new ScannerResultWidget(this);
+
     mMainLayout->setSpacing(0);
     mMainLayout->setContentsMargins(0, 0, 0, 0);
     mMainLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
-    MainHeader* header = new MainHeader(this);
     header->setAutoFillBackground(true);
     header->setContentsMargins(0, 0, 0, 0);
 
-    connect(header, &MainHeader::windowClose,   this, [&] () {qApp->quit();});
+    connect(header, &MainHeader::windowClose,   this, [&] () {
+        // 保存数据
+        if (mScannerResultWidget) {
+            Q_EMIT mScannerResultWidget->applyData ();
+        }
+        qApp->quit();
+    });
     connect(header, &MainHeader::windowMin,     this, [&] () {setWindowState(Qt::WindowMinimized);});
     connect(header, &MainHeader::windowMax,     this, [&] () {
         auto state = windowState();
@@ -44,10 +59,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     // tool bar
     // FIXME:// 图标不能使用 jpg 的，要用 png 的
-    MainToolBar* toolbar = new MainToolBar;
     toolbar->setContentsMargins(0, 0, 0, 0);
     toolbar->setAutoFillBackground(true);
-    ToolbarAction* action1 = new ToolbarAction;
     action1->setIcon("://data/scanner.png");
     action1->setText(tr("网络扫描管理"));
     action1->setFocus();
@@ -55,7 +68,6 @@ MainWindow::MainWindow(QWidget *parent)
     mMainLayout->addWidget(toolbar);
 
     // button
-    QHBoxLayout* btnLayout = new QHBoxLayout;
     btnLayout->setContentsMargins(0, 0, 0, 0);
     btnLayout->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     PushButton* btn1 = new PushButton;
@@ -71,8 +83,6 @@ MainWindow::MainWindow(QWidget *parent)
     mMainLayout->addItem(btnLayout);
 
     // content View
-    mScannerTaskWidget = new ScannerTaskWidget;
-    mScannerResultWidget = new ScannerResultWidget(this);
     mMainLayout->addWidget(mScannerTaskWidget);
     mMainLayout->addWidget(mScannerResultWidget);
     mScannerResultWidget->hide();

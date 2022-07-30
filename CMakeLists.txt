@@ -16,7 +16,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_definitions(
-    -w
+    -w -g
     -D QT_NO_KEYWORDS
     -D APP_NAME=\\"esafe-scanner-gui\\"
     -D LOCAL_SOCKET_NAME=\\"esafe-scanner-gui\\"
