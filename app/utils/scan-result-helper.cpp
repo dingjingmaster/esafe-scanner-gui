@@ -8,6 +8,9 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QFileSystemWatcher>
+#include <QFile>
+#include <QFileInfo>
+#include <QDateTime>
 
 #include <sqlite3.h>
 
@@ -20,8 +23,8 @@ public:
 public:
     void onDBChanged ();
 
-    bool selectFileMD5ByFilterName ();
-    ScannerResultItem* selectFileByFileMD5 (QString fileMD5);
+    bool selectIDByFilterName ();
+    ScannerResultItem* selectFileByID (QString id);
 
 public:
     QString                             mDBPath;
@@ -121,7 +124,7 @@ void ScanResultHelperPrivate::onDBChanged()
 
     if (nullptr == mTaskName || mTaskName.isNull() || mTaskName.isEmpty() || "" == mTaskName) return;
 
-    if (!selectFileMD5ByFilterName()) {
+    if (!selectIDByFilterName()) {
         qDebug() << "db not change";
         return;
     }
@@ -131,7 +134,7 @@ void ScanResultHelperPrivate::onDBChanged()
     QSet<QString> newT = mNewTaskID - mOldTaskID;
     for (auto id : newT) {
         if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
-        if (auto t = selectFileByFileMD5(id)) {
+        if (auto t = selectFileByID (id)) {
             qDebug() << "add file '" << id << "'";
             Q_EMIT q->addNewFile(t);
             mData[id] = t;
@@ -152,7 +155,7 @@ void ScanResultHelperPrivate::onDBChanged()
     mOldTaskID = mNewTaskID;
 }
 
-bool ScanResultHelperPrivate::selectFileMD5ByFilterName()
+bool ScanResultHelperPrivate::selectIDByFilterName()
 {
     QStringList k = mTaskFilter.split(";");
     if (k.count() <= 0)     return false;
@@ -165,14 +168,15 @@ bool ScanResultHelperPrivate::selectFileMD5ByFilterName()
     for (auto ik : k) {
         qDebug() << "filter name --> " << ik;
         if (nullptr == ik || ik.isNull() || ik.isEmpty() || "" == ik)   continue;
-        QString sql = QString("SELECT scan_file_name_md5 FROM scan_result WHERE status=0 AND filter_name LIKE '%") + ik + "%'";
+        QString sql = QString("SELECT ID FROM scan_result WHERE status!=5 AND policy_id LIKE '%") + ik + "%'";
         qDebug() << "sql ==> " << sql;
         int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
         if (SQLITE_OK == ret) {
             while (SQLITE_DONE != sqlite3_step(stmt)) {
-                const unsigned char* id = sqlite3_column_text(stmt, 0);
+                QString id = QString("%1").arg(sqlite3_column_int(stmt, 0));
                 qDebug() << "task id:" << id;
-                mNewTaskID += QString(reinterpret_cast<const char*>(id));
+                mNewTaskID += id;
+                //QString(reinterpret_cast<const char*>(id));
             }
         }
         if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
@@ -196,23 +200,28 @@ noChanged:
     return false;
 }
 
-ScannerResultItem *ScanResultHelperPrivate::selectFileByFileMD5(QString fileMD5)
+ScannerResultItem *ScanResultHelperPrivate::selectFileByID (QString id)
 {
     ScannerResultItem* item = new ScannerResultItem;
     item->setTaskName(mTaskName);
 
-    QString sql = QString("SELECT `scan_file_name`, `status`, `file_create_time`, `file_modify_time` "
+    QString sql = QString("SELECT `ID`, `scan_file_name`, `status`, `scan_finished_time` "
                       " FROM scan_result "
-                      " WHERE scan_file_name_md5='%1'").arg(fileMD5);
+                      " WHERE ID='%1'").arg(id);
 
     sqlite3_stmt* stmt = NULL;
     int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
     if (SQLITE_OK == ret) {
         while (SQLITE_DONE != sqlite3_step(stmt)) {
-            item->setFileName(QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0))));
-            item->setStatus(sqlite3_column_int(stmt, 1));
-            item->setFileCreateTime(sqlite3_column_int(stmt, 2));
-            item->setFileModifyTime(sqlite3_column_int(stmt, 3));
+            item->setID (sqlite3_column_int(stmt, 0));
+            item->setFileName(QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1))));
+            item->setStatus(sqlite3_column_int(stmt, 2));
+            item->setFileCreateTime(sqlite3_column_int(stmt, 3));
+            // modify time
+            QFileInfo file (item->getFileName ());
+            if (file.exists ()) {
+                item->setFileModifyTime (file.lastModified ().toSecsSinceEpoch ());
+            }
 
             qDebug() << "file name: " << item->getFileName() << "\n"
                      << "status: " << item->getStatus() << "\n"
