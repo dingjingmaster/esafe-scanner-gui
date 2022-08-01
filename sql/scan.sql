@@ -33,12 +33,18 @@ CREATE TABLE scan_task_detail_taskid (
 
 -- 扫描结果，仅保存被扫描任务命中的文件
 CREATE TABLE scan_result (
-    `scan_file_name_md5`                VARCHAR(255)                    NOT NULL,       -- 根据文件绝对路径生成的 MD5
+    `ID`                                INTEGER PRIMARY KEY AUTOINCREMENT,
+    `policy_id`                         VARCHAR(32)                     NOT NULL,       -- 策略ID
+    `file_type`                         VARCHAR(8),                                     -- 文件类型
+    `file_size`                         VARCHAR(16),                    NOT NULL,       -- 文件大小
+    `is_recognized`                     INTEGER         DEFAULT 1,                      -- 文件是否识别
+    `is_blocked`                        INTEGER         DEFAULT 1,                      -- 文件是否识别
+    `detect_result`                     TEXT                            NOT NULL,       -- 扫描结果
     `scan_file_name`                    TEXT                            NOT NULL,       -- 文件绝对路径
     `filter_name`                       TEXT                            NOT NULL,       -- 扫描命中策略
     `status`                            TINYINT         DEFAULT 0       NOT NULL,       -- 处理状态，0 - 未处理，5 - 删除，6 - 误报
     `scan_finished_time`                DATETIME        DEFAULT 0       NOT NULL,       -- 扫描完成时间
     `file_create_time`                  DATETIME        DEFAULT 0       NOT NULL,       -- 文件创建时间
     `file_modify_time`                  DATETIME        DEFAULT 0       NOT NULL,       -- 文件修改时间
-    PRIMARY KEY(scan_file_name_md5,filter_name)
+    PRIMARY KEY(scan_file_name_md5,policy_id)
 );
