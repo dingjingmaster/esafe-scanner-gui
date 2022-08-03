@@ -78,7 +78,6 @@ void ScannerTaskModel::delItem(ScannerTaskItem *item)
     QModelIndex idx = getIndexByItem (item);
     if (idx.isValid ()) {
         removeRow (idx.row ());
-        resetModel ();
     }
 }
 

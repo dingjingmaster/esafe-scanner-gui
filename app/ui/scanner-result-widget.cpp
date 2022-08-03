@@ -245,17 +245,14 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     connect (headerView, &HeaderView::checkBoxClicked, this, [=] (bool s) {
         mModel->selectAll(s);
         Q_EMIT checkedItem(s); 
-        mView->updateView();
 
-        if (s && mModel->hasChanged ()) {
-            Q_EMIT mDelBtn->enable (true);
-            Q_EMIT mMisBtn->enable (true);
-            Q_EMIT mExpBtn->enable (true);
-        } else {
+        if (mModel->rowCount () <= 0) {
             Q_EMIT mDelBtn->enable (false);
             Q_EMIT mMisBtn->enable (false);
             Q_EMIT mExpBtn->enable (false);
         }
+
+        mView->updateView();
     });
 
     connect (mView, &QAbstractItemView::doubleClicked, this, [=] (const QModelIndex& index) {
