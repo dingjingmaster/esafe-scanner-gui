@@ -217,7 +217,8 @@ ScannerResultItem *ScanResultHelperPrivate::selectFileByID (QString id)
             item->setID (sqlite3_column_int(stmt, 0));
             item->setFileName(QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1))));
             item->setStatus(sqlite3_column_int(stmt, 2));
-            item->setFileCreateTime(sqlite3_column_int(stmt, 3));
+            item->setFileCreateTime (QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3))));
+            //item->setFileCreateTime(sqlite3_column_int(stmt, 3));
             // modify time
             QFileInfo file (item->getFileName ());
             if (file.exists ()) {

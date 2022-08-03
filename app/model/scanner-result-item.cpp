@@ -1,5 +1,6 @@
 #include "scanner-result-item.h"
 
+#include <QDebug>
 #include <QDateTime>
 
 ScannerResultItem::ScannerResultItem(QObject *parent)
@@ -68,6 +69,12 @@ void ScannerResultItem::setStatus(QString status)
     } else {
         mStatus = Untreated;
     }
+}
+
+void ScannerResultItem::setFileCreateTime(QString time)
+{
+    qInfo() << "result create time: " << time;
+    mFileCreateTime = QDateTime::fromString (time, "yyyy-MM-dd hh:mm:ss").toSecsSinceEpoch ();
 }
 
 void ScannerResultItem::setFileCreateTime(qint64 time)

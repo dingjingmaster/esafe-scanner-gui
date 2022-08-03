@@ -20,6 +20,7 @@ public:
     void setStatus (QString status);
     void setTaskName (QString name);
     void setFileName (QString fileName);
+    void setFileCreateTime (QString time);
     void setFileCreateTime (qint64 time);
     void setFileModifyTime (qint64 time);
 
