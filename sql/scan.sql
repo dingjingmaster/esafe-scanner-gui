@@ -16,7 +16,7 @@ CREATE TABLE scan_task (
     `task_status`                       TINYINT         DEFAULT 0       NOT NULL,       -- 任务状态：0 - 未开始，1 - 扫描中，2 - 已停止，3 - 已完成, 5 - 已暂停, 13 - 扫描发生错误
     `scan_result_reuse`                 TINYINT         DEFAULT 0       NOT NULL,       -- 扫描结果复用：0 - 开启，1 - 关闭
     `scan_task_file_monitor`            TINYINT         DEFAULT 0       NOT NULL,       -- 变动文件监控：0 - 开启，1 - 关闭
-    `scan_task_self_check`              TINYINT         DEFAULT 0       NOT NULL,       -- 自查任务：0 - 开启，1 - 关闭
+    `scan_task_self_check`              TINYINT         DEFAULT 0       NOT NULL,       -- 自查任务：1 - 开启，0 - 关闭
     PRIMARY KEY(task_id)
 );
 

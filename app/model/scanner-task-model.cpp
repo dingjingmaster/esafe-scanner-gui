@@ -11,6 +11,8 @@ ScannerTaskModel::ScannerTaskModel(QObject *parent)
 {
     // 数据库与model连接
     connect(mScanTaskHelper, &ScanTaskHelper::addNewTask, this, &ScannerTaskModel::addItem);
+    connect(mScanTaskHelper, &ScanTaskHelper::delOldTask, this, &ScannerTaskModel::delItem);
+    connect(mScanTaskHelper, &ScanTaskHelper::updateTask, this, &ScannerTaskModel::updateItem);
 
     mScanTaskHelper->loadAllTask();
 }
@@ -22,6 +24,27 @@ ScannerTaskModel::~ScannerTaskModel()
     if (mScanTaskHelper)        delete mScanTaskHelper;
 }
 
+QModelIndex ScannerTaskModel::getIndexByItem(const ScannerTaskItem* item, int column)
+{
+    if (!item) {
+        qDebug() << "item is null";
+        return QModelIndex();
+    }
+
+    int rows = rowCount();
+    for (auto i = 0; i < rows; ++i) {
+        QModelIndex ii = index(i, column);
+        const ScannerTaskItem* it = static_cast <const ScannerTaskItem*> (ii.internalPointer());
+        if (it == item) {
+            return ii;
+        }
+    }
+
+    qDebug() << "item not found!";
+
+    return QModelIndex();
+}
+
 void ScannerTaskModel::addItem(ScannerTaskItem* item)
 {
     if (!item)      return;
@@ -31,6 +54,34 @@ void ScannerTaskModel::addItem(ScannerTaskItem* item)
     mData.append(item);
 
     insertRows(mData.count() - 1, 1);
+}
+
+void ScannerTaskModel::delItem(ScannerTaskItem *item)
+{
+    if (!item)      return;
+
+    qInfo() << "delete task: " << item->getName();
+
+    mData.removeOne (item);
+
+    QModelIndex index = getIndexByItem (item);
+    if (index.isValid ()) {
+        removeRow (index.row ());
+    }
+
+}
+
+void ScannerTaskModel::updateItem(ScannerTaskItem *item)
+{
+    if (!item)      return;
+
+    qInfo() << "update task: " << item->getName();
+
+    QModelIndex idx = getIndexByItem (item);
+    if (idx.isValid ()) {
+        QModelIndex idx1 = index (idx.row (), (int)(EnumSize) - 2);
+        Q_EMIT dataChanged (idx, idx1);
+    }
 }
 
 int ScannerTaskModel::rowCount(const QModelIndex &parent) const

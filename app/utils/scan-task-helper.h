@@ -26,6 +26,7 @@ public:
 private:
 
 Q_SIGNALS:
+    void updateTask (ScannerTaskItem* it);
     void addNewTask (ScannerTaskItem* it);
     void delOldTask (ScannerTaskItem* it);
 

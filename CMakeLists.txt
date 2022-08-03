@@ -2,7 +2,7 @@ project(dsip_sit LANGUAGES CXX)
 
 cmake_minimum_required(VERSION 3.5)
 
-set(DEBUG ON)
+set(DEBUG OFF)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -18,6 +18,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_definitions(
     -w -g
     -D QT_NO_KEYWORDS
+    -D QT_MESSAGELOGCONTEXT
     -D APP_NAME=\\"dsip_sit\\"
     -D LOCAL_SOCKET_NAME=\\"dsip_sit\\"
 )

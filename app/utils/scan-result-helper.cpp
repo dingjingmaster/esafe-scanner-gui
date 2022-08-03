@@ -1,16 +1,17 @@
 #include "scan-result-helper.h"
 
+#include "tools.h"
 #include "../model/scanner-result-item.h"
 
 #include <QMap>
 #include <QSet>
+#include <QFile>
 #include <QDebug>
+#include <QFileInfo>
+#include <QDateTime>
 #include <QMessageBox>
 #include <QApplication>
 #include <QFileSystemWatcher>
-#include <QFile>
-#include <QFileInfo>
-#include <QDateTime>
 
 #include <sqlite3.h>
 
@@ -103,7 +104,7 @@ ScanResultHelperPrivate::ScanResultHelperPrivate(QString db, ScanResultHelper *p
     mWatcher->addPath(mDBPath);
 
     q->connect (mWatcher, &QFileSystemWatcher::fileChanged, [&] (QString) {
-        qDebug() << "db file changed!";
+        qInfo() << "db file changed!";
         onDBChanged();
     });
 }
@@ -125,7 +126,7 @@ void ScanResultHelperPrivate::onDBChanged()
     if (nullptr == mTaskName || mTaskName.isNull() || mTaskName.isEmpty() || "" == mTaskName) return;
 
     if (!selectIDByFilterName()) {
-        qDebug() << "db not change";
+        qInfo() << "db not change";
         return;
     }
 
@@ -135,7 +136,7 @@ void ScanResultHelperPrivate::onDBChanged()
     for (auto id : newT) {
         if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
         if (auto t = selectFileByID (id)) {
-            qDebug() << "add file '" << id << "'";
+            qInfo() << "add file '" << id << "'";
             Q_EMIT q->addNewFile(t);
             mData[id] = t;
         }
@@ -146,7 +147,7 @@ void ScanResultHelperPrivate::onDBChanged()
         if (mData.contains(id)) {
             auto it = mData[id];
             mData.remove(id);
-            qDebug() << "delete file '" << id << "'";
+            qInfo() << "delete file '" << id << "'";
             Q_EMIT q->delOldFile(it);
             delete it;
         }
@@ -165,37 +166,36 @@ bool ScanResultHelperPrivate::selectIDByFilterName()
 
     sqlite3_stmt* stmt = NULL;
 
+    while (!sqlite_lock());
     for (auto ik : k) {
-        qDebug() << "filter name --> " << ik;
+        qInfo() << "filter name --> " << ik;
         if (nullptr == ik || ik.isNull() || ik.isEmpty() || "" == ik)   continue;
         QString sql = QString("SELECT ID FROM scan_result WHERE status!=5 AND policy_id LIKE '%") + ik + "%'";
-        qDebug() << "sql ==> " << sql;
+        qInfo() << "sql ==> " << sql;
         int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
         if (SQLITE_OK == ret) {
             while (SQLITE_DONE != sqlite3_step(stmt)) {
                 QString id = QString("%1").arg(sqlite3_column_int(stmt, 0));
-                qDebug() << "task id:" << id;
+                qInfo() << "task id:" << id;
                 mNewTaskID += id;
                 //QString(reinterpret_cast<const char*>(id));
             }
         }
         if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
     }
+    if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
+    while (!sqlite_unlock());
 
-    qDebug() << "old fileMD5: " << mOldTaskID;
-    qDebug() << "new fileMD5: " << mNewTaskID;
+    qInfo () << "old fileMD5: " << mOldTaskID;
+    qInfo () << "new fileMD5: " << mNewTaskID;
 
     if (mNewTaskID.count() == mOldTaskID.count()) {
         goto noChanged;
     }
 
-    if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
-
     return true;
 
 noChanged:
-
-    if (stmt)       sqlite3_finalize(stmt);
 
     return false;
 }
@@ -209,6 +209,7 @@ ScannerResultItem *ScanResultHelperPrivate::selectFileByID (QString id)
                       " FROM scan_result "
                       " WHERE ID='%1'").arg(id);
 
+    while (!sqlite_lock());
     sqlite3_stmt* stmt = NULL;
     int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
     if (SQLITE_OK == ret) {
@@ -223,19 +224,23 @@ ScannerResultItem *ScanResultHelperPrivate::selectFileByID (QString id)
                 item->setFileModifyTime (file.lastModified ().toSecsSinceEpoch ());
             }
 
-            qDebug() << "file name: " << item->getFileName() << "\n"
+            qInfo () << "file name: " << item->getFileName() << "\n"
                      << "status: " << item->getStatus() << "\n"
                      << "create time: " << item->getFileCreateTime() << "\n"
                      << "modify time: " << item->getFileModifyTime() << "\n"
                      << "filter name: " << item->getFilterName() << "\n\n\n";
         }
+    } else {
+        goto noChanged;
     }
+    while (!sqlite_unlock());
 
     if (stmt)       sqlite3_finalize(stmt);
 
     return item;
 
 noChanged:
+    while (!sqlite_unlock());
 
     if (stmt)       sqlite3_finalize(stmt);
 

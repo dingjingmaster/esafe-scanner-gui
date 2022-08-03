@@ -1,5 +1,6 @@
 #include "scanner-task-item.h"
 
+#include <QDebug>
 #include <QDateTime>
 
 ScannerTaskItem::ScannerTaskItem(QObject *parent)
@@ -119,12 +120,13 @@ QString ScannerTaskItem::getStatus()
 
 QString ScannerTaskItem::getStartTime()
 {
-    return QDateTime::fromMSecsSinceEpoch(mStartTime).toLocalTime().toString("yyyy-MM-dd_hh:mm:ss");
+    qInfo () << "task start time: " << mStartTime;
+    return QDateTime::fromSecsSinceEpoch(mStartTime).toLocalTime().toString("yyyy-MM-dd_hh:mm:ss");
 }
 
 QString ScannerTaskItem::getStopTime()
 {
-    return QDateTime::fromMSecsSinceEpoch(mStartTime).toLocalTime().toString("yyyy-MM-dd_hh:mm:ss");
+    return QDateTime::fromSecsSinceEpoch(mStartTime).toLocalTime().toString("yyyy-MM-dd_hh:mm:ss");
 }
 
 QString ScannerTaskItem::getFilterName()

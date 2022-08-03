@@ -16,8 +16,12 @@ public:
     explicit ScannerTaskModel(QObject *parent = nullptr);
     ~ScannerTaskModel();
 
+    QModelIndex getIndexByItem (const ScannerTaskItem* it, int column=0);
+
 public Q_SLOTS:
     void addItem (ScannerTaskItem* item);
+    void delItem (ScannerTaskItem* item);
+    void updateItem (ScannerTaskItem* item);
 
 public:
     int rowCount (const QModelIndex& parent = QModelIndex()) const override;

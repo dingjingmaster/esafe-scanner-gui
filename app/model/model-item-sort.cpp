@@ -19,7 +19,7 @@ bool ModelItemSort::lessThan(const QModelIndex &sLeft, const QModelIndex &sRight
     QString className = static_cast<QObject*>(lItem)->metaObject()->className();
 
     if ("ScannerTaskItem" == className) {
-        return static_cast<ScannerTaskItem*>(lItem)->getName() > static_cast<ScannerTaskItem*>(rItem)->getName();
+        return static_cast<ScannerTaskItem*>(lItem)->getName() < static_cast<ScannerTaskItem*>(rItem)->getName();
     } else if ("ScannerResultItem" == className) {
 
     }

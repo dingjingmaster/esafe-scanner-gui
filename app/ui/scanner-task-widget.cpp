@@ -5,6 +5,7 @@
 
 #include <QDebug>
 #include <QVBoxLayout>
+#include <QHeaderView>
 
 
 ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
@@ -19,8 +20,22 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
     mProxyModel->setSourceModel(mModel);
 
     mView->setModel(mProxyModel);
-    mView->setSortingEnabled(true);
+    mView->horizontalHeader()->setMinimumSectionSize(10);
+    mView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    mView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive);
+    mView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Interactive);
+    mView->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
+    mView->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Interactive);
+    mView->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Interactive);
+    mView->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Interactive);
+    //mView->setSortingEnabled(true);
     mMainLayout->addWidget(mView);
+
+    // FIXME:// 此处需要修改
+    connect (mView->horizontalHeader (), &QHeaderView::sectionResized, [=] (int index, int oldSize, int newSize) {
+        QRect viewRect = mView->rect ();
+    });
+
 
     mView->setItemDelegate(new ScannerTaskDelegate);
     setLayout(mMainLayout);

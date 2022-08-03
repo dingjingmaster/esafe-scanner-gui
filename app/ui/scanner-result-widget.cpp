@@ -300,9 +300,15 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     });
     
     connect (this, &ScannerResultWidget::checkedItem, this, [=] (bool b) {
-        Q_EMIT mDelBtn->enable (b);
-        Q_EMIT mMisBtn->enable (b);
-        Q_EMIT mExpBtn->enable (b);
+        if (mModel->isCheckAllItems()) {
+            Q_EMIT mDelBtn->enable (true);
+            Q_EMIT mMisBtn->enable (true);
+            Q_EMIT mExpBtn->enable (true);
+        } else {
+            Q_EMIT mDelBtn->enable (false);
+            Q_EMIT mMisBtn->enable (false);
+            Q_EMIT mExpBtn->enable (false);
+        }
     });
 
     connect (mView, &QAbstractItemView::entered, this, [=] (const QModelIndex &index) {

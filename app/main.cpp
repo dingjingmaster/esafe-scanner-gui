@@ -6,10 +6,22 @@
 //#include <QCommonStyle>
 
 #include <QFile>
+#include <syslog.h>
 
+void messageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
 int main(int argc, char *argv[])
 {
+    qInstallMessageHandler(messageOutput);
+
+    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+    #if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+        QApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
+    #endif
+
+    qInfo() << "\n\n\n\n\n\nstart...";
+
     SingletonApp app (argc, argv, APP_NAME);
 
     app.setStyle(new MainStyle(""));
@@ -30,4 +42,18 @@ int main(int argc, char *argv[])
     }
 
     return app.exec();
+}
+
+void messageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    Q_UNUSED(type)
+
+    QByteArray localMsg = msg.toLocal8Bit();
+
+    const char *file = context.file ? context.file : "";
+    const char *function = context.function ? context.function : "";
+
+    fprintf(stdout, "[%s - %s:%d] %s\n", file, function, context.line, localMsg.constData());
+
+    syslog(LOG_ERR, "dsip_sit [%s - %s:%d] %s\n", file, function, context.line, localMsg.constData());
 }
