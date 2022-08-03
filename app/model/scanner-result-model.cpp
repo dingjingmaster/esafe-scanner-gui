@@ -49,6 +49,8 @@ bool ScannerResultModel::hasChecked()
             return true;
         }
     }
+
+    return false;
 }
 
 bool ScannerResultModel::isCheckAllItems()

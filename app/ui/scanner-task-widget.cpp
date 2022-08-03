@@ -28,17 +28,26 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
     mView->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Interactive);
     mView->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Interactive);
     mView->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Interactive);
+    //mView->horizontalHeader()->setSectionResizeMode(6, QHeaderView::Fixed);
+    mView->horizontalHeader()->resizeSection (0, 40);
+    mView->horizontalHeader()->resizeSection (3, 180);
+    mView->horizontalHeader()->resizeSection (4, 180);
+    mView->horizontalHeader()->resizeSection (5, 180);
+    mView->horizontalHeader()->resizeSection (6, 30);
     //mView->setSortingEnabled(true);
     mMainLayout->addWidget(mView);
+
+    mView->setItemDelegate(new ScannerTaskDelegate);
+    setLayout(mMainLayout);
 
     // FIXME:// 此处需要修改
     connect (mView->horizontalHeader (), &QHeaderView::sectionResized, [=] (int index, int oldSize, int newSize) {
         QRect viewRect = mView->rect ();
     });
 
-
-    mView->setItemDelegate(new ScannerTaskDelegate);
-    setLayout(mMainLayout);
+    connect (mModel, &ScannerTaskModel::dataChanged, this, [=] (const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>()) {
+        mView->update();
+    });
 
     connect (mView, &QAbstractItemView::clicked, this, [=] (const QModelIndex &indexT) {
         QModelIndex index = mProxyModel->mapToSource(indexT);

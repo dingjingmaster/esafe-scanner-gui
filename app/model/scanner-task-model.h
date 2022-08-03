@@ -18,6 +18,11 @@ public:
 
     QModelIndex getIndexByItem (const ScannerTaskItem* it, int column=0);
 
+private:
+    void resetModel ();
+
+Q_SIGNALS:
+
 public Q_SLOTS:
     void addItem (ScannerTaskItem* item);
     void delItem (ScannerTaskItem* item);

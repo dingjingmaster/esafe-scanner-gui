@@ -145,7 +145,7 @@ error:
 
 bool ScanTaskHelperPrivate::selectAllTaskIDV2()
 {
-    Q_Q(ScanTaskHelper)
+    Q_Q(ScanTaskHelper);
 
     QString sql = "SELECT task_id, task_start_time, task_stop_time,"
                       " task_file_count, task_scan_file_count,"
@@ -357,6 +357,17 @@ ScanTaskHelper::ScanTaskHelper(QString dbPath, QObject* parent)
 ScanTaskHelper::~ScanTaskHelper()
 {
     if (d_ptr)          delete d_ptr;
+}
+
+void ScanTaskHelper::resetTask()
+{
+    Q_D(ScanTaskHelper);
+
+    auto val = d->mData.values ();
+
+    for (auto ik : val) {
+        Q_EMIT addNewTask (ik);
+    }
 }
 
 void ScanTaskHelper::loadAllTask()

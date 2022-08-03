@@ -45,6 +45,17 @@ QModelIndex ScannerTaskModel::getIndexByItem(const ScannerTaskItem* item, int co
     return QModelIndex();
 }
 
+void ScannerTaskModel::resetModel()
+{
+    beginResetModel ();
+
+    mData.clear ();
+
+    endResetModel ();
+
+    mScanTaskHelper->resetTask ();
+}
+
 void ScannerTaskModel::addItem(ScannerTaskItem* item)
 {
     if (!item)      return;
@@ -64,11 +75,11 @@ void ScannerTaskModel::delItem(ScannerTaskItem *item)
 
     mData.removeOne (item);
 
-    QModelIndex index = getIndexByItem (item);
-    if (index.isValid ()) {
-        removeRow (index.row ());
+    QModelIndex idx = getIndexByItem (item);
+    if (idx.isValid ()) {
+        removeRow (idx.row ());
+        resetModel ();
     }
-
 }
 
 void ScannerTaskModel::updateItem(ScannerTaskItem *item)
@@ -79,7 +90,7 @@ void ScannerTaskModel::updateItem(ScannerTaskItem *item)
 
     QModelIndex idx = getIndexByItem (item);
     if (idx.isValid ()) {
-        QModelIndex idx1 = index (idx.row (), (int)(EnumSize) - 2);
+        QModelIndex idx1 = index (idx.row (), (int)(EnumSize) - 1);
         Q_EMIT dataChanged (idx, idx1);
     }
 }
