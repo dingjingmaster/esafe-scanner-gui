@@ -30,7 +30,6 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
 
     switch (index.column()) {
     case 0:
-    case 1:
     case 2:
         align |= Qt::AlignHCenter;
         break;

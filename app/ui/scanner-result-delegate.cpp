@@ -81,7 +81,6 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
 
         break;
     } 
-    case 1:
     case 3:
     case 4:
     case 5: {

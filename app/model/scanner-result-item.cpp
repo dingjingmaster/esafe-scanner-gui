@@ -139,12 +139,12 @@ int ScannerResultItem::getStatus(QString status)
 
 QString ScannerResultItem::getFileCreateTime()
 {
-    return QDateTime::fromSecsSinceEpoch(mFileCreateTime).toLocalTime().toString("yyyy-MM-dd_hh:mm:ss");
+    return QDateTime::fromSecsSinceEpoch(mFileCreateTime).toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
 }
 
 QString ScannerResultItem::getFileModifyTime()
 {
-    return QDateTime::fromSecsSinceEpoch(mFileModifyTime).toLocalTime().toString("yyyy-MM-dd_hh:mm:ss");
+    return QDateTime::fromSecsSinceEpoch(mFileModifyTime).toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
 }
 
 QString ScannerResultItem::getFilterName()
