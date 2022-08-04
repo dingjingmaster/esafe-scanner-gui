@@ -46,6 +46,11 @@ void ScannerTaskItem::setStatus(int status)
     }
 }
 
+void ScannerTaskItem::setID(QString id)
+{
+    mID = id;
+}
+
 void ScannerTaskItem::setName(QString name)
 {
     mName = name;
@@ -84,6 +89,11 @@ void ScannerTaskItem::setFilterName(QString filterName)
 void ScannerTaskItem::setScanFinishedFileCount(qint64 count)
 {
     mScanFinishedFileCount = count;
+}
+
+QString ScannerTaskItem::getID()
+{
+    return (nullptr == mID || mID.isNull() || mID.isEmpty()) ? " " : mID;
 }
 
 QString ScannerTaskItem::getName()

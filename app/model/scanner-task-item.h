@@ -15,6 +15,7 @@ public:
     ScannerTaskItem(QString name, Status status, qint64 startTime, qint64 stopTime, QObject *parent = nullptr);
 
     void setStatus (int tatus);
+    void setID (QString id);
     void setName (QString name);
     void setStatus (Status tatus);
     void setStopTime (qint64 stopTime);
@@ -25,6 +26,7 @@ public:
     void setFilterName (QString filterName);
     void setScanFinishedFileCount(qint64 count);
 
+    QString getID ();
     QString getName ();
     QString getStatus ();
     QString getStartTime ();
@@ -37,6 +39,7 @@ public:
     QString getOperation ();
 
 private:
+    QString                 mID;
     QString                 mName;
     Status                  mStatus;
     qint64                  mStartTime;

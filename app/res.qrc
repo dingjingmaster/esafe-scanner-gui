@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>data/scanner.png</file>
         <file>data/stylesheet.qss</file>
+        <file>data/dsip.png</file>
     </qresource>
 </RCC>

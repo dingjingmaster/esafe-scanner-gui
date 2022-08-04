@@ -204,10 +204,10 @@ ScannerTaskItem *ScanTaskHelperPrivate::selectTaskByIDV2(QString taskID)
 {
     ScannerTaskItem* item = new ScannerTaskItem();
 
-    item->setName(taskID);
+    item->setID(taskID);
 
     QString sql = QString("SELECT `task_status`, `task_start_time`, `task_stop_time`, `task_scan_finished_file_count`,"
-                      " `task_scan_file_count`, `task_file_count`, `scan_task_filter_name` "
+                      " `task_scan_file_count`, `task_file_count`, `scan_task_filter_name`, `task_name` "
                       " FROM scan_task "
                       " WHERE task_id='%1'").arg(taskID);
 
@@ -223,6 +223,7 @@ ScannerTaskItem *ScanTaskHelperPrivate::selectTaskByIDV2(QString taskID)
             item->setScanFileCount(sqlite3_column_int64(stmt, 4));
             item->setTaskFileCount(sqlite3_column_int64(stmt, 5));
             item->setFilterName(QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 6))));
+            item->setName(QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 7))));
 
             qInfo () << "status: " << item->getStatus() << "\n"
                      << "startTime: " << item->getStartTime() << "\n"

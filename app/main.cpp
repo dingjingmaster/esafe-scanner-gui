@@ -24,10 +24,13 @@ int main(int argc, char *argv[])
 
     SingletonApp app (argc, argv, APP_NAME);
 
+    app.setApplicationDisplayName (APP_NAME);
+
     app.setStyle(new MainStyle(""));
 //    app.setStyle(new QCommonStyle());
 
     MainWindow w;
+    w.setWindowIcon (QIcon("://data/dsip.png"));
 
     QFile file ("://data/stylesheet.qss");
     if (file.open(QFile::ReadOnly)) {
