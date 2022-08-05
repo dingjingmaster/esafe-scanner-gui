@@ -90,6 +90,13 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
         p->drawText(rect, align, text);
         break;
     }
+    case 1: {
+        QString text = index.model()->data(index).toString();
+        align |= Qt::AlignLeft;
+        p->setBrush(pal.windowText());
+        p->drawText(rect, align, text);
+        break;
+    }
     default:
         break;
     }
