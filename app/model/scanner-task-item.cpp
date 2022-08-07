@@ -130,13 +130,12 @@ QString ScannerTaskItem::getStatus()
 
 QString ScannerTaskItem::getStartTime()
 {
-    qInfo () << "task start time: " << mStartTime;
-    return QDateTime::fromSecsSinceEpoch(mStartTime).toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
+    return !mStartTime ? "" : QDateTime::fromSecsSinceEpoch(mStartTime).toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
 }
 
 QString ScannerTaskItem::getStopTime()
 {
-    return QDateTime::fromSecsSinceEpoch(mStartTime).toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
+    return !mStopTime ? "" : QDateTime::fromSecsSinceEpoch(mStopTime).toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
 }
 
 QString ScannerTaskItem::getFilterName()

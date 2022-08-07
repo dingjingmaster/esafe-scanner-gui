@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 
     SingletonApp app (argc, argv, APP_NAME);
 
-    app.setApplicationDisplayName (APP_NAME);
+    app.setApplicationDisplayName ("扫描自查工具");
 
     app.setStyle(new MainStyle(""));
 //    app.setStyle(new QCommonStyle());
