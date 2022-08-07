@@ -72,7 +72,7 @@ void PushButton::setEnable()
 {
     if (mIsEnable) {
         setCursor(Qt::PointingHandCursor);
-        mLabel->setStyleSheet("background-color:red; font: blod; color: rgb(255, 255, 255); border-radius: 6px;");
+        mLabel->setStyleSheet("background-color:#cc3033; font: blod; color: rgb(255, 255, 255); border-radius: 6px;");
     } else {
         setCursor(Qt::ArrowCursor);
         mLabel->setStyleSheet("background-color:#696969; font: blod; color: rgb(255, 255, 255); border-radius: 6px;");

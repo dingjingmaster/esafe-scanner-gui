@@ -3,5 +3,6 @@
         <file>data/scanner.png</file>
         <file>data/stylesheet.qss</file>
         <file>data/dsip.png</file>
+        <file>data/scanner-new.png</file>
     </qresource>
 </RCC>

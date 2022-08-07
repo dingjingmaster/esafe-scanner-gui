@@ -334,13 +334,14 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         }
 
         if (ScannerResultModel::FileName == index.column() && index.row() >= 0) {
-            QPoint p = mView->visualRect(index).bottomRight();
+            //QPoint p = mView->visualRect(index).bottomRight();
+            QPoint p = QCursor().pos (); //mView->visualRect(index).bottomRight();
             QString text = static_cast<ScannerResultItem*>(index.internalPointer())->getFileName();
             QFontMetrics fm(font());
             int w = fm.horizontalAdvance(text);
             int h = fm.height();
             // void showText(const QPoint &pos, const QString &text, QWidget *w, const QRect &rect, int msecDisplayTime)
-            QToolTip::showText(mapToGlobal(p), text, this, QRect(p.x(), p.y(), w, h), 3000000);
+            QToolTip::showText(p, text, this, QRect(+100, -100, w, h), 3000000);
         }
     });
 

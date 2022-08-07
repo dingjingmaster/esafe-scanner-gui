@@ -20,7 +20,7 @@ protected:
 
 private:
     const int           mFixSize = 90;
-    const int           mIconSize = 60;
+    const int           mIconSize = 90;
     const int           mLabelWidth = 90;
     const int           mLabelHeight = mFixSize - mIconSize;
 

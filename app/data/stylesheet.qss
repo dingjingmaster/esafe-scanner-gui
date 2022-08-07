@@ -7,7 +7,7 @@
 #main-header {
     margin: 0px;
     padding: 0px;
-    background-color: rgb(255, 0, 0);
+    background-color: rgb(204, 48, 51);
 }
 
 #main-header-title {
@@ -39,7 +39,7 @@
 #main-toolbar {
     margin: 0px;
     padding: 0px;
-    background-color: rgba(255, 0, 0, 1);
+    background-color: rgba(204, 48, 51, 1);
 
     color: rgba(255, 255, 255, 1);
 }

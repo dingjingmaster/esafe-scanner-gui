@@ -17,7 +17,7 @@ include_directories(${CMAKE_SOURCE_DIR}/app/
 add_executable(dsip_sit
     ${MAIN_SRC} ${CMAKE_SOURCE_DIR}/app/res.qrc
     ${SINGLEAPP_SRC} ${UI_SRC} ${VIEW_SRC} ${MODEL_SRC} ${UTILS_SRC} ${QGSETTINGS_SRC} ${STYLE_SRC} ${DB_SRC})
-target_compile_options(dsip_sit PUBLIC -O0 -finput-charset=utf8 -fexec-charset=utf8)
+#target_compile_options(dsip_sit PUBLIC -O0 -finput-charset=utf8 -fexec-charset=utf8)
 
 target_link_libraries(dsip_sit
     Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets Qt5::DBus ${SQLITE3_LIBRARIES} ${GIO_LIBRARIES} ${PROTOBUF_LIBRARIES})

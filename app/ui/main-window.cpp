@@ -63,8 +63,8 @@ MainWindow::MainWindow(QWidget *parent)
     // FIXME:// 图标不能使用 jpg 的，要用 png 的
     toolbar->setContentsMargins(0, 0, 0, 0);
     toolbar->setAutoFillBackground(true);
-    action1->setIcon("://data/scanner.png");
-    action1->setText(tr("网络扫描管理"));
+    action1->setIcon("://data/scanner-new.png");
+    //action1->setText(tr("网络扫描管理"));
     action1->setFocus();
     toolbar->addWidget(action1);
     mMainLayout->addWidget(toolbar);
