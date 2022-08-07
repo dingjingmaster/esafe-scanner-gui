@@ -23,17 +23,16 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
     mView->horizontalHeader()->setMinimumSectionSize(10);
     mView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     mView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive);
-    mView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Interactive);
     mView->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
     mView->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Interactive);
     mView->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Interactive);
     mView->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Interactive);
-    //mView->horizontalHeader()->setSectionResizeMode(6, QHeaderView::Fixed);
+    mView->horizontalHeader()->setSectionResizeMode(6, QHeaderView::Fixed);
     mView->horizontalHeader()->resizeSection (0, 40);
     mView->horizontalHeader()->resizeSection (3, 180);
     mView->horizontalHeader()->resizeSection (4, 180);
     mView->horizontalHeader()->resizeSection (5, 180);
-    mView->horizontalHeader()->resizeSection (6, 30);
+    mView->horizontalHeader()->resizeSection (6, 90);
     //mView->setSortingEnabled(true);
     mMainLayout->addWidget(mView);
 

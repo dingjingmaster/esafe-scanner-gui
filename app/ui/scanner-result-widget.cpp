@@ -48,6 +48,46 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mView->setItemDelegate(new ScannerResultDelegate(this));
     HeaderView* headerView = new HeaderView(Qt::Horizontal, mView);
 
+    retBtn->setText(tr("返回"));
+    Q_EMIT retBtn->enable (true);
+    retBtn->setStyleSheet("background-color:red;");
+    mLeftLayout->addWidget(retBtn);
+
+    mRightLayout->setSpacing(6);
+
+    mDelBtn->setStyleSheet("background-color:red;");
+    mDelBtn->setText(tr("删除"));
+    mRightLayout->addWidget(mDelBtn);
+
+    mMisBtn->setStyleSheet("background-color:red;");
+    mMisBtn->setText(tr("误报"));
+    mRightLayout->addWidget(mMisBtn);
+
+    mExpBtn->setStyleSheet("background-color:red;");
+    mExpBtn->setText(tr("导出"));
+    mRightLayout->addWidget(mExpBtn);
+
+    mBtnLayout->addItem(mLeftLayout);
+    mBtnLayout->addStretch();
+    mBtnLayout->addItem(mRightLayout);
+    mMainLayout->addItem(mBtnLayout);
+
+    // tabview
+    mView->setHorizontalHeader(headerView);
+    mView->setModel(mModel);
+    mMainLayout->addWidget(mView);
+
+    mView->horizontalHeader()->setMinimumSectionSize(10);
+    mView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    mView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+    mView->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
+    mView->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Interactive);
+    mView->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Interactive);
+    mView->horizontalHeader()->resizeSection (0, 40);
+    mView->horizontalHeader()->resizeSection (2, 80);
+    mView->horizontalHeader()->resizeSection (3, 180);
+    mView->horizontalHeader()->resizeSection (4, 180);
+
 
     connect (this, &ScannerResultWidget::applyData, this, [=] () {
         QMessageBox* box = new QMessageBox(this);
@@ -102,12 +142,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         }
     });
 
-
-    retBtn->setText(tr("返回"));
-    Q_EMIT retBtn->enable (true);
-    retBtn->setStyleSheet("background-color:red;");
-    mLeftLayout->addWidget(retBtn);
-    
     connect (retBtn, &PushButton::clicked, this, [=] () { 
         Q_EMIT applyData ();
         Q_EMIT returnTaskList();
@@ -117,11 +151,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         Q_EMIT headerView->checkBoxClicked (false);
     });
 
-    mRightLayout->setSpacing(6);
-
-    mDelBtn->setStyleSheet("background-color:red;");
-    mDelBtn->setText(tr("删除"));
-    mRightLayout->addWidget(mDelBtn);
     mDelBtn->connect(mDelBtn, &PushButton::clicked, this, [=] () {
         QList<const ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
@@ -146,9 +175,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
 
     });
 
-    mMisBtn->setStyleSheet("background-color:red;");
-    mMisBtn->setText(tr("误报"));
-    mRightLayout->addWidget(mMisBtn);
     mMisBtn->connect(mMisBtn, &PushButton::clicked, this, [=] () {
         QList<const ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
@@ -172,9 +198,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         }
     });
 
-    mExpBtn->setStyleSheet("background-color:red;");
-    mExpBtn->setText(tr("导出"));
-    mRightLayout->addWidget(mExpBtn);
     mExpBtn->connect(mExpBtn, &PushButton::clicked, this, [=] () {
         QList<const ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
@@ -223,16 +246,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         }
     });
 
-    mBtnLayout->addItem(mLeftLayout);
-    mBtnLayout->addStretch();
-    mBtnLayout->addItem(mRightLayout);
-    mMainLayout->addItem(mBtnLayout);
-
-    // tabview
-    mView->setHorizontalHeader(headerView);
-
-    mView->setModel(mModel);
-    mMainLayout->addWidget(mView);
     
     // 更新状态
     connect (mModel, &ScannerResultModel::dataChanged, this, [=] (const QModelIndex &topLeft,
