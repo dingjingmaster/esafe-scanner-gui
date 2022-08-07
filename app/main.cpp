@@ -4,6 +4,7 @@
 #include "style/main-style.h"
 
 //#include <QCommonStyle>
+#include <QTextCodec>
 
 #include <QFile>
 #include <syslog.h>
@@ -16,18 +17,20 @@ int main(int argc, char *argv[])
 
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-    #if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
-        QApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
-    #endif
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+    QApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
+#endif
 
     qInfo() << "\n\n\n\n\n\nstart...";
 
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName("utf-8"));
+
     SingletonApp app (argc, argv, APP_NAME);
+    SingletonApp::setApplicationName ("扫描自查工具");
 
     app.setApplicationDisplayName ("扫描自查工具");
 
     app.setStyle(new MainStyle(""));
-//    app.setStyle(new QCommonStyle());
 
     MainWindow w;
     w.setWindowIcon (QIcon("://data/dsip.png"));

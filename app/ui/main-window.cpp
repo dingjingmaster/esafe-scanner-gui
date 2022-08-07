@@ -19,6 +19,8 @@ MainWindow::MainWindow(QWidget *parent)
     setMinimumSize(mMinWidth, mMinHeight);
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
+    setWindowTitle ("扫描自查工具");
+
     mMainLayout = new QVBoxLayout;
     QHBoxLayout* btnLayout = new QHBoxLayout;
 
