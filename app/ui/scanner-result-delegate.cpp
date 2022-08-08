@@ -1,5 +1,6 @@
 #include "scanner-result-delegate.h"
 
+#include "model/scanner-result-item.h"
 #include "scanner-result-widget.h"
 
 #include <QDebug>
@@ -130,13 +131,21 @@ QWidget *ScannerResultDelegate::createEditor(QWidget *parent, const QStyleOption
     if (!index.isValid ())      return nullptr;
 
     QString text = index.model()->data(index).toString();
+    auto iitem = static_cast <ScannerResultItem*>(index.internalPointer ());
 
     switch (index.column()) {
     case 2: {
         if (auto sr = static_cast <ScannerResultWidget*>(mObj)) {
             if (!sr->hasChecked()) {
                 QComboBox* cb = new QComboBox(parent);
-                cb->addItems(QStringList() << tr("误报") << tr("删除") << tr("未处理"));
+                QStringList ls;
+                ls << "误报" << "删除";
+                if (iitem->canUntreated ()) {
+                    ls << "未处理";
+                }
+
+                cb->addItems(ls);
+
                 if (text == "误报") {
                     cb->setCurrentIndex (0);
                 } else if (text == "删除") {

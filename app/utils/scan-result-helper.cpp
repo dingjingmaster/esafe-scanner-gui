@@ -61,7 +61,7 @@ void ScanResultHelper::misReportByName(QString name)
 {
     Q_D(ScanResultHelper);
 
-    if (!d->mData.contains (name)) {
+    if (!(d->mData.contains (name))) {
         qWarning() << "item: '" << name << "' not existed";
         return;
     }
@@ -87,7 +87,7 @@ void ScanResultHelper::deleteItemByName(QString name)
 {
     Q_D(ScanResultHelper);
 
-    if (!d->mData.contains (name)) {
+    if (!(d->mData.contains (name))) {
         qWarning() << "item: '" << name << "' not existed";
         return;
     }
@@ -272,6 +272,7 @@ ScannerResultItem *ScanResultHelperPrivate::selectFileByID (QString id)
             item->setFileName(QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1))));
             item->setStatus(sqlite3_column_int(stmt, 2));
             item->setFileCreateTime (QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3))));
+            item->setCanUntreated((item->getStatus2() == ScannerResultItem::MisReport ? true : false));
             //item->setFileCreateTime(sqlite3_column_int(stmt, 3));
             // modify time
             QFileInfo file (item->getFileName ());

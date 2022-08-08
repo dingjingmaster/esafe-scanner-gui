@@ -24,6 +24,11 @@ public:
     void setFileCreateTime (qint64 time);
     void setFileModifyTime (qint64 time);
 
+    // 是否可以执行未处理操作？
+    // 误报、删除不可执行未处理
+    bool canUntreated ();
+    void setCanUntreated (bool f);
+
     qint64 getID();
 
     bool getChecked ();
@@ -39,6 +44,7 @@ public:
 
 private:
     bool                mChecked = false;
+    bool                mCanUntreated = true;
     
     qint64              mID;
     Status              mStatus;
@@ -47,7 +53,6 @@ private:
     QString             mFilterName;
     qint64              mFileCreateTime;
     qint64              mFileModifyTime;
-
 };
 
 #endif // SCANNERRESULTITEM_H

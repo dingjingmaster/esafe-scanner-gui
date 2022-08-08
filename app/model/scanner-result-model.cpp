@@ -147,7 +147,7 @@ void ScannerResultModel::saveResult()
 
     for (auto l : ls) {
         ScannerResultItem* item = const_cast<ScannerResultItem*>(l);
-        QString fileName = item->getFileName ();
+        QString fileName = QString("%1").arg(item->getID ());
 
         int status = item->getStatus2 ();
         if (ScannerResultItem::MisReport == status) {

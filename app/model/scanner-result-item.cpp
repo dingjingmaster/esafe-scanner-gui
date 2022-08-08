@@ -87,6 +87,16 @@ void ScannerResultItem::setFileModifyTime(qint64 time)
     mFileModifyTime = time;
 }
 
+bool ScannerResultItem::canUntreated()
+{
+    return mCanUntreated;
+}
+
+void ScannerResultItem::setCanUntreated(bool f)
+{
+    mCanUntreated = f;
+}
+
 qint64 ScannerResultItem::getID()
 {
     return mID;
