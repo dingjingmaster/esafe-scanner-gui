@@ -26,9 +26,9 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("utf-8"));
 
     SingletonApp app (argc, argv, APP_NAME);
-    SingletonApp::setApplicationName ("扫描自查工具");
+    SingletonApp::setApplicationName ("DLP");
 
-    app.setApplicationDisplayName ("扫描自查工具");
+    app.setApplicationDisplayName ("DLP");
 
     app.setStyle(new MainStyle(""));
 
