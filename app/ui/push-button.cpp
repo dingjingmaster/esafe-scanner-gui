@@ -27,7 +27,7 @@ PushButton::PushButton(QWidget *parent, Type type)
     case Type1: {
         QWidget* widget = new QWidget;
         widget->setFixedHeight(3);
-        mLabel->setStyleSheet("color: blue;");
+        mLabel->setStyleSheet("color: rgb(255, 255, 255);");
         widget->setStyleSheet("background-color:blue;");
         mLayout->addWidget(widget);
         break;

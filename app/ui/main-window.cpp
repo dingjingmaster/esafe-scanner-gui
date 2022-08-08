@@ -50,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(header, &MainHeader::windowMax,     this, [&] () {
         auto state = windowState();
         if (state & Qt::WindowMaximized) {
+            setWindowState(windowState () & ~Qt::WindowMaximized);
             setWindowState(Qt::WindowNoState);
         } else {
             setWindowState(Qt::WindowMaximized);
