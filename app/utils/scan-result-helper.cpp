@@ -222,7 +222,7 @@ ScannerResultItem *ScanResultHelperPrivate::selectFileByID (QString id)
             // modify time
             QFileInfo file (item->getFileName ());
             if (file.exists ()) {
-                item->setFileModifyTime (file.lastModified ().toSecsSinceEpoch ());
+                item->setFileModifyTime (file.metadataChangeTime ().toSecsSinceEpoch ());
             }
 
             qInfo () << "file name: " << item->getFileName() << "\n"
