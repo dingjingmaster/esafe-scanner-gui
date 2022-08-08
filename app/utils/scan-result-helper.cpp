@@ -41,7 +41,6 @@ public:
     sqlite3*                            mDB;
     QFileSystemWatcher*                 mWatcher;
 
-
     // const
     ScanResultHelper*                   q_ptr;
     Q_DECLARE_PUBLIC(ScanResultHelper);
@@ -56,6 +55,61 @@ ScanResultHelper::ScanResultHelper(QString dbPath, QObject *parent)
 ScanResultHelper::~ScanResultHelper()
 {
     if (d_ptr)          delete d_ptr;
+}
+
+void ScanResultHelper::misReportByName(QString name)
+{
+    Q_D(ScanResultHelper);
+
+    if (!d->mData.contains (name)) {
+        qWarning() << "item: '" << name << "' not existed";
+        return;
+    }
+
+    ScannerResultItem* item = d->mData[name];
+
+    QString sql = QString("UPDATE `scan_result` SET status_reported=1, status=6 WHERE ID=%1").arg (item->getID ());
+    qInfo() << "sql ==> " << sql;
+
+    while (!sqlite_lock());
+
+    char* errMsg = NULL;
+    sqlite3_exec (d->mDB, sql.toUtf8().constData(), NULL, NULL, &errMsg);
+    if (errMsg) {
+        qWarning() << "report error: " << errMsg;
+        sqlite3_free(errMsg);
+    }
+
+    while (!sqlite_unlock());
+}
+
+void ScanResultHelper::deleteItemByName(QString name)
+{
+    Q_D(ScanResultHelper);
+
+    if (!d->mData.contains (name)) {
+        qWarning() << "item: '" << name << "' not existed";
+        return;
+    }
+
+    ScannerResultItem* item = d->mData[name];
+
+    QString sql = QString("UPDATE `scan_result` SET status_reported=1, status=5 WHERE ID=%1").arg (item->getID ());
+
+    while (!sqlite_lock());
+
+    char* errMsg = NULL;
+    sqlite3_exec (d->mDB, sql.toUtf8().constData(), NULL, NULL, &errMsg);
+    if (errMsg) {
+        qWarning() << "report error: " << errMsg;
+        sqlite3_free(errMsg);
+    } else {
+        d->mData.remove (name);
+        Q_EMIT delOldFile (item);
+        delete item;
+    }
+
+    while (!sqlite_unlock());
 }
 
 void ScanResultHelper::clearData()

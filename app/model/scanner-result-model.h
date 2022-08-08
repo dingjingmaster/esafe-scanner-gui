@@ -21,17 +21,17 @@ public:
     void addItem (ScannerResultItem* item);
     void delItem (ScannerResultItem* item);
     
+    int getAllCount ();
     int getNoFixCount ();
     int getDeleteCount ();
     int getMisReportCount ();
-    int getAllCount ();
 
     QList<const ScannerResultItem*> getChangedItem ();
-    
-    QModelIndex getIndexByItem (const ScannerResultItem* it, int column=0);
-    
     QList<const ScannerResultItem*> getSelectedItem ();
-    
+    QModelIndex getIndexByItem (const ScannerResultItem* it, int column=0);
+
+    void saveResult();
+
 private:
     void changeItemCount(int status, bool isAdd=true);
 
@@ -72,7 +72,7 @@ private:
     
     // FIXME:// 不应该释放Item内存，这块需要用 智能指针 优化
     QList<ScannerResultItem*>                           mData;
-    QMap<const ScannerResultItem*, QPair<int, int>>           mChangedItem;
+    QMap<const ScannerResultItem*, QPair<int, int>>     mChangedItem;
 };
 
 #endif // SCANNERRESULTMODEL_H

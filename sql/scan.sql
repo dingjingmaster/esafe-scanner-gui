@@ -44,6 +44,7 @@ CREATE TABLE scan_result (
     `is_recognized`                     INTEGER         DEFAULT 1,                      -- 文件是否识别
     `is_blocked`                        INTEGER         DEFAULT 1,                      -- 文件是否识别
     `detect_result`                     TEXT                            NOT NULL,       -- 扫描结果
+    `status_reported`                   TINYINT         DEFAULT 0       NOT NULL,       -- 是否需要上报处理，0 - 不需要；1 - 需要
     --`filter_name`                       TEXT                            NOT NULL,       -- 扫描命中策略
     --`file_create_time`                  DATETIME        DEFAULT 0       NOT NULL,       -- 文件创建时间
     --`file_modify_time`                  DATETIME        DEFAULT 0       NOT NULL,       -- 文件修改时间

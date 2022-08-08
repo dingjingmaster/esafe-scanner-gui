@@ -141,6 +141,26 @@ QModelIndex ScannerResultModel::getIndexByItem(const ScannerResultItem *item, in
     return QModelIndex();
 }
 
+void ScannerResultModel::saveResult()
+{
+    auto ls = getChangedItem ();
+
+    for (auto l : ls) {
+        ScannerResultItem* item = const_cast<ScannerResultItem*>(l);
+        QString fileName = item->getFileName ();
+
+        int status = item->getStatus2 ();
+        if (ScannerResultItem::MisReport == status) {
+            mScanResultHelper->misReportByName (fileName);
+        } else if (ScannerResultItem::Deleted == status) {
+            mScanResultHelper->deleteItemByName (fileName);
+        } else {
+            qDebug() << "not apply: " << fileName;
+            continue;
+        }
+    }
+}
+
 QList<const ScannerResultItem *> ScannerResultModel::getSelectedItem()
 {
     QList<const ScannerResultItem *> ls;

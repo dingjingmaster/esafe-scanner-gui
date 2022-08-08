@@ -13,6 +13,10 @@ public:
     explicit ScanResultHelper(QString dbPath, QObject *parent = nullptr);
     ~ScanResultHelper();
 
+    void misReportByName(QString);
+    void deleteItemByName (QString);
+
+
 public Q_SLOTS:
     void clearData();
     void loadTaskResult (QString taskName = "", QString taskFilter = "");

@@ -104,7 +104,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         box->addButton (cancel, QMessageBox::RejectRole);
 
         box->connect (apply, &QPushButton::clicked, this, [=] () {
-            // 保存数据
+#if 0
             auto ls = mModel->getChangedItem ();
 
             for (auto l : ls) {
@@ -132,7 +132,9 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
                 qDebug() << "apply " << item->getStatus () << " data: " << msg.DebugString().c_str();
                 NotifyToFilter::getInstance()->sendData(msg.SerializeAsString());
             }
-
+#else
+            mModel->saveResult ();
+#endif
             box->deleteLater ();
         });
         if (mModel->hasChanged ()) {
