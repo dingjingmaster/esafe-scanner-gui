@@ -2,7 +2,7 @@ project(dsip_sit LANGUAGES CXX)
 
 cmake_minimum_required(VERSION 3.5)
 
-set(DEBUG OFF)
+set(DEBUG ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -36,8 +36,8 @@ find_package(Qt5 COMPONENTS Core Network Widgets Gui DBus REQUIRED)
 
 pkg_check_modules(GIO REQUIRED gio-2.0)
 pkg_check_modules(SQLITE3 REQUIRED sqlite3)
-pkg_check_modules(PROTOBUF REQUIRED protobuf)
+#pkg_check_modules(PROTOBUF REQUIRED protobuf)
 
 add_subdirectory(app)
-add_subdirectory(demo)
+#add_subdirectory(demo)
 

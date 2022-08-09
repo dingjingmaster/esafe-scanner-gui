@@ -12,7 +12,7 @@ FILE(GLOB MAIN_SRC ${CMAKE_SOURCE_DIR}/app/main.cpp)
 
 include_directories(${CMAKE_SOURCE_DIR}/app/
     ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS}
-    ${SQLITE3_INCLUDE_DIRS} ${GIO_INCLUDE_DIRS} ${PROTOBUF_INCLUDE_DIRS})
+    ${SQLITE3_INCLUDE_DIRS} ${GIO_INCLUDE_DIRS})
 
 add_executable(dsip_sit
     ${MAIN_SRC} ${CMAKE_SOURCE_DIR}/app/res.qrc
@@ -20,5 +20,5 @@ add_executable(dsip_sit
 #target_compile_options(dsip_sit PUBLIC -O0 -finput-charset=utf8 -fexec-charset=utf8)
 
 target_link_libraries(dsip_sit
-    Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets Qt5::DBus ${SQLITE3_LIBRARIES} ${GIO_LIBRARIES} ${PROTOBUF_LIBRARIES})
+    Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets Qt5::DBus ${SQLITE3_LIBRARIES} ${GIO_LIBRARIES})
 

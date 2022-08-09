@@ -1,3 +1,4 @@
+#include "../db/db-manager.h"
 #include "scanner-result-item.h"
 #include "scanner-result-model.h"
 
@@ -8,7 +9,7 @@
 #include "../utils/scan-result-helper.h"
 
 ScannerResultModel::ScannerResultModel(QObject* parent)
-    : QAbstractTableModel{parent}, mScanResultHelper(new ScanResultHelper(QString(DB_PATH), this))
+    : QAbstractTableModel{parent}, mScanResultHelper(DBManager::instance()->getResultHelper())
 {
     // 数据库与model连接
     connect(mScanResultHelper, &ScanResultHelper::addNewFile, this, &ScannerResultModel::addItem);

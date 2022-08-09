@@ -21,10 +21,6 @@ public:
     bool selectAllTaskID ();
     ScannerTaskItem* selectTaskByID (QString taskID);
 
-    /**
-     * @brief 遍历整个表，把结果用信号的方式发送出去
-     */
-    bool selectAllTaskIDV2 ();
     ScannerTaskItem* selectTaskByIDV2 (QString taskID);
 
 private:
@@ -34,14 +30,9 @@ private:
 public:
     QString                         mDBPath;
 
-    QSet<QString>                   mOldTaskID;
-    QSet<QString>                   mNewTaskID;
-
     QMap<QString, ScannerTaskItem*> mData;                  // <TaskID, ScannerTaskItem*>
 
     sqlite3*                        mDB;
-    QFileSystemWatcher*             mWatcher;
-
 
     // const
     ScanTaskHelper*                 q_ptr;
@@ -63,25 +54,13 @@ ScanTaskHelperPrivate::ScanTaskHelperPrivate(QString db, ScanTaskHelper *p)
     }
 
     qInfo() << "connect to database: " << mDBPath << " successful!";
-
-    // 监控数据库文件
-    mWatcher = new QFileSystemWatcher(p);
-    mWatcher->addPath(mDBPath);
-
-    q->connect (mWatcher, &QFileSystemWatcher::fileChanged, [&] (QString) {
-        qInfo() << "db file changed!";
-        onDBChanged();
-    });
 }
 
 ScanTaskHelperPrivate::~ScanTaskHelperPrivate()
 {
-    if (mWatcher)       delete mWatcher;
     if (mDB)            { sqlite3_close(mDB); mDB = nullptr;}
     for (auto m = mData.begin(); m != mData.end(); ++m)    delete m.value();
     mData.clear();
-    mOldTaskID.clear();
-    mNewTaskID.clear();
 }
 
 bool ScanTaskHelperPrivate::selectAllTaskID()
@@ -143,63 +122,6 @@ error:
     return nullptr;
 }
 
-bool ScanTaskHelperPrivate::selectAllTaskIDV2()
-{
-    Q_Q(ScanTaskHelper);
-
-    QString sql = "SELECT task_id, task_start_time, task_stop_time,"
-                      " task_file_count, task_scan_file_count,"
-                      " task_scan_finished_file_count, task_status FROM scan_task WHERE scan_task_self_check=1";
-
-    mOldTaskID = mNewTaskID;
-    mNewTaskID.clear();
-
-    while (!sqlite_lock());
-    sqlite3_stmt* stmt = NULL;
-    int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
-    if (SQLITE_OK == ret) {
-        while (SQLITE_DONE != sqlite3_step(stmt)) {
-            QString id(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
-            qint64 startTime = sqlite3_column_int64 (stmt, 1);
-            qint64 stopTime = sqlite3_column_int64 (stmt, 2);
-            int taskFileCount = sqlite3_column_int (stmt, 3);
-            int taskScanFileCount = sqlite3_column_int (stmt, 4);
-            int taskScanFinishedFileCount = sqlite3_column_int (stmt, 5);
-            int taskStatus = sqlite3_column_int (stmt, 6);
-
-            if (mData.contains(id)) {
-                ScannerTaskItem* item = mData[id];
-                item->setStopTime(stopTime);
-                item->setStatus(taskStatus);
-                item->setStartTime(startTime);
-                item->setTaskFileCount(taskFileCount);
-                item->setScanFileCount(taskScanFileCount);
-                item->setScanFinishedFileCount(taskScanFinishedFileCount);
-                Q_EMIT q->updateTask (item);
-            }
-
-            qInfo() << "task id:" << id;
-
-            mNewTaskID += id;
-        }
-    }
-    if (stmt)       sqlite3_finalize(stmt);
-    while (!sqlite_unlock());
-
-    qInfo() << "old TaskID: " << mOldTaskID;
-    qInfo() << "new TaskID: " << mNewTaskID;
-
-    if (mNewTaskID.count() == mOldTaskID.count()) {
-        goto noChanged;
-    }
-
-    return true;
-
-noChanged:
-
-    return false;
-}
-
 ScannerTaskItem *ScanTaskHelperPrivate::selectTaskByIDV2(QString taskID)
 {
     ScannerTaskItem* item = new ScannerTaskItem();
@@ -258,12 +180,10 @@ int ScanTaskHelperPrivate::select_taskid(void *t, int colums, char **val, char *
         return -1;
     }
 
-    h->mOldTaskID = h->mNewTaskID;
-    h->mNewTaskID.clear();
     int len = strlen("task_id");
     for (int i = 0; i < colums; ++i) {
         if ((strlen(columnName[i]) == len) && (0 == strncpy(columnName[i], "task_id", len))) {
-            h->mNewTaskID += QString(val[i]);
+            //h->mNewTaskID += QString(val[i]);
             qInfo() << "task id:" << QString(val[i]);
         }
     }
@@ -312,29 +232,75 @@ void ScanTaskHelperPrivate::onDBChanged()
 {
     Q_Q(ScanTaskHelper);
 
-    if (!selectAllTaskIDV2()) {
-        qInfo () << "db not change";
-        return;
-    }
+    QSet<QString> allT;
 
-    QSet<QString> delT = mOldTaskID - mNewTaskID;
-    QSet<QString> newT = mNewTaskID - mOldTaskID;
-    QStringList deltSorted = delT.toList();
-    deltSorted.sort();
+    QString sql = QString("SELECT `task_id`, `task_status`, `task_start_time`, `task_stop_time`,"
+                          " `task_scan_finished_file_count`, `task_scan_file_count`, `task_file_count`, `scan_task_filter_name`, `task_name` "
+                          " FROM scan_task WHERE scan_task_self_check=1");
 
-    QStringList newtSorted = newT.toList();
-    newtSorted.sort();
+    qDebug() << "scan_task sql: '" << sql << "'";
 
-    for (auto id : newtSorted) {
-        if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
-        if (auto t = selectTaskByIDV2(id)) {
-            qInfo () << "add task '" << id << "'";
-            Q_EMIT q->addNewTask(t);
-            mData[id] = t;
+    while (!sqlite_lock());
+    sqlite3_stmt* stmt = NULL;
+    int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
+    if (SQLITE_OK == ret) {
+        while (SQLITE_DONE != sqlite3_step(stmt)) {
+            QString id(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
+            int taskStatus = sqlite3_column_int(stmt, 1);
+            qint64 startTime = sqlite3_column_int64 (stmt, 2);
+            qint64 stopTime = sqlite3_column_int64 (stmt, 3);
+            int taskScanFinishedFileCount = sqlite3_column_int (stmt, 4);
+            int taskScanFileCount = sqlite3_column_int (stmt, 5);
+            int taskFileCount = sqlite3_column_int (stmt, 6);
+            QString taskFilterName(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 7)));
+            QString taskName(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 8)));
+
+            if (id.isNull () || id.isEmpty () || "" == id)  continue;
+
+            allT.insert (id);
+
+            qInfo() << id;
+
+            if (mData.contains(id)) {
+                ScannerTaskItem* item = mData[id];
+                item->setStopTime(stopTime);
+                item->setStatus(taskStatus);
+                item->setStartTime(startTime);
+                item->setTaskFileCount(taskFileCount);
+                item->setScanFileCount(taskScanFileCount);
+                item->setScanFinishedFileCount(taskScanFinishedFileCount);
+                qInfo() << "update task id:" << id;
+                Q_EMIT q->updateTask (item);
+            } else {
+                ScannerTaskItem* item = new ScannerTaskItem;
+                item->setID (id);
+
+                item->setStatus(taskStatus);
+                item->setStartTime(startTime);
+                item->setStopTime(stopTime);
+                item->setScanFinishedFileCount(taskScanFinishedFileCount);
+                item->setScanFileCount(taskScanFileCount);
+                item->setTaskFileCount(taskFileCount);
+                item->setFilterName(taskFilterName);
+                item->setName(taskName);
+
+                mData[id] = item;
+
+                qInfo() << "new task id:" << id;
+                Q_EMIT q->addNewTask (item);
+            }
         }
+    } else {
+        qWarning() << "select: '" << sql << "' error";
     }
 
-    for (auto id : deltSorted) {
+    if (stmt)       sqlite3_finalize(stmt);
+    while (!sqlite_unlock());
+
+    QSet<QString> newT = mData.keys ().toSet ();
+    QSet<QString> delT = allT - newT;
+
+    for (auto id : delT) {
         if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
         if (mData.contains(id)) {
             auto it = mData[id];
@@ -344,8 +310,6 @@ void ScanTaskHelperPrivate::onDBChanged()
             delete it;
         }
     }
-
-    mOldTaskID = mNewTaskID;
 }
 
 

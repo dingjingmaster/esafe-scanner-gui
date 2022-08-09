@@ -3,18 +3,21 @@
 
 #include <QObject>
 
+class DBManager;
 class ScannerResultItem;
 class ScanResultHelperPrivate;
 
 class ScanResultHelper : public QObject
 {
     Q_OBJECT
+    friend class DBManager;
 public:
-    explicit ScanResultHelper(QString dbPath, QObject *parent = nullptr);
-    ~ScanResultHelper();
-
     void misReportByName(QString);
     void deleteItemByName (QString);
+
+private:
+    explicit ScanResultHelper(QString dbPath, QObject *parent = nullptr);
+    ~ScanResultHelper();
 
 
 public Q_SLOTS:

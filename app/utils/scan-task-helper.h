@@ -17,14 +17,14 @@ class ScanTaskHelperPrivate;
 class ScanTaskHelper : public QObject
 {
     Q_OBJECT
+    friend class DBManager;
 public:
-    explicit ScanTaskHelper(QString dbPath, QObject* parent = nullptr);
-    ~ScanTaskHelper();
-
     void resetTask ();
     void loadAllTask ();
 
 private:
+    explicit ScanTaskHelper(QString dbPath, QObject* parent = nullptr);
+    ~ScanTaskHelper();
 
 Q_SIGNALS:
     void updateTask (ScannerTaskItem* it);

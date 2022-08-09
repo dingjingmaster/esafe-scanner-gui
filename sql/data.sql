@@ -21,38 +21,93 @@
 -- );
 
 
-INSERT INTO scan_task (task_id, scan_interval, scan_task_filter_name, scan_task_dir, scan_task_dir_filterout, scan_task_dir_filterout_fileext,
+INSERT INTO scan_task (task_id, task_name, scan_interval, scan_task_filter_name, scan_task_dir, scan_task_dir_filterout, scan_task_dir_filterout_fileext,
     task_start_time, task_stop_time, task_file_count, task_scan_file_count, task_scan_finished_file_count,
     task_status, scan_result_reuse, scan_task_file_monitor, scan_task_self_check)
-    VALUES ("TASK 001", 004, 'A;B;C;D', "/home", ".local", "*.png", 1658558157, 1658558157, 1000, 600, 100, 0, 0, 0, 0);
+    VALUES ("TASK 001", "name1", 004, 'A;B;C;D', "/home", ".local", "*.png", 1658558157, 1658558157, 1000, 600, 100, 0, 0, 0, 1);
 
-INSERT INTO scan_task (task_id, scan_interval, scan_task_filter_name, scan_task_dir, scan_task_dir_filterout, scan_task_dir_filterout_fileext,
+INSERT INTO scan_task (task_id, task_name, scan_interval, scan_task_filter_name, scan_task_dir, scan_task_dir_filterout, scan_task_dir_filterout_fileext,
     task_start_time, task_stop_time, task_file_count, task_scan_file_count, task_scan_finished_file_count,
     task_status, scan_result_reuse, scan_task_file_monitor, scan_task_self_check)
-    VALUES ("TASK 002", 004, 'B', "/home", ".local", "*.png", 1658558157, 1658558157, 1000, 600, 100, 1, 1, 0, 0);
+    VALUES ("TASK 002", "name1", 004, 'A;B;C;D', "/home", ".local", "*.png", 1658558157, 1658558157, 1000, 600, 100, 0, 0, 0, 1);
 
-INSERT INTO scan_task (task_id, scan_interval, scan_task_filter_name, scan_task_dir, scan_task_dir_filterout, scan_task_dir_filterout_fileext,
+INSERT INTO scan_task (task_id, task_name, scan_interval, scan_task_filter_name, scan_task_dir, scan_task_dir_filterout, scan_task_dir_filterout_fileext,
     task_start_time, task_stop_time, task_file_count, task_scan_file_count, task_scan_finished_file_count,
     task_status, scan_result_reuse, scan_task_file_monitor, scan_task_self_check)
-    VALUES ("TASK 003", 004, 'C', "/home", ".local", "*.png", 1658558157, 1658558157, 1000, 600, 100, 1, 1, 0, 0);
+    VALUES ("TASK 003", "name1", 004, 'A;B;C;D', "/home", ".local", "*.png", 1658558157, 1658558157, 1000, 600, 100, 0, 0, 0, 1);
+
+INSERT INTO scan_task (task_id, task_name, scan_interval, scan_task_filter_name, scan_task_dir, scan_task_dir_filterout, scan_task_dir_filterout_fileext,
+    task_start_time, task_stop_time, task_file_count, task_scan_file_count, task_scan_finished_file_count,
+    task_status, scan_result_reuse, scan_task_file_monitor, scan_task_self_check)
+    VALUES ("TASK 004", "name1", 004, 'A;B;C;D', "/home", ".local", "*.png", 1658558157, 1658558157, 1000, 600, 100, 0, 0, 0, 1);
+
+INSERT INTO scan_task (task_id, task_name, scan_interval, scan_task_filter_name, scan_task_dir, scan_task_dir_filterout, scan_task_dir_filterout_fileext,
+    task_start_time, task_stop_time, task_file_count, task_scan_file_count, task_scan_finished_file_count,
+    task_status, scan_result_reuse, scan_task_file_monitor, scan_task_self_check)
+    VALUES ("TASK 005", "name1", 004, 'A;B;C;D', "/home", ".local", "*.png", 1658558157, 1658558157, 1000, 600, 100, 0, 0, 0, 1);
+
+INSERT INTO scan_task (task_id, task_name, scan_interval, scan_task_filter_name, scan_task_dir, scan_task_dir_filterout, scan_task_dir_filterout_fileext,
+    task_start_time, task_stop_time, task_file_count, task_scan_file_count, task_scan_finished_file_count,
+    task_status, scan_result_reuse, scan_task_file_monitor, scan_task_self_check)
+    VALUES ("TASK 006", "name1", 004, 'A;B;C;D', "/home", ".local", "*.png", 1658558157, 1658558157, 1000, 600, 100, 0, 0, 0, 1);
+
+INSERT INTO scan_task (task_id, task_name, scan_interval, scan_task_filter_name, scan_task_dir, scan_task_dir_filterout, scan_task_dir_filterout_fileext,
+    task_start_time, task_stop_time, task_file_count, task_scan_file_count, task_scan_finished_file_count,
+    task_status, scan_result_reuse, scan_task_file_monitor, scan_task_self_check)
+    VALUES ("TASK 007", "name1", 004, 'A;B;C;D', "/home", ".local", "*.png", 1658558157, 1658558157, 1000, 600, 100, 0, 0, 0, 1);
+
+INSERT INTO scan_task (task_id, task_name, scan_interval, scan_task_filter_name, scan_task_dir, scan_task_dir_filterout, scan_task_dir_filterout_fileext,
+    task_start_time, task_stop_time, task_file_count, task_scan_file_count, task_scan_finished_file_count,
+    task_status, scan_result_reuse, scan_task_file_monitor, scan_task_self_check)
+    VALUES ("TASK 008", "name1", 004, 'A;B;C;D', "/home", ".local", "*.png", 1658558157, 1658558157, 1000, 600, 100, 0, 0, 0, 1);
+
+INSERT INTO scan_task (task_id, task_name, scan_interval, scan_task_filter_name, scan_task_dir, scan_task_dir_filterout, scan_task_dir_filterout_fileext,
+    task_start_time, task_stop_time, task_file_count, task_scan_file_count, task_scan_finished_file_count,
+    task_status, scan_result_reuse, scan_task_file_monitor, scan_task_self_check)
+    VALUES ("TASK 009", "name1", 004, 'A;B;C;D', "/home", ".local", "*.png", 1658558157, 1658558157, 1000, 600, 100, 0, 0, 0, 1);
+
 
 -- 扫描结果，仅保存被扫描任务命中的文件
 -- CREATE TABLE scan_result (
---     `scan_file_name_md5`                VARCHAR(255)                    NOT NULL,       -- 根据文件绝对路径生成的 MD5
+--     `ID`                                INTEGER PRIMARY KEY AUTOINCREMENT,
 --     `scan_file_name`                    TEXT                            NOT NULL,       -- 文件绝对路径
---     `filter_name`                       TEXT                            NOT NULL,       -- 扫描命中策略
+--     `policy_id`                         VARCHAR(32)                     NOT NULL,       -- 策略ID
 --     `status`                            TINYINT         DEFAULT 0       NOT NULL,       -- 处理状态，0 - 未处理，5 - 删除，6 - 误报
 --     `scan_finished_time`                DATETIME        DEFAULT 0       NOT NULL,       -- 扫描完成时间
---     `file_create_time`                  DATETIME        DEFAULT 0       NOT NULL,       -- 文件创建时间
---     `file_modify_time`                  DATETIME        DEFAULT 0       NOT NULL,       -- 文件修改时间
---     PRIMARY KEY(scan_file_name_md5,filter_name)
+--     `action_id`                         VARCHAR(32)                     NOT NULL,       -- 策略ID
+--     `file_type`                         VARCHAR(8),                                     -- 文件类型
+ --     `file_size`                         VARCHAR(16)                    NOT NULL,       -- 文件大小
+--     `is_recognized`                     INTEGER         DEFAULT 1,                      -- 文件是否识别
+--     `is_blocked`                        INTEGER         DEFAULT 1,                      -- 文件是否识别
+--     `detect_result`                     TEXT            DEFAULT ''      NOT NULL,       -- 扫描结果
+--     `status_reported`                   TINYINT         DEFAULT 0       NOT NULL,       -- 是否需要上报处理，0 - 不需要；1 - 需要
+--     PRIMARY KEY(scan_file_name_md5,policy_id)
 -- );
 
-INSERT INTO scan_result (scan_file_name_md5, scan_file_name, filter_name, status, scan_finished_time, file_create_time, file_modify_time)
-    VALUES ("file1 md5", "/tmp/aa", 'A', 0, 1658558157, 1658558157, 1658558157);
 
-INSERT INTO scan_result (scan_file_name_md5, scan_file_name, filter_name, status, scan_finished_time, file_create_time, file_modify_time)
-    VALUES ("file2 md5", "/tmp/bb", 'B', 0, 1658558157, 1658558157, 1658558157);
+INSERT INTO scan_result (scan_file_name, policy_id, status, scan_finished_time)
+    VALUES ("/tmp/aa", 'A', 0, 1658558157);
 
-INSERT INTO scan_result (scan_file_name_md5, scan_file_name, filter_name, status, scan_finished_time, file_create_time, file_modify_time)
-    VALUES ("file3 md5", "/tmp/cc", 'c', 0, 1658558157, 1658558157, 1658558157);
+INSERT INTO scan_result (scan_file_name, policy_id, status, scan_finished_time)
+    VALUES ("/tmp/aa1", 'A', 0, 1658558157);
+INSERT INTO scan_result (scan_file_name, policy_id, status, scan_finished_time)
+    VALUES ("/tmp/aa2", 'A', 0, 1658558157);
+INSERT INTO scan_result (scan_file_name, policy_id, status, scan_finished_time)
+    VALUES ("/tmp/aa3", 'A', 0, 1658558157);
+INSERT INTO scan_result (scan_file_name, policy_id, status, scan_finished_time)
+    VALUES ("/tmp/aa4", 'A', 0, 1658558157);
+INSERT INTO scan_result (scan_file_name, policy_id, status, scan_finished_time)
+    VALUES ("/tmp/aa5", 'A', 0, 1658558157);
+INSERT INTO scan_result (scan_file_name, policy_id, status, scan_finished_time)
+    VALUES ("/tmp/aa6", 'A', 0, 1658558157);
+INSERT INTO scan_result (scan_file_name, policy_id, status, scan_finished_time)
+    VALUES ("/tmp/aa7", 'A', 0, 1658558157);
+INSERT INTO scan_result (scan_file_name, policy_id, status, scan_finished_time)
+    VALUES ("/tmp/aa8", 'A', 0, 1658558157);
+INSERT INTO scan_result (scan_file_name, policy_id, status, scan_finished_time)
+    VALUES ("/tmp/aa9", 'A', 0, 1658558157);
+INSERT INTO scan_result (scan_file_name, policy_id, status, scan_finished_time)
+    VALUES ("/tmp/aa00", 'A', 0, 1658558157);
+INSERT INTO scan_result (scan_file_name, policy_id, status, scan_finished_time)
+    VALUES ("/tmp/aa000", 'A', 0, 1658558157);
+

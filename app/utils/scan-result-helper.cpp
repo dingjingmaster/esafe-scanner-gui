@@ -131,6 +131,8 @@ void ScanResultHelper::loadTaskResult(QString taskName, QString taskFilter)
 {
     Q_D(ScanResultHelper);
 
+    // 此处需要修改
+
     d->mTaskName = taskName;
     d->mTaskFilter = taskFilter;
 
@@ -152,20 +154,10 @@ ScanResultHelperPrivate::ScanResultHelperPrivate(QString db, ScanResultHelper *p
     }
 
     qDebug() << "connect to database: " << mDBPath << " successful!";
-
-    // 监控数据库文件
-    mWatcher = new QFileSystemWatcher(p);
-    mWatcher->addPath(mDBPath);
-
-    q->connect (mWatcher, &QFileSystemWatcher::fileChanged, [&] (QString) {
-        qInfo() << "db file changed!";
-        onDBChanged();
-    });
 }
 
 ScanResultHelperPrivate::~ScanResultHelperPrivate()
 {
-    if (mWatcher)       delete mWatcher;
     if (mDB)            { sqlite3_close(mDB); mDB = nullptr;}
     for (auto m = mData.begin(); m != mData.end(); ++m)    delete m.value();
     mData.clear();
@@ -184,7 +176,7 @@ void ScanResultHelperPrivate::onDBChanged()
         return;
     }
 
-    //
+    // FIXME:// 此处需要修改
     QSet<QString> delT = mOldTaskID - mNewTaskID;
     QSet<QString> newT = mNewTaskID - mOldTaskID;
     for (auto id : newT) {

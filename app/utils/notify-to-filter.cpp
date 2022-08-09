@@ -30,7 +30,6 @@ bool NotifyToFilter::sendData(std::string data)
 
     bool ret = false;
 
-
 #if 1
     com::esafenet::scanner::client::ScannerClientMessage msg;
     msg.ParseFromArray(data.c_str(), data.length());

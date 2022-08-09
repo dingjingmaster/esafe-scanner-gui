@@ -1,10 +1,10 @@
 #include "push-button.h"
 #include "view/header-view.h"
 #include "scanner-result-widget.h"
-#include "utils/notify-to-filter.h"
+//#include "utils/notify-to-filter.h"
 #include "scanner-result-delegate.h"
 #include "utils/export-scan-result.h"
-#include "utils/message-with-fp.pb.h"
+//#include "utils/message-with-fp.pb.h"
 #include "model/scanner-result-item.h"
 #include "model/scanner-result-model.h"
 
@@ -30,7 +30,7 @@
 ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     : QWidget{parent}
 {
-    GOOGLE_PROTOBUF_VERIFY_VERSION;
+    //GOOGLE_PROTOBUF_VERIFY_VERSION;
 
     mMainLayout = new QVBoxLayout;
 
@@ -356,7 +356,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
 
 ScannerResultWidget::~ScannerResultWidget()
 {
-    google::protobuf::ShutdownProtobufLibrary();
+    //google::protobuf::ShutdownProtobufLibrary();
 }
 
 void ScannerResultWidget::test()

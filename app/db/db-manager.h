@@ -2,25 +2,48 @@
 #define DBMANAGER_H
 
 #include <QObject>
-#include <qglobal.h>
+
+class QThread;
+class ScanTaskHelper;
+class ScanResultHelper;
+class QFileSystemWatcher;
 
 class DBManager : public QObject
 {
     Q_OBJECT
 public:
     enum CurPage { CUR_TASK, CUR_RESULT }; Q_ENUM(CurPage)
+
 public:
-    DBManager* instance();
+    static DBManager* instance();
+
+    ScanTaskHelper* getTaskHelper();
+    ScanResultHelper* getResultHelper();
+
+Q_SIGNALS:
+    void refreshScanTask ();
+    void refreshScanResult (QString taskName, QString taskFilter);
 
 
 private:
     explicit DBManager(QObject *parent = nullptr);
     //~DBManager();
 
-
 private:
     CurPage                 mPage;
+
     static DBManager*       gInstance;
+
+    ScanResultHelper*       mScanResult;
+    QThread*                mScanResultThread;
+
+    ScanTaskHelper*         mScanTask;
+    QThread*                mScanTaskThread;
+
+    QString                 mTaskName;
+    QString                 mTaskFilter;
+
+    QFileSystemWatcher*     mWatcher;
 };
 
 #endif // DBMANAGER_H

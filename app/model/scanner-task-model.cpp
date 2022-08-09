@@ -1,13 +1,14 @@
 #include "scanner-task-model.h"
 
+#include <QSize>
 #include <QDebug>
 #include <QColor>
-#include <QSize>
 
+#include "../db/db-manager.h"
 #include "../utils/scan-task-helper.h"
 
 ScannerTaskModel::ScannerTaskModel(QObject *parent)
-    : QAbstractTableModel{parent}, mScanTaskHelper(new ScanTaskHelper(QString(DB_PATH), this))
+    : QAbstractTableModel{parent}, mScanTaskHelper(DBManager::instance ()->getTaskHelper ())
 {
     // 数据库与model连接
     connect(mScanTaskHelper, &ScanTaskHelper::addNewTask, this, &ScannerTaskModel::addItem);
@@ -20,8 +21,6 @@ ScannerTaskModel::ScannerTaskModel(QObject *parent)
 ScannerTaskModel::~ScannerTaskModel()
 {
     mData.clear();
-
-    if (mScanTaskHelper)        delete mScanTaskHelper;
 }
 
 QModelIndex ScannerTaskModel::getIndexByItem(const ScannerTaskItem* item, int column)

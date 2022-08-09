@@ -1,6 +1,7 @@
 -- 扫描任务表
 CREATE TABLE scan_task (
     `task_id`                           VARCHAR(255)    DEFAULT 0       NOT NULL,       -- 任务 ID
+    `task_name`                         TEXT            DEFAULT ''      NOT NULL,       -- 任务 名称
     `scan_interval`                     TINYINT         DEFAULT 4       NOT NULL,       -- 变动扫描定时时长(默认 4 小时)
     `scan_task_filter_name`             TEXT                            NOT NULL,       -- 扫描任务监测策略，以分号分割
     `scan_task_dir`                     TEXT                            NOT NULL,       -- 扫描文件夹，以分号分割
@@ -23,12 +24,12 @@ CREATE TABLE scan_task (
 
 -- 中间数据
 -- 扫描过程中 临时数据表(根据任务id 自建)
-CREATE TABLE scan_task_detail_taskid (
-    `detail_file_name_md5`              VARCHAR(255)                    NOT NULL,       -- 扫描的文件名
-    `detail_file_name`                  TEXT                            NOT NULL,       -- 扫描文件路径
-    `detail_file_status`                TINYINT         DEFAULT 0       NOT NULL,       -- 文件是否扫描：0 - 未扫描，1 - 扫描完成
-    PRIMARY KEY(detail_file_name_md5)
-);
+-- CREATE TABLE scan_task_detail_taskid (
+--     `detail_file_name_md5`              VARCHAR(255)                    NOT NULL,       -- 扫描的文件名
+--     `detail_file_name`                  TEXT                            NOT NULL,       -- 扫描文件路径
+--     `detail_file_status`                TINYINT         DEFAULT 0       NOT NULL,       -- 文件是否扫描：0 - 未扫描，1 - 扫描完成
+--     PRIMARY KEY(detail_file_name_md5)
+-- );
 
 
 -- 扫描结果，仅保存被扫描任务命中的文件
@@ -38,15 +39,12 @@ CREATE TABLE scan_result (
     `policy_id`                         VARCHAR(32)                     NOT NULL,       -- 策略ID
     `status`                            TINYINT         DEFAULT 0       NOT NULL,       -- 处理状态，0 - 未处理，5 - 删除，6 - 误报
     `scan_finished_time`                DATETIME        DEFAULT 0       NOT NULL,       -- 扫描完成时间
-    `action_id`                         VARCHAR(32)                     NOT NULL,       -- 策略ID
+    `action_id`                         VARCHAR(32)     DEFAULT ''      NOT NULL,       -- 策略ID
     `file_type`                         VARCHAR(8),                                     -- 文件类型
-    `file_size`                         VARCHAR(16),                    NOT NULL,       -- 文件大小
+    `file_size`                         VARCHAR(16)     DEFAULT ''      NOT NULL,       -- 文件大小
     `is_recognized`                     INTEGER         DEFAULT 1,                      -- 文件是否识别
     `is_blocked`                        INTEGER         DEFAULT 1,                      -- 文件是否识别
-    `detect_result`                     TEXT                            NOT NULL,       -- 扫描结果
+    `detect_result`                     TEXT            DEFAULT ''      NOT NULL,       -- 扫描结果
     `status_reported`                   TINYINT         DEFAULT 0       NOT NULL,       -- 是否需要上报处理，0 - 不需要；1 - 需要
-    --`filter_name`                       TEXT                            NOT NULL,       -- 扫描命中策略
-    --`file_create_time`                  DATETIME        DEFAULT 0       NOT NULL,       -- 文件创建时间
-    --`file_modify_time`                  DATETIME        DEFAULT 0       NOT NULL,       -- 文件修改时间
-    PRIMARY KEY(scan_file_name_md5,policy_id)
+    UNIQUE(scan_file_name,policy_id)
 );
