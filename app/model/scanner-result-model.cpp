@@ -199,7 +199,6 @@ void ScannerResultModel::selectAll(bool s)
         if (!idx.isValid()) continue;
         static_cast<ScannerResultItem*>(idx.internalPointer())->setChecked(s);
         Q_EMIT dataChanged(idx, idx);
-
     }
 }
 

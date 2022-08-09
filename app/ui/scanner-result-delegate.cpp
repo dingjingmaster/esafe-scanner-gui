@@ -140,7 +140,7 @@ QWidget *ScannerResultDelegate::createEditor(QWidget *parent, const QStyleOption
                 QComboBox* cb = new QComboBox(parent);
                 QStringList ls;
                 ls << "误报" << "删除";
-                if (iitem->canUntreated ()) {
+                if (!iitem->canUntreated ()) {
                     ls << "未处理";
                 }
 

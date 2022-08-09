@@ -42,13 +42,13 @@ void ScannerResultItem::setFileName(QString fileName)
 void ScannerResultItem::setStatus(int status)
 {
     switch (status) {
-    case MisReport:
+    case 6:
         mStatus = MisReport;
         break;
-    case Deleted:
+    case 5:
         mStatus = Deleted;
         break;
-    case Untreated:
+    case 0:
     default:
         mStatus = Untreated;
         break;

@@ -50,10 +50,10 @@ void ToolbarAction::setText(QString text)
 
 void ToolbarAction::enterEvent(QEvent *event)
 {
-    setCursor(Qt::PointingHandCursor);
+    //setCursor(Qt::PointingHandCursor);
 }
 
 void ToolbarAction::leaveEvent(QEvent *event)
 {
-    setCursor(Qt::ArrowCursor);
+    //setCursor(Qt::ArrowCursor);
 }
