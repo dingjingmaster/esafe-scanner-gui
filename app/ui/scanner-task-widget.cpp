@@ -44,13 +44,15 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
         QRect viewRect = mView->rect ();
     });
 
+#if 1
     connect (mModel, &ScannerTaskModel::dataChanged, this, [=] (const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>()) {
         mView->update();
     });
+#endif
 
     connect (mView, &QAbstractItemView::clicked, this, [=] (const QModelIndex &indexT) {
         QModelIndex index = mProxyModel->mapToSource(indexT);
-        qDebug() << QString("r:%1, c:%2").arg(index.row()).arg(index.column()) << "clicked";
+        //qDebug() << QString("r:%1, c:%2").arg(index.row()).arg(index.column()) << "clicked";
 
         // 跳转到扫描结果显示页面
         if (ScannerTaskModel::TaskOperation == index.column()) {

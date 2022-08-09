@@ -101,6 +101,11 @@ QString ScannerTaskItem::getName()
     return (nullptr == mName || mName.isNull() || mName.isEmpty()) ? " " : mName;
 }
 
+int ScannerTaskItem::getStatus2()
+{
+    return mStatus;
+}
+
 /**
  * @brief 任务状态：未开始、扫描中、已停止、已完成、已暂停、扫描发生错误
  *  Unknow = 0, NoBegin, Scanning, Stop, Finish, Suspended, Error
@@ -128,10 +133,20 @@ QString ScannerTaskItem::getStatus()
     return tr("未知");
 }
 
+qint64 ScannerTaskItem::getStartTime2()
+{
+    return mStartTime;
+}
+
 QString ScannerTaskItem::getStartTime()
 {
     qInfo() << "start time:" << mStopTime;
     return mStartTime <= 0 ? "" : QDateTime::fromSecsSinceEpoch(mStartTime).toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
+}
+
+qint64 ScannerTaskItem::getStopTime2()
+{
+    return mStopTime;
 }
 
 QString ScannerTaskItem::getStopTime()

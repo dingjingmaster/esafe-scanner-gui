@@ -39,5 +39,5 @@ pkg_check_modules(SQLITE3 REQUIRED sqlite3)
 #pkg_check_modules(PROTOBUF REQUIRED protobuf)
 
 add_subdirectory(app)
-#add_subdirectory(demo)
+add_subdirectory(demo)
 

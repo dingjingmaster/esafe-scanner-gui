@@ -1,5 +1,4 @@
 #include "main-header.h"
-#include "main-toolbar.h"
 
 #include <QDebug>
 #include <QHBoxLayout>

@@ -22,6 +22,8 @@ public:
     void resetTask ();
     void loadAllTask ();
 
+    void testInsertItem ();
+
 private:
     explicit ScanTaskHelper(QString dbPath, QObject* parent = nullptr);
     ~ScanTaskHelper();

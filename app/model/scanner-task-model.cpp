@@ -15,7 +15,8 @@ ScannerTaskModel::ScannerTaskModel(QObject *parent)
     connect(mScanTaskHelper, &ScanTaskHelper::delOldTask, this, &ScannerTaskModel::delItem);
     connect(mScanTaskHelper, &ScanTaskHelper::updateTask, this, &ScannerTaskModel::updateItem);
 
-    mScanTaskHelper->loadAllTask();
+    qInfo() << "scan task model ...";
+    Q_EMIT DBManager::instance ()->refreshScanTask();
 }
 
 ScannerTaskModel::~ScannerTaskModel()

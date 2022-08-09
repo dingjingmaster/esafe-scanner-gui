@@ -28,9 +28,16 @@ public:
 
     QString getID ();
     QString getName ();
+
+    int getStatus2 ();
     QString getStatus ();
+
+    qint64 getStartTime2 ();
     QString getStartTime ();
+
+    qint64 getStopTime2 ();
     QString getStopTime ();
+
     QString getFilterName ();
     qint64 getTaskFileCount();
     qint64 getScanFileCount();

@@ -22,7 +22,8 @@ private:
 
 public Q_SLOTS:
     void clearData();
-    void loadTaskResult (QString taskName = "", QString taskFilter = "");
+    void refresResult();
+    void loadTaskResult (QString taskName, QString taskFilter);
 
 private:
 

@@ -16,8 +16,10 @@ ScannerResultModel::ScannerResultModel(QObject* parent)
     connect(mScanResultHelper, &ScanResultHelper::delOldFile, this, &ScannerResultModel::delItem);
 
     // 清空数据 showData (QString TaskName, QString filterName);
-    connect(this, &ScannerResultModel::clearData, mScanResultHelper, &ScanResultHelper::clearData);
-    connect(this, &ScannerResultModel::showData, mScanResultHelper, &ScanResultHelper::loadTaskResult);
+    //connect(this, &ScannerResultModel::clearData, mScanResultHelper, &ScanResultHelper::clearData);
+    connect(this, &ScannerResultModel::showData, this, [=] (QString taskName, QString filterName) {
+        mScanResultHelper->loadTaskResult(taskName, filterName);
+    });
 
     connect(this, &ScannerResultModel::clearData, this, [=] () {
         beginResetModel();
@@ -35,7 +37,8 @@ ScannerResultModel::ScannerResultModel(QObject* parent)
     void delChanged (int);
     void misReportChanged (int);
 
-    mScanResultHelper->loadTaskResult();
+    DBManager::instance()->refreshScanResult ();
+    //mScanResultHelper->loadTaskResult();
 }
 
 bool ScannerResultModel::hasChanged()

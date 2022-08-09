@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+class QTimer;
 class QThread;
 class ScanTaskHelper;
 class ScanResultHelper;
@@ -22,7 +23,7 @@ public:
 
 Q_SIGNALS:
     void refreshScanTask ();
-    void refreshScanResult (QString taskName, QString taskFilter);
+    void refreshScanResult (QString taskName="", QString taskFilter="");
 
 
 private:
@@ -32,6 +33,8 @@ private:
 private:
     CurPage                 mPage;
 
+    QTimer*                 mTimer;
+
     static DBManager*       gInstance;
 
     ScanResultHelper*       mScanResult;
@@ -39,9 +42,6 @@ private:
 
     ScanTaskHelper*         mScanTask;
     QThread*                mScanTaskThread;
-
-    QString                 mTaskName;
-    QString                 mTaskFilter;
 
     QFileSystemWatcher*     mWatcher;
 };

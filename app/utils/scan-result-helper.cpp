@@ -127,6 +127,18 @@ void ScanResultHelper::clearData()
     d->mData.clear();
 }
 
+void ScanResultHelper::refresResult()
+{
+    Q_D(ScanResultHelper);
+
+    if ((nullptr == d->mTaskName) || d->mTaskName.isNull () || d->mTaskName.isEmpty () || d->mTaskName == ""
+        || (nullptr == d->mTaskFilter) || d->mTaskFilter.isNull () || d->mTaskFilter.isEmpty () || d->mTaskFilter == "") {
+        return;
+    }
+
+    loadTaskResult (d->mTaskName, d->mTaskFilter);
+}
+
 void ScanResultHelper::loadTaskResult(QString taskName, QString taskFilter)
 {
     Q_D(ScanResultHelper);
