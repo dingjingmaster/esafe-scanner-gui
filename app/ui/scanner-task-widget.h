@@ -3,9 +3,11 @@
 
 #include "view/scanner-view.h"
 #include "model/scanner-task-model.h"
+#include "model/scanner-task-model2.h"
 
 #include <QWidget>
 
+class QTimer;
 class QVBoxLayout;
 class QHBoxLayout;
 class ModelItemSort;
@@ -26,8 +28,11 @@ Q_SIGNALS:
 private:
     QVBoxLayout*            mMainLayout;
 
+    QTimer*                 mTimer;
+
     ScannerView*            mView;
-    ScannerTaskModel*       mModel;
+    //ScannerTaskModel*       mModel;
+    ScannerTaskModel2*      mModel;
     ModelItemSort*          mProxyModel;
 };
 

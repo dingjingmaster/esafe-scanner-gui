@@ -52,11 +52,10 @@ DBManager::DBManager(QObject *parent)
     mTimer->setSingleShot(true);
 
     connect(mTimer, &QTimer::timeout, this, [=] () {
-        qInfo() << "db file changed!";
+        //qDebug() << "db file changed!";
         if (CUR_RESULT == mPage) {
             if (!mScanResultThread->isRunning ()) {
-                mScanResultThread->start();
-                //Q_EMIT refresh();
+                Q_EMIT refreshScanResult2();
             }
         } else {
             if (!mScanTaskThread->isRunning ()) {
@@ -85,6 +84,7 @@ DBManager::DBManager(QObject *parent)
     connect (mScanResultThread, &QThread::finished, this, [=] () {
         // 完成
     });
+    connect (this, &DBManager::refreshScanResult2, mScanResult, &ScanResultHelper::refresResult);
     connect (this, &DBManager::refreshScanResult, mScanResult, &ScanResultHelper::loadTaskResult);
 
     mScanTaskThread->start ();

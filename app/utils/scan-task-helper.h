@@ -18,6 +18,7 @@ class ScanTaskHelper : public QObject
 {
     Q_OBJECT
     friend class DBManager;
+    friend class ScannerTaskModel2;
 public:
     void resetTask ();
     void loadAllTask ();

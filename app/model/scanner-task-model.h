@@ -28,6 +28,11 @@ public Q_SLOTS:
     void delItem (ScannerTaskItem* item);
     void updateItem (ScannerTaskItem* item);
 
+    // add
+    void updateViewData ();
+    void receiveChanged (int row);
+    void onVerScrollbar (double value);
+
 public:
     int rowCount (const QModelIndex& parent = QModelIndex()) const override;
     int columnCount (const QModelIndex& parent = QModelIndex()) const override;
@@ -43,6 +48,9 @@ public:
     bool removeRows (int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
 private:
+    int                                                 mCurrentRow = 0;
+    const int                                           mTotalRow = 50;
+
     const int                                           mBackgroundR = 235;
     const int                                           mBackgroundG = 241;
     const int                                           mBackgroundB = 248;

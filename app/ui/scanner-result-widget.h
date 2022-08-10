@@ -22,6 +22,7 @@ public:
 
     void clearData ();
     bool hasChecked ();                 // 是否有选中条目
+    void setTaskName (QString n);
     void loadTaskResult (QString taskName, QString taskFilter);
     
 Q_SIGNALS:

@@ -401,6 +401,11 @@ bool ScannerResultWidget::hasChecked()
    return true;
 }
 
+void ScannerResultWidget::setTaskName(QString n)
+{
+    mTaskName = n;
+}
+
 void ScannerResultWidget::clearData()
 {
     if (!mModel)        return;

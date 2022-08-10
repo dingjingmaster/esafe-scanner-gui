@@ -1,8 +1,10 @@
 #include "scanner-task-widget.h"
+#include "scanner-task-delegate.h"
 #include "model/model-item-sort.h"
 #include "model/scanner-task-item.h"
-#include "scanner-task-delegate.h"
+#include "model/scanner-task-model2.h"
 
+#include <QTimer>
 #include <QDebug>
 #include <QVBoxLayout>
 #include <QHeaderView>
@@ -14,41 +16,57 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
     mMainLayout = new QVBoxLayout;
 
     mView = new ScannerView;
-    mModel = new ScannerTaskModel;
+    //mModel = new ScannerTaskModel;
+    mModel = new ScannerTaskModel2;
     mProxyModel = new ModelItemSort(this);
+
+    //
+    connect (mView, &ScannerView::rowchanged, mModel, &ScannerTaskModel2::receiveChanged);
+    connect (mView, &ScannerView::verticalbarValue, mModel, &ScannerTaskModel2::onVerScrollbar);
 
     mProxyModel->setSourceModel(mModel);
 
     mView->setModel(mProxyModel);
+
     mView->horizontalHeader()->setMinimumSectionSize(10);
     mView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    #if 0
     mView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive);
+    mView->horizontalHeader()->resizeSection (0, 40);
     mView->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
     mView->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Interactive);
     mView->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Interactive);
     mView->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Interactive);
     mView->horizontalHeader()->setSectionResizeMode(6, QHeaderView::Fixed);
-    mView->horizontalHeader()->resizeSection (0, 40);
     mView->horizontalHeader()->resizeSection (3, 180);
     mView->horizontalHeader()->resizeSection (4, 180);
     mView->horizontalHeader()->resizeSection (5, 180);
     mView->horizontalHeader()->resizeSection (6, 90);
+    #endif
     //mView->setSortingEnabled(true);
     mMainLayout->addWidget(mView);
 
     mView->setItemDelegate(new ScannerTaskDelegate);
     setLayout(mMainLayout);
 
+    Q_EMIT mModel->refreshScanTask ();
+#if 0
+    mTimer = new QTimer(this);
+    mTimer->setSingleShot (true);
+
+    connect (mTimer, &QTimer::timeout, this, [=] () {mView->update ();});
+
     // FIXME:// 此处需要修改
     connect (mView->horizontalHeader (), &QHeaderView::sectionResized, [=] (int index, int oldSize, int newSize) {
         QRect viewRect = mView->rect ();
     });
 
-#if 1
     connect (mModel, &ScannerTaskModel::dataChanged, this, [=] (const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>()) {
-        mView->update();
+        if (mTimer->isActive ()) {
+            return;
+        }
+        mTimer->start(3 * 1000);
     });
-#endif
 
     connect (mView, &QAbstractItemView::clicked, this, [=] (const QModelIndex &indexT) {
         QModelIndex index = mProxyModel->mapToSource(indexT);
@@ -70,8 +88,10 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
         }
     });
 
+
     // 界面测试数据
-//    test();
+    test();
+#endif
 }
 
 void ScannerTaskWidget::test()
@@ -92,6 +112,7 @@ void ScannerTaskWidget::test()
     auto sm14 = new ScannerTaskItem("任务14", ScannerTaskItem::Finish, 0, 0);
     auto sm15 = new ScannerTaskItem("任务15", ScannerTaskItem::Scanning, 0, 0);
 
+#if 0
     mModel->addItem(sm1);
     mModel->addItem(sm2);
     mModel->addItem(sm3);
@@ -107,4 +128,5 @@ void ScannerTaskWidget::test()
     mModel->addItem(sm13);
     mModel->addItem(sm14);
     mModel->addItem(sm15);
+#endif
 }

@@ -5,6 +5,9 @@ file(GLOB MODEL_SRC
     ${CMAKE_SOURCE_DIR}/app/model/scanner-task-model.cpp
     ${CMAKE_SOURCE_DIR}/app/model/scanner-task-model.h
 
+    ${CMAKE_SOURCE_DIR}/app/model/scanner-task-model2.cpp
+    ${CMAKE_SOURCE_DIR}/app/model/scanner-task-model2.h
+
     ${CMAKE_SOURCE_DIR}/app/model/scanner-result-item.cpp
     ${CMAKE_SOURCE_DIR}/app/model/scanner-result-item.h
 

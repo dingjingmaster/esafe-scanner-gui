@@ -16,7 +16,7 @@ ScannerTaskModel::ScannerTaskModel(QObject *parent)
     connect(mScanTaskHelper, &ScanTaskHelper::updateTask, this, &ScannerTaskModel::updateItem);
 
     qInfo() << "scan task model ...";
-    Q_EMIT DBManager::instance ()->refreshScanTask();
+    //Q_EMIT DBManager::instance ()->refreshScanTask();
 }
 
 ScannerTaskModel::~ScannerTaskModel()
@@ -92,6 +92,55 @@ void ScannerTaskModel::updateItem(ScannerTaskItem *item)
         QModelIndex idx1 = index (idx.row (), (int)(EnumSize) - 1);
         Q_EMIT dataChanged (idx, idx1);
     }
+}
+
+void ScannerTaskModel::onVerScrollbar(double value)
+{
+    mCurrentRow = value * mData.size ();
+
+    if (mCurrentRow > mData.size () - 40) {
+        mCurrentRow = mData.size () - 40;
+    }
+
+    updateViewData ();
+}
+
+void ScannerTaskModel::updateViewData()
+{
+    removeRows (0, rowCount ());
+
+    for (int i = mCurrentRow, j = 0; i < mCurrentRow + mTotalRow; ++i) {
+        if (i == mData.size ())     break;
+        ScannerTaskItem* it = mData[i];
+        QMap<int, QVariant>* m = new QMap<int, QVariant>;
+        (*m)[Qt::DisplayRole] = j;
+        setItemData (createIndex (j, 0, it), *m);
+        setItemData (createIndex (j, 1, it), *m);
+        setItemData (createIndex (j, 2, it), *m);
+        setItemData (createIndex (j, 3, it), *m);
+        setItemData (createIndex (j, 4, it), *m);
+        setItemData (createIndex (j, 5, it), *m);
+        setItemData (createIndex (j, 6, it), *m);
+        //setItem(j, 0, new QStandardItem("0"));
+        //setItem(j, 1, new QStandardItem("1"));
+        //setItem(j, 2, new QStandardItem("2"));
+        //setItem(j, 3, new QStandardItem("3"));
+        //setItem(j, 4, new QStandardItem("4"));
+        //setItem(j, 5, new QStandardItem("5"));
+        //setItem(j, 6, new QStandardItem("6"));
+        ++j;
+    }
+}
+
+void ScannerTaskModel::receiveChanged(int row)
+{
+    mCurrentRow += row;
+    if (mCurrentRow < 0 || mCurrentRow > mData.size () - 50) {
+        mCurrentRow -= row;
+        return;
+    }
+
+    updateViewData ();
 }
 
 int ScannerTaskModel::rowCount(const QModelIndex &parent) const
