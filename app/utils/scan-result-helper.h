@@ -15,6 +15,8 @@ public:
     void misReportByName(QString);
     void deleteItemByName (QString);
 
+    void testInsertItem();
+
 private:
     explicit ScanResultHelper(QString dbPath, QObject *parent = nullptr);
     ~ScanResultHelper();

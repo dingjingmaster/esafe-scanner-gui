@@ -54,15 +54,9 @@ DBManager::DBManager(QObject *parent)
     connect(mTimer, &QTimer::timeout, this, [=] () {
         qInfo() << "db file changed!";
         if (CUR_RESULT == mPage) {
-            if (!mScanResultThread->isRunning ()) {
-                mScanResultThread->start();
-                //Q_EMIT refresh();
-            }
+            Q_EMIT refreshScanResult2 ();
         } else {
-            if (!mScanTaskThread->isRunning ()) {
-                qInfo() << "scan task";
-                Q_EMIT refreshScanTask ();
-            }
+            Q_EMIT refreshScanTask ();
         }
     });
 
@@ -75,16 +69,10 @@ DBManager::DBManager(QObject *parent)
     });
 
     // 扫描任务
-    connect (mScanTaskThread, &QThread::finished, this, [=] () {
-        // 完成
-    });
-
     connect (this, &DBManager::refreshScanTask, mScanTask, &ScanTaskHelper::loadAllTask);
 
     // 扫描结果
-    connect (mScanResultThread, &QThread::finished, this, [=] () {
-        // 完成
-    });
+    connect (this, &DBManager::refreshScanResult2, mScanResult, &ScanResultHelper::refresResult);
     connect (this, &DBManager::refreshScanResult, mScanResult, &ScanResultHelper::loadTaskResult);
 
     mScanTaskThread->start ();

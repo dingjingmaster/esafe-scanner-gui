@@ -40,7 +40,7 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void clearData ();
-    void showData (QString TaskName, QString filterName, QString scanDir);
+    void showData (QString TaskName, QString filterName, QStringList scanDir);
 
 public:
     int rowCount (const QModelIndex& parent = QModelIndex()) const override;

@@ -101,11 +101,13 @@ MainWindow::MainWindow(QWidget *parent)
 
         //
         ScannerTaskItem* it = const_cast<ScannerTaskItem*> (item);
-        qDebug() << "===> task name: " << it->getName() << "set filter name: " << it->getFilterName();
+        //qDebug() << "===> task name: " << it->getName() << "set filter name: " << it->getFilterName();
         
         Q_EMIT DBManager::instance ()->refreshScanResult (it->getName (), it->getFilterName (), it->getScanDir ());
 
         btn1->setText(QString("扫描结果"));
+
+        mScannerResultWidget->setTaskName (it->getName ());
 
         mStatusLabel->show();
         mScannerResultWidget->show();

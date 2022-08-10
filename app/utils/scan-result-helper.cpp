@@ -110,6 +110,27 @@ void ScanResultHelper::deleteItemByName(QString name)
     while (!sqlite_unlock());
 }
 
+void ScanResultHelper::testInsertItem()
+{
+    Q_D(ScanResultHelper);
+
+    char* errorMsg = nullptr;
+
+    for (int i = 0; i < 1000000; ++i) {
+        QString sql = QString("INSERT INTO scan_result (scan_file_name, policy_id, status, scan_finished_time)"
+                              "VALUES ('/tmp/aa1%1', 'A', 0, 1658558157);").arg (i);
+
+        while (!sqlite_lock());
+        int ret = sqlite3_exec(d->mDB, sql.toUtf8().constData(), NULL, NULL, &errorMsg);
+        if (SQLITE_OK != ret) {
+            qDebug() << "error: " << errorMsg;
+            sqlite3_free(errorMsg);
+        }
+
+        while (!sqlite_unlock());
+    }
+}
+
 void ScanResultHelper::clearData()
 {
     Q_D(ScanResultHelper);
@@ -206,7 +227,7 @@ void ScanResultHelperPrivate::onDBChanged()
 
                 // scan directory
                 for (auto s : mScanDir) {
-                    if (fileName.startWith(s)) {
+                    if (fileName.startsWith(s)) {
                         if (mData.contains (id)) {
                             auto item= mData[id];
                             if (status != item->getStatus2 ()

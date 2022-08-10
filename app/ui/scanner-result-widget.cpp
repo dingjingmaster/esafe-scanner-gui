@@ -394,6 +394,11 @@ void ScannerResultWidget::test()
     mModel->addItem(sm15);
 }
 
+void ScannerResultWidget::setTaskName(QString name)
+{
+    mTaskName = name;
+}
+
 bool ScannerResultWidget::hasChecked()
 {
    if (mMisBtn)     return mMisBtn->isEnable ();

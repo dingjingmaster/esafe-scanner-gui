@@ -23,6 +23,7 @@ public:
 
 Q_SIGNALS:
     void refreshScanTask ();
+    void refreshScanResult2 ();
     void refreshScanResult (QString taskName="", QString taskFilter="", QStringList scanDir=QStringList());
 
 

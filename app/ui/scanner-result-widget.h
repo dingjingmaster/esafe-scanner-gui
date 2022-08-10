@@ -20,6 +20,8 @@ public:
     // 测试函数
     void test ();
 
+    void setTaskName (QString name);
+
     void clearData ();
     bool hasChecked ();                 // 是否有选中条目
     void loadTaskResult (QString taskName, QString taskFilter, QStringList mScanDir);
