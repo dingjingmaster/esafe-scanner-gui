@@ -21,6 +21,10 @@ public:
     void setStopTime (qint64 stopTime);
     void setStartTime (qint64 startTime);
 
+    QString getScanDir2 ();
+    QStringList getScanDir ();
+    void setScanDir (QString scanDir);
+
     void setTaskFileCount(qint64 count);
     void setScanFileCount(qint64 count);
     void setFilterName (QString filterName);
@@ -48,16 +52,17 @@ public:
 private:
     QString                 mID;
     QString                 mName;
+    QString                 mScanDir;
+    QString                 mOperation;
+    QString                 mFilterName;
+
     Status                  mStatus;
-    qint64                  mStartTime;
     qint64                  mStopTime;
+    qint64                  mStartTime;
 
     qint64                  mTaskFileCount;
     qint64                  mScanFileCount;
     qint64                  mScanFinishedFileCount;
-
-    QString                 mFilterName;
-    QString                 mOperation;
 };
 
 #endif // SCANNERTASKITEM_H

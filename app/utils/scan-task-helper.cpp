@@ -183,7 +183,6 @@ int ScanTaskHelperPrivate::select_taskid(void *t, int colums, char **val, char *
     int len = strlen("task_id");
     for (int i = 0; i < colums; ++i) {
         if ((strlen(columnName[i]) == len) && (0 == strncpy(columnName[i], "task_id", len))) {
-            //h->mNewTaskID += QString(val[i]);
             qInfo() << "task id:" << QString(val[i]);
         }
     }
@@ -235,7 +234,8 @@ void ScanTaskHelperPrivate::onDBChanged()
     QSet<QString> allT;
 
     QString sql = QString("SELECT `task_id`, `task_status`, `task_start_time`, `task_stop_time`,"
-                          " `task_scan_finished_file_count`, `task_scan_file_count`, `task_file_count`, `scan_task_filter_name`, `task_name` "
+                          " `task_scan_finished_file_count`, `task_scan_file_count`, `task_file_count`,"
+                          " `scan_task_filter_name`, `task_name`, scan_task_dir "
                           " FROM scan_task WHERE scan_task_self_check=1");
 
     qDebug() << "scan_task sql: '" << sql << "'";
@@ -254,6 +254,7 @@ void ScanTaskHelperPrivate::onDBChanged()
             int taskFileCount = sqlite3_column_int (stmt, 6);
             QString taskFilterName(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 7)));
             QString taskName(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 8)));
+            QString scanDir(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 9)));
 
             if (id.isNull () || id.isEmpty () || "" == id)  continue;
 
@@ -271,7 +272,9 @@ void ScanTaskHelperPrivate::onDBChanged()
                         || taskScanFileCount != item->getScanFileCount ()
                         || taskFileCount != item->getTaskFileCount ()
                         || taskFilterName != item->getFilterName ()
-                        || taskName != item->getName ()) {
+                        || taskName != item->getName ()
+                        || scanDir != item->getScanDir2 ()) {
+                    item->setScanDir (scanDir);
                     item->setStopTime(stopTime);
                     item->setStatus(taskStatus);
                     item->setStartTime(startTime);
@@ -285,14 +288,15 @@ void ScanTaskHelperPrivate::onDBChanged()
                 ScannerTaskItem* item = new ScannerTaskItem;
                 item->setID (id);
 
-                item->setStatus(taskStatus);
-                item->setStartTime(startTime);
-                item->setStopTime(stopTime);
-                item->setScanFinishedFileCount(taskScanFinishedFileCount);
-                item->setScanFileCount(taskScanFileCount);
-                item->setTaskFileCount(taskFileCount);
-                item->setFilterName(taskFilterName);
                 item->setName(taskName);
+                item->setScanDir(scanDir);
+                item->setStatus(taskStatus);
+                item->setStopTime(stopTime);
+                item->setStartTime(startTime);
+                item->setFilterName(taskFilterName);
+                item->setTaskFileCount(taskFileCount);
+                item->setScanFileCount(taskScanFileCount);
+                item->setScanFinishedFileCount(taskScanFinishedFileCount);
 
                 mData[id] = item;
 

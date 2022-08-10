@@ -71,6 +71,21 @@ void ScannerTaskItem::setStartTime(qint64 startTime)
     mStartTime = startTime;
 }
 
+QString ScannerTaskItem::getScanDir2()
+{
+    return mScanDir;
+}
+
+QStringList ScannerTaskItem::getScanDir()
+{
+    return mScanDir.split (";").toSet ().toList ();
+}
+
+void ScannerTaskItem::setScanDir(QString scanDir)
+{
+    mScanDir = scanDir;
+}
+
 void ScannerTaskItem::setTaskFileCount(qint64 count)
 {
     mTaskFileCount = count;
