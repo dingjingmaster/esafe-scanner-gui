@@ -154,7 +154,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     });
 
     mDelBtn->connect(mDelBtn, &PushButton::clicked, this, [=] () {
-        QList<const ScannerResultItem*> ls = mModel->getSelectedItem();
+        QList<ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
             QMessageBox::warning(this, "警告", "请选中需要删除的数据后，再执行删除操作！", QMessageBox::Ok);
             return;
@@ -172,13 +172,15 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             NotifyToFilter::getInstance()->sendData(msg.SerializeAsString());
 #endif
             qDebug() << "del option";
-            mModel->setData (mModel->getIndexByItem (l, 2), "删除");
+            //mModel->setData (mModel->getIndexByItem (l, 2), "删除");
+
+            mModel->setData (*l, "删除");
         }
 
     });
 
     mMisBtn->connect(mMisBtn, &PushButton::clicked, this, [=] () {
-        QList<const ScannerResultItem*> ls = mModel->getSelectedItem();
+        QList<ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
             QMessageBox::warning(this, "警告", "请选中误报的数据后，再执行操作！", QMessageBox::Ok);
             return;
@@ -196,12 +198,13 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             qDebug() << "misinformation: " << msg.DebugString().c_str();
             NotifyToFilter::getInstance()->sendData(msg.SerializeAsString());
 #endif
-            mModel->setData (mModel->getIndexByItem (l, 2), "误报");
+            //mModel->setData (mModel->getIndexByItem (l, 2), "误报");
+            mModel->setData (*l, "误报");
         }
     });
 
     mExpBtn->connect(mExpBtn, &PushButton::clicked, this, [=] () {
-        QList<const ScannerResultItem*> ls = mModel->getSelectedItem();
+        QList<ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
             QMessageBox::warning(this, "警告", "请选中需要导出的数据后，再执行导出操作！", QMessageBox::Ok);
             return;

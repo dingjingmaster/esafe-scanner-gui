@@ -11,7 +11,9 @@ PushButton::PushButton(QWidget *parent, Type type)
     setFixedWidth(mMaxWidth);
     setCursor(Qt::PointingHandCursor);
     setContentsMargins(0, 0, 0, 0);
-    
+
+    if (mType == Type1) setCursor(Qt::ArrowCursor);
+
     mLayout = new QVBoxLayout;
     mLayout->setSpacing(0);
     mLayout->setContentsMargins(0, 0, 0, 0);
@@ -70,6 +72,7 @@ bool PushButton::isEnable()
 
 void PushButton::setEnable()
 {
+    if (mType == Type1) return;
     if (mIsEnable) {
         setCursor(Qt::PointingHandCursor);
         mLabel->setStyleSheet("background-color:#cc3033; font: blod; color: rgb(255, 255, 255); border-radius: 6px;");

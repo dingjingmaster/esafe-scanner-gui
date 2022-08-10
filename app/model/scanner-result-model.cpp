@@ -165,9 +165,9 @@ void ScannerResultModel::saveResult()
     }
 }
 
-QList<const ScannerResultItem *> ScannerResultModel::getSelectedItem()
+QList<ScannerResultItem *> ScannerResultModel::getSelectedItem()
 {
-    QList<const ScannerResultItem *> ls;
+    QList<ScannerResultItem *> ls;
 
     for (auto i = mData.constBegin(); i != mData.constEnd(); ++i) {
         if (i.i->t()->getChecked()) {
@@ -323,6 +323,40 @@ bool ScannerResultModel::setData(const QModelIndex &index, const QVariant &value
     }
     
     return false;
+}
+
+bool ScannerResultModel::setData(ScannerResultItem &index, const QVariant &value, int role)
+{
+    auto toChange = ScannerResultItem::getStatus(value.toString());
+
+    //ScannerResultItem
+    if (mChangedItem.contains(&index)) {
+        auto kv = mChangedItem[&index];
+        auto savedStatus = kv.first;
+        auto lastStatus = kv.second;
+
+        // 修改计数
+        changeItemCount(toChange);
+        changeItemCount(lastStatus, false);
+
+        // 说明未变
+        if (savedStatus == toChange) {
+            mChangedItem.remove (&index);
+        } else {
+            QPair<int, int> changedKV(savedStatus, toChange);
+            mChangedItem[&index] = changedKV;
+        }
+    } else {
+        QPair<int, int> kv(index.getStatus2 (), toChange);
+        mChangedItem[&index] = kv;
+        changeItemCount(toChange);
+        changeItemCount(index.getStatus2 (), false);
+    }
+
+    // 更新当前 model 里 status 状态
+    index.setStatus (value.toString ());
+
+    return true;
 }
 
 QModelIndex ScannerResultModel::index(int row, int column, const QModelIndex &parent) const

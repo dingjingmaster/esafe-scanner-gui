@@ -27,7 +27,7 @@ public:
     int getMisReportCount ();
 
     QList<const ScannerResultItem*> getChangedItem ();
-    QList<const ScannerResultItem*> getSelectedItem ();
+    QList<ScannerResultItem*> getSelectedItem ();
     QModelIndex getIndexByItem (const ScannerResultItem* it, int column=0);
 
     void saveResult();
@@ -49,7 +49,8 @@ public:
     QVariant data (const QModelIndex& index, int role=Qt::DisplayRole) const override;
     QVariant headerData (int section, Qt::Orientation orentation, int role) const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
-    
+    bool setData(ScannerResultItem &index, const QVariant &value, int role = Qt::EditRole);
+
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
 
     Qt::ItemFlags flags (const QModelIndex& index) const override;

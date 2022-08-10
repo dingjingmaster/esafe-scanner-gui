@@ -3,7 +3,10 @@
 #include <QStyle>
 #include <QDebug>
 #include <QPainter>
+#include <QApplication>
 #include <QItemDelegate>
+#include <QTextDocument>
+#include <QAbstractTextDocumentLayout>
 
 ScannerTaskDelegate::ScannerTaskDelegate(QObject *parent)
     : QStyledItemDelegate{parent}
@@ -31,8 +34,31 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
     switch (index.column()) {
     case 0:
     case 2:
+    case 3:
+    case 4:
         align |= Qt::AlignHCenter;
         break;
+    case 5: {
+        break;
+        QStyleOptionViewItemV4 opV4 = option;
+        initStyleOption (&opV4, index);
+        QStyle* style = opV4.widget ? opV4.widget->style () : QApplication::style();
+        QTextDocument doc;
+        doc.setHtml(opV4.text);
+        opV4.text = QString();
+        style->drawControl (QStyle::CE_ItemViewItem, &opV4, p);
+        QAbstractTextDocumentLayout::PaintContext ctx;
+        if (opV4.state & QStyle::State_Selected)
+            ctx.palette.setColor (QPalette::Text, opV4.palette.color (QPalette::Active, QPalette::HighlightedText));
+        QRect textRect = style->subElementRect (QStyle::SE_ItemViewItemText, &opV4);
+        p->save ();
+        p->translate (textRect.topLeft ());
+        p->setClipRect (textRect.translated (-textRect.topLeft ()));
+        doc.documentLayout ()->draw (p, ctx);
+        p->restore ();
+        p->restore ();
+        return;
+    }
     case 6:
         p->setPen(Qt::blue);
         align |= Qt::AlignHCenter;

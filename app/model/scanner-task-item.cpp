@@ -195,7 +195,7 @@ qint64 ScannerTaskItem::getScanFinishedFileCount()
 
 QString ScannerTaskItem::getProgress()
 {
-    return QString("已扫描文件数: %1\n"
+    return QString("已经扫描文件总数: %1\n"
                    "本次扫描文件总数: %2\n"
                    "扫描范围文件总数: %3\n")
             .arg(getScanFinishedFileCount())
