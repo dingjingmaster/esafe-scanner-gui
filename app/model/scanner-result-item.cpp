@@ -24,6 +24,15 @@ void ScannerResultItem::setID(qint64 id)
     mID = id;
 }
 
+void ScannerResultItem::setID(QString id)
+{
+    if (nullptr == id || id.isNull () || id.isEmpty () || "" == id) {
+        return;
+    }
+
+    mID = id.toInt ();
+}
+
 void ScannerResultItem::setChecked(bool checked)
 {
     mChecked = checked;
@@ -160,4 +169,9 @@ QString ScannerResultItem::getFileModifyTime()
 QString ScannerResultItem::getFilterName()
 {
     return mFilterName;
+}
+
+qint64 ScannerResultItem::getFileCreateTime2()
+{
+    return mFileCreateTime;
 }

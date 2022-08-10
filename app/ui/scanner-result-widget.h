@@ -22,7 +22,7 @@ public:
 
     void clearData ();
     bool hasChecked ();                 // 是否有选中条目
-    void loadTaskResult (QString taskName, QString taskFilter);
+    void loadTaskResult (QString taskName, QString taskFilter, QStringList mScanDir);
     
 Q_SIGNALS:
     void applyData();
@@ -32,7 +32,9 @@ Q_SIGNALS:
     void statusString (QString);        //"任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%5), 删除: (%5)");
 
 private:
+    QStringList             mScanDir;
     QString                 mTaskName;
+
     QVBoxLayout*            mMainLayout;
 
     QHBoxLayout*            mBtnLayout;

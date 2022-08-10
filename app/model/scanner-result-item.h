@@ -14,6 +14,7 @@ public:
     ScannerResultItem(QString taskName, QString fileName, Status status, qint64 createTime, qint64 modifyTime, QObject *parent = nullptr);
 
     void setID(qint64 id);
+    void setID(QString id);
     void setChecked (bool);
     void setStatus (int status);
     void setStatus (Status status);
@@ -35,6 +36,8 @@ public:
     QString getTaskName ();
     QString getFileName ();
     QString getFilterName ();
+
+    qint64 getFileCreateTime2 ();
     QString getFileCreateTime ();
     QString getFileModifyTime ();
     

@@ -78,7 +78,7 @@ QString ScannerTaskItem::getScanDir2()
 
 QStringList ScannerTaskItem::getScanDir()
 {
-    return mScanDir.split (";").toSet ().toList ();
+    return mScanDir.split ("|").toSet ().toList ();
 }
 
 void ScannerTaskItem::setScanDir(QString scanDir)

@@ -408,11 +408,11 @@ void ScannerResultWidget::clearData()
     mModel->clearData();
 }
 
-void ScannerResultWidget::loadTaskResult(QString taskName, QString taskFilter)
+void ScannerResultWidget::loadTaskResult(QString taskName, QString taskFilter, QStringList scanDir)
 {
     if (!mModel)        return;
 
     mTaskName = taskName;
     
-    Q_EMIT mModel->showData(taskName, taskFilter);
+    Q_EMIT mModel->showData(taskName, taskFilter, scanDir);
 }

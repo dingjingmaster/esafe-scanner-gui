@@ -30,11 +30,9 @@ public:
 public:
     QString                             mDBPath;
 
+    QStringList                         mScanDir;
     QString                             mTaskName;
     QString                             mTaskFilter;
-
-    QSet<QString>                       mOldTaskID;
-    QSet<QString>                       mNewTaskID;
 
     QMap<QString, ScannerResultItem*>   mData;                  // <FileMD5, ScannerResultItem*>
 
@@ -116,8 +114,6 @@ void ScanResultHelper::clearData()
 {
     Q_D(ScanResultHelper);
 
-    d->mNewTaskID.clear();
-    d->mOldTaskID.clear();
     d->mTaskName.clear();
     d->mTaskFilter.clear();
 
@@ -136,15 +132,16 @@ void ScanResultHelper::refresResult()
         return;
     }
 
-    loadTaskResult (d->mTaskName, d->mTaskFilter);
+    loadTaskResult (d->mTaskName, d->mTaskFilter, d->mScanDir);
 }
 
-void ScanResultHelper::loadTaskResult(QString taskName, QString taskFilter)
+void ScanResultHelper::loadTaskResult(QString taskName, QString taskFilter, QStringList scanDir)
 {
     Q_D(ScanResultHelper);
 
     // 此处需要修改
 
+    d->mScanDir = scanDir;
     d->mTaskName = taskName;
     d->mTaskFilter = taskFilter;
 
@@ -173,54 +170,101 @@ ScanResultHelperPrivate::~ScanResultHelperPrivate()
     if (mDB)            { sqlite3_close(mDB); mDB = nullptr;}
     for (auto m = mData.begin(); m != mData.end(); ++m)    delete m.value();
     mData.clear();
-    mOldTaskID.clear();
-    mNewTaskID.clear();
 }
 
 void ScanResultHelperPrivate::onDBChanged()
 {
     Q_Q(ScanResultHelper);
 
-    if (nullptr == mTaskName || mTaskName.isNull() || mTaskName.isEmpty() || "" == mTaskName) return;
+    QStringList k = mTaskFilter.split("|");
+    if (k.count() <= 0)     return;
 
-    if (!selectIDByFilterName()) {
-        qInfo() << "db not change";
-        return;
-    }
 
-    // FIXME:// 此处需要修改
-    QSet<QString> delT = mOldTaskID - mNewTaskID;
-    QSet<QString> newT = mNewTaskID - mOldTaskID;
-    for (auto id : newT) {
-        if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
-        if (auto t = selectFileByID (id)) {
-            qInfo() << "add file '" << id << "'";
-            Q_EMIT q->addNewFile(t);
-            mData[id] = t;
+    QSet<QString> allItem;
+    sqlite3_stmt* stmt = NULL;
+
+    while (!sqlite_lock());
+    for (auto ik : k) {
+        //qInfo() << "filter name --> " << ik;
+        if (nullptr == ik || ik.isNull() || ik.isEmpty() || "" == ik)   continue;
+        QString sql = QString("SELECT `ID`, `scan_file_name`, `status`, `scan_finished_time`"
+                              " FROM scan_result WHERE status!=5 AND policy_id LIKE '%'").arg (ik);
+
+        //qInfo() << "sql ==> " << sql;
+        int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
+        if (SQLITE_OK == ret) {
+            while (SQLITE_DONE != sqlite3_step(stmt)) {
+                QString id = QString("%1").arg(sqlite3_column_int(stmt, 0));
+                QString fileName = QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
+                int status = sqlite3_column_int(stmt, 2);
+                int finishedTime = sqlite3_column_int(stmt, 3);
+
+                if (nullptr == id || id.isNull () || id.isEmpty () || "" == id
+                    || nullptr == fileName || fileName.isNull() || fileName.isEmpty() || "" == fileName) {
+                    continue;
+                }
+
+                // scan directory
+                for (auto s : mScanDir) {
+                    if (fileName.startWith(s)) {
+                        if (mData.contains (id)) {
+                            auto item= mData[id];
+                            if (status != item->getStatus2 ()
+                                || finishedTime != item->getFileCreateTime ()) {
+                                item->setFileCreateTime (finishedTime);
+                                item->setStatus (status);
+                                Q_EMIT q->updateFile (item);
+                            }
+                        } else {
+                            auto item = new ScannerResultItem;
+                            item->setTaskName(mTaskName);
+
+                            item->setID (id);
+                            item->setStatus(status);
+                            item->setFileName(fileName);
+                            item->setFileCreateTime (finishedTime);
+                            item->setCanUntreated((item->getStatus2() == ScannerResultItem::MisReport) ? true : false);
+
+                            QFileInfo file (item->getFileName ());
+                            if (file.exists ()) {
+                                item->setFileModifyTime (file.metadataChangeTime ().toSecsSinceEpoch ());
+                            }
+
+                            mData[id] = item;
+                            Q_EMIT q->addNewFile(item);
+                        }
+                        qInfo() << "task id:" << id;
+                        allItem += id;
+                        break;
+                    }
+                }
+            }
         }
+        if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
     }
+    if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
+    while (!sqlite_unlock());
 
-    for (auto id : delT) {
+    QSet<QString> nowItem = mData.keys().toSet();
+
+    auto delItem = allItem - nowItem;
+
+    for (auto id : delItem) {
         if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
         if (mData.contains(id)) {
             auto it = mData[id];
             mData.remove(id);
-            qInfo() << "delete file '" << id << "'";
+            //qInfo() << "delete file '" << id << "'";
             Q_EMIT q->delOldFile(it);
             delete it;
         }
     }
-
-    mOldTaskID = mNewTaskID;
 }
 
 bool ScanResultHelperPrivate::selectIDByFilterName()
 {
-    QStringList k = mTaskFilter.split(";");
+    QStringList k = mTaskFilter.split("|");
     if (k.count() <= 0)     return false;
-
-    mOldTaskID = mNewTaskID;
-    mNewTaskID.clear();
 
     sqlite3_stmt* stmt = NULL;
 
@@ -235,7 +279,6 @@ bool ScanResultHelperPrivate::selectIDByFilterName()
             while (SQLITE_DONE != sqlite3_step(stmt)) {
                 QString id = QString("%1").arg(sqlite3_column_int(stmt, 0));
                 qInfo() << "task id:" << id;
-                mNewTaskID += id;
                 //QString(reinterpret_cast<const char*>(id));
             }
         }
@@ -243,13 +286,6 @@ bool ScanResultHelperPrivate::selectIDByFilterName()
     }
     if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
     while (!sqlite_unlock());
-
-    qInfo () << "old fileMD5: " << mOldTaskID;
-    qInfo () << "new fileMD5: " << mNewTaskID;
-
-    if (mNewTaskID.count() == mOldTaskID.count()) {
-        goto noChanged;
-    }
 
     return true;
 

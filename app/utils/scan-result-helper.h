@@ -23,12 +23,13 @@ private:
 public Q_SLOTS:
     void clearData();
     void refresResult();
-    void loadTaskResult (QString taskName, QString taskFilter);
+    void loadTaskResult (QString taskName, QString taskFilter, QStringList scanDir);
 
 private:
 
 Q_SIGNALS:
     void addNewFile (ScannerResultItem* it);
+    void updateFile (ScannerResultItem* it);
     void delOldFile (ScannerResultItem* it);
 
 private:

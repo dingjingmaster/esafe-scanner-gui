@@ -256,6 +256,10 @@ void ScanTaskHelperPrivate::onDBChanged()
             QString taskName(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 8)));
             QString scanDir(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 9)));
 
+            if (nullptr == scanDir || scanDir.isNull () || scanDir.isEmpty () || "" == scanDir) {
+                scanDir = "/";
+            }
+
             if (id.isNull () || id.isEmpty () || "" == id)  continue;
 
             allT.insert (id);
@@ -311,8 +315,7 @@ void ScanTaskHelperPrivate::onDBChanged()
     if (stmt)       sqlite3_finalize(stmt);
     while (!sqlite_unlock());
 
-    QSet<QString> newT = mData.keys ().toSet ();
-    QSet<QString> delT = allT - newT;
+    QSet<QString> delT = allT - mData.keys().toSet ();
 
     for (auto id : delT) {
         if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
