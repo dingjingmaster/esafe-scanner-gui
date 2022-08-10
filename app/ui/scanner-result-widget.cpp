@@ -236,7 +236,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         QString path = QFileDialog::getSaveFileName(this, "保存文件", name, "Document (*.csv)");
         if (!path.isEmpty()) {
 #endif
-
             qDebug() << "name: " << name;
             qDebug() << "path: " << path;
             ExportScanResult exp(path, this);
