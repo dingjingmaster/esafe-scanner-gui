@@ -2,7 +2,7 @@ project(dsip_sit LANGUAGES CXX)
 
 cmake_minimum_required(VERSION 3.5)
 
-set(DEBUG ON)
+set(DEBUG OFF)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
