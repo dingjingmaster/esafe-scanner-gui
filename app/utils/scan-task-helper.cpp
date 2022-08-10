@@ -235,7 +235,7 @@ void ScanTaskHelperPrivate::onDBChanged()
 
     QString sql = QString("SELECT `task_id`, `task_status`, `task_start_time`, `task_stop_time`,"
                           " `task_scan_finished_file_count`, `task_scan_file_count`, `task_file_count`,"
-                          " `scan_task_filter_name`, `task_name`, scan_task_dir "
+                          " `scan_task_filter_name`, `task_name`, `scan_task_dir` "
                           " FROM scan_task WHERE scan_task_self_check=1");
 
     qDebug() << "scan_task sql: '" << sql << "'";
@@ -269,7 +269,7 @@ void ScanTaskHelperPrivate::onDBChanged()
             if (mData.contains(id)) {
                 ScannerTaskItem* item = mData[id];
 
-                if (taskStatus != item->getStatus ()
+                if (taskStatus != item->getStatus2 ()
                         || startTime != item->getStartTime2 ()
                         || stopTime != item->getStopTime2 ()
                         || taskScanFinishedFileCount != item->getScanFinishedFileCount ()
