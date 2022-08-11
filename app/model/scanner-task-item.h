@@ -8,8 +8,8 @@ class ScannerTaskItem : public QObject
     Q_OBJECT
 public:
     // 未知 -- 未开始、扫描中、已停止、已完成、已暂停、扫描发生错误
-    // -- 任务状态：0 - 未开始，1 - 扫描中，2 - 已停止，3 - 已完成, 5 - 已暂停, 13 - 扫描发生错误
-    enum Status { Unknow = -1, NoBegin = 0, Scanning, Stop, Finish, Suspended = 5, Error = 13 }; Q_ENUM(Status)
+    // -- 任务状态：0 - 未开始，1 - 扫描中，2 - 已停止，3 - 已完成, 4 - 已暂停, 5 - 继续扫描, 13 - 扫描发生错误
+    enum Status { Unknow = -1, NoBegin = 0, Scanning, Stop, Finish, Suspended = 4, Continue = 5, Error = 13 }; Q_ENUM(Status)
 public:
     explicit ScannerTaskItem(QObject *parent = nullptr);
     ScannerTaskItem(QString name, Status status, qint64 startTime, qint64 stopTime, QObject *parent = nullptr);

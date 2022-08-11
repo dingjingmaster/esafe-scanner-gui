@@ -36,6 +36,9 @@ void ScannerTaskItem::setStatus(int status)
     case Suspended:
         mStatus = Suspended;
         break;
+    case Continue:
+        mStatus = Continue;
+        break;
     case Error:
         mStatus = Error;
         break;
@@ -138,6 +141,8 @@ QString ScannerTaskItem::getStatus()
         return tr("已完成");
     case Suspended:
         return tr("已暂停");
+    case Continue:
+        return tr("继续扫描");
     case Error:
         return tr("扫描发生错误");
     case Unknow:
