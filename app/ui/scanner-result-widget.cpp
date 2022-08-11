@@ -88,7 +88,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mView->horizontalHeader()->resizeSection (3, 180);
     mView->horizontalHeader()->resizeSection (4, 180);
 
-
     connect (this, &ScannerResultWidget::applyData, this, [=] () {
         QMessageBox* box = new QMessageBox(this);
         box->setText ("确认提交您对数据的更改吗？");
