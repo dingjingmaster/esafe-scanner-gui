@@ -27,7 +27,6 @@ public:
     void loadTaskResult (QString taskName, QString taskFilter, QStringList mScanDir);
     
 Q_SIGNALS:
-
     void applyData();
     void updateView();
     void checkedItem(bool);

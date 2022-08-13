@@ -3,10 +3,11 @@
 
 #include "header-button.h"
 
-#include <QHBoxLayout>
 #include <QLabel>
-#include <QMouseEvent>
 #include <QWidget>
+#include <QDateTime>
+#include <QMouseEvent>
+#include <QHBoxLayout>
 
 class MainHeader : public QWidget
 {
@@ -23,6 +24,7 @@ protected:
     void mouseMoveEvent(QMouseEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
     void mouseReleaseEvent(QMouseEvent*) override;
+    void mouseDoubleClickEvent(QMouseEvent*) override;
 
 private:
     const int               mMaxHeight = 140;

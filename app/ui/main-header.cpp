@@ -61,6 +61,7 @@ void MainHeader::mouseMoveEvent(QMouseEvent* ev)
 
 void MainHeader::mousePressEvent(QMouseEvent* ev)
 {
+    qInfo() << "" << __FUNCTION__;
     if (ev->button() == Qt::LeftButton) {
         mDrag = true;
         QWidget* parentt = qobject_cast<QWidget*>(parent());
@@ -76,4 +77,9 @@ void MainHeader::mouseReleaseEvent(QMouseEvent* ev)
     if (ev->button() == Qt::LeftButton) {
         mDrag = false;
     }
+}
+
+void MainHeader::mouseDoubleClickEvent(QMouseEvent *)
+{
+    Q_EMIT windowMax();
 }
