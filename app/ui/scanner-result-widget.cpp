@@ -10,16 +10,17 @@
 
 #include <QDebug>
 #include <QToolTip>
+#include <QDateTime>
+#include <QScrollBar>
 #include <QPushButton>
 #include <QMessageBox>
 #include <QVBoxLayout>
 #include <QFileDialog>
 #include <QDBusMessage>
+#include <QFontMetrics>
 #include <QStandardPaths>
 #include <QDBusConnection>
 #include <QDBusPendingCall>
-#include <QDateTime>
-#include <QFontMetrics>
 
 #include <QApplication>
 
@@ -258,17 +259,38 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
                 .arg(mTaskName).arg(mModel->getAllCount ()).arg (mModel->getNoFixCount ()).arg (mModel->getMisReportCount ()).arg (mModel->getDeleteCount ()));
     });
 
+    connect (mModel, &ScannerResultModel::lazyUpdateView, this, [=] () {
+        //
+        auto s = mView->verticalScrollBar();
+        auto scrollBarRatio = float(s->value()) / (s->maximum() - s->minimum());
+        auto curItemIndex = scrollBarRatio * mModel->rowCount();
+        auto startIndex = ((curItemIndex - 30) >= 0) ? (curItemIndex - 30) : 0;
+        auto stopIndex = ((curItemIndex + 30) < mModel->rowCount()) ? (curItemIndex + 30) : mModel->rowCount();
+
+        // 开始更新
+        for (auto i = startIndex; i <= stopIndex; ++i) {
+            mView->update(mModel->index(i, 0));
+            mView->update(mModel->index(i, 2));
+        }
+
+
+
+        mView->repaint(visibleRegion());
+#if DEBUG
+        qInfo() << visibleRegion();
+        qInfo() << QString("min: %1, max: %2, cur: %3, %4 %%").arg(s->minimum()).arg(s->maximum()).arg(s->value()).arg(float(s->value()) / (s->maximum() - s->minimum()));
+#endif
+    });
+
     connect (headerView, &HeaderView::checkBoxClicked, this, [=] (bool s) {
-        mModel->selectAll(s);
-        Q_EMIT checkedItem(s); 
+        mModel->selectAll(s);           // model select All
+        Q_EMIT checkedItem(s);
 
         if (mModel->rowCount () <= 0) {
             Q_EMIT mDelBtn->enable (false);
             Q_EMIT mMisBtn->enable (false);
             Q_EMIT mExpBtn->enable (false);
         }
-
-        mView->updateView();
     });
 
     connect (mView, &QAbstractItemView::doubleClicked, this, [=] (const QModelIndex& index) {
@@ -319,6 +341,9 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
                 }
             }
 #endif
+        } else if (ScannerResultModel::Status == index.column() && index.row() >= 0) {
+
+            Q_EMIT mView->activated(index);
         }
     });
     

@@ -40,6 +40,7 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void clearData ();
+    void lazyUpdateView ();
     void showData (QString TaskName, QString filterName, QStringList scanDir);
 
 public:

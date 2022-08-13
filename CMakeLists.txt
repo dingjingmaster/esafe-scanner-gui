@@ -2,7 +2,7 @@ project(dsip_sit LANGUAGES CXX)
 
 cmake_minimum_required(VERSION 3.5)
 
-set(DEBUG OFF)
+set(DEBUG ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -24,9 +24,9 @@ add_definitions(
 )
 
 if(DEBUG)
-    add_definitions(-D DB_PATH=\\"${CMAKE_SOURCE_DIR}/demo/scan\\")
+    add_definitions(-D DB_PATH=\\"${CMAKE_SOURCE_DIR}/demo/scan\\" -DDEBUG=1)
 else()
-    add_definitions(-D DB_PATH=\\"/usr/local/ultrasec/dat/db_task/EstDlpSEDataBase.db\\")
+    add_definitions(-DDEBUG=0 -D DB_PATH=\\"/usr/local/ultrasec/dat/db_task/EstDlpSEDataBase.db\\")
 endif()
 
 

@@ -202,8 +202,12 @@ void ScannerResultModel::selectAll(bool s)
         QModelIndex idx = index(i, 0);
         if (!idx.isValid()) continue;
         static_cast<ScannerResultItem*>(idx.internalPointer())->setChecked(s);
+#if DEBUG
+
+#endif
         //Q_EMIT dataChanged(idx, idx);
     }
+    lazyUpdateView();
 }
 
 int ScannerResultModel::rowCount(const QModelIndex &parent) const
