@@ -177,6 +177,8 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             mModel->setData (*l, "删除");
         }
 
+        Q_EMIT mModel->lazyUpdateView();
+
     });
 
     mMisBtn->connect(mMisBtn, &PushButton::clicked, this, [=] () {
@@ -201,6 +203,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             //mModel->setData (mModel->getIndexByItem (l, 2), "误报");
             mModel->setData (*l, "误报");
         }
+        Q_EMIT mModel->lazyUpdateView();
     });
 
     mExpBtn->connect(mExpBtn, &PushButton::clicked, this, [=] () {
@@ -273,9 +276,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             mView->update(mModel->index(i, 2));
         }
 
-
-
-        mView->repaint(visibleRegion());
 #if DEBUG
         qInfo() << visibleRegion();
         qInfo() << QString("min: %1, max: %2, cur: %3, %4 %%").arg(s->minimum()).arg(s->maximum()).arg(s->value()).arg(float(s->value()) / (s->maximum() - s->minimum()));
