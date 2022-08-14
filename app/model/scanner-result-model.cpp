@@ -202,10 +202,6 @@ void ScannerResultModel::selectAll(bool s)
         QModelIndex idx = index(i, 0);
         if (!idx.isValid()) continue;
         static_cast<ScannerResultItem*>(idx.internalPointer())->setChecked(s);
-#if DEBUG
-
-#endif
-        //Q_EMIT dataChanged(idx, idx);
     }
     lazyUpdateView();
 }
@@ -293,29 +289,8 @@ bool ScannerResultModel::setData(const QModelIndex &index, const QVariant &value
     switch (index.column ()) {
     case 2: {
         //ScannerResultItem
-        if (mChangedItem.contains(item)) {
-            auto kv = mChangedItem[item];
-            auto savedStatus = kv.first;
-            auto lastStatus = kv.second;
-            
-            // 修改计数
-            changeItemCount(toChange);
-            changeItemCount(lastStatus, false);
-            
-            // 说明未变
-            if (savedStatus == toChange) {
-                mChangedItem.remove (item);
-            } else {
-                QPair<int, int> changedKV(savedStatus, toChange);
-                mChangedItem[item] = changedKV;
-            }
-        } else {
-            QPair<int, int> kv(item->getStatus2 (), toChange);
-            mChangedItem[item] = kv;
-            changeItemCount(toChange);
-            changeItemCount(item->getStatus2 (), false);
-        }
-        
+        itemStatusChanged(item, static_cast<ScannerResultItem::Status>(toChange));
+
         // 更新当前 model 里 status 状态
         item->setStatus (value.toString ());
         Q_EMIT dataChanged (index, index);
@@ -334,28 +309,7 @@ bool ScannerResultModel::setData(ScannerResultItem &index, const QVariant &value
     auto toChange = ScannerResultItem::getStatus(value.toString());
 
     //ScannerResultItem
-    if (mChangedItem.contains(&index)) {
-        auto kv = mChangedItem[&index];
-        auto savedStatus = kv.first;
-        auto lastStatus = kv.second;
-
-        // 修改计数
-        changeItemCount(toChange);
-        changeItemCount(lastStatus, false);
-
-        // 说明未变
-        if (savedStatus == toChange) {
-            mChangedItem.remove (&index);
-        } else {
-            QPair<int, int> changedKV(savedStatus, toChange);
-            mChangedItem[&index] = changedKV;
-        }
-    } else {
-        QPair<int, int> kv(index.getStatus2 (), toChange);
-        mChangedItem[&index] = kv;
-        changeItemCount(toChange);
-        changeItemCount(index.getStatus2 (), false);
-    }
+    itemStatusChanged(&index, static_cast<ScannerResultItem::Status>(toChange));
 
     // 更新当前 model 里 status 状态
     index.setStatus (value.toString ());
@@ -410,3 +364,71 @@ bool ScannerResultModel::removeRows(int row, int count, const QModelIndex &paren
 
     return true;
 }
+
+void ScannerResultModel::updateCount()
+{
+    int     tNoFix = 0;
+    int     tDelete = 0;
+    int     tMisReport = 0;
+
+    for (auto it : mData) {
+        switch (it->getStatus2()) {
+            case 6: {
+                ++tMisReport;
+                break;
+            }
+            case 5: {
+                ++tDelete;
+                break;
+            }
+            case 0:
+            default: {
+                ++tNoFix;
+                break;
+            }
+        }
+    }
+
+    mNoFix = tNoFix;
+    mDelete = tDelete;
+    mMisReport = tMisReport;
+}
+
+void ScannerResultModel::setSelectedItemStatus(ScannerResultItem::Status status)
+{
+    auto selectedItem = getSelectedItem();
+
+    for (auto it : selectedItem) {
+        itemStatusChanged(it, status);
+    }
+}
+
+void ScannerResultModel::itemStatusChanged(ScannerResultItem *item, ScannerResultItem::Status toChange)
+{
+    if (mChangedItem.contains(item)) {
+        auto kv = mChangedItem[item];
+        auto savedStatus = kv.first;
+        auto lastStatus = kv.second;
+
+        // 修改计数
+        changeItemCount(toChange);
+        changeItemCount(lastStatus, false);
+
+        // 说明未变
+        if (savedStatus == toChange) {
+            mChangedItem.remove (item);
+        } else {
+            QPair<int, int> changedKV(savedStatus, toChange);
+            mChangedItem[item] = changedKV;
+        }
+    } else {
+        QPair<int, int> kv(item->getStatus2 (), toChange);
+        mChangedItem[item] = kv;
+        changeItemCount(toChange);
+        changeItemCount(item->getStatus2 (), false);
+    }
+}
+
+
+
+

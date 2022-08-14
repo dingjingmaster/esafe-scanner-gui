@@ -178,6 +178,8 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         }
 
         Q_EMIT mModel->lazyUpdateView();
+        mModel->setSelectedItemStatus(ScannerResultItem::Deleted);
+        updateStatus();
 
     });
 
@@ -204,6 +206,8 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             mModel->setData (*l, "误报");
         }
         Q_EMIT mModel->lazyUpdateView();
+        mModel->setSelectedItemStatus(ScannerResultItem::MisReport);
+        updateStatus();
     });
 
     mExpBtn->connect(mExpBtn, &PushButton::clicked, this, [=] () {
@@ -446,4 +450,10 @@ void ScannerResultWidget::loadTaskResult(QString taskName, QString taskFilter, Q
     mTaskName = taskName;
     
     Q_EMIT mModel->showData(taskName, taskFilter, scanDir);
+}
+
+void ScannerResultWidget::updateStatus()
+{
+    Q_EMIT statusString (QString("任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%4), 删除: (%5)")
+                                 .arg(mTaskName).arg(mModel->getAllCount ()).arg (mModel->getNoFixCount ()).arg (mModel->getMisReportCount ()).arg (mModel->getDeleteCount ()));
 }

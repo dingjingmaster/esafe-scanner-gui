@@ -32,6 +32,8 @@ public:
 
     void saveResult();
 
+    void setSelectedItemStatus (ScannerResultItem::Status status);
+
 private:
     void changeItemCount(int status, bool isAdd=true);
 
@@ -58,6 +60,10 @@ public:
 
     bool insertRows (int row, int count, const QModelIndex &parent = QModelIndex()) override;
     bool removeRows (int row, int count, const QModelIndex &parent = QModelIndex()) override;
+
+private:
+    void updateCount ();
+    void itemStatusChanged (ScannerResultItem* it, ScannerResultItem::Status s);
 
 private:
     const int                                           mBackgroundR = 235;
