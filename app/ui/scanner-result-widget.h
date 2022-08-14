@@ -39,7 +39,9 @@ Q_SIGNALS:
 public Q_SLOTS:
     void updateStatus();
 
+
 private:
+    int                     mCurIndex = 0;
     QStringList             mScanDir;
     QString                 mTaskName;
     QString                 mScanFilter;

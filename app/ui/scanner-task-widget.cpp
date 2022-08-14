@@ -41,9 +41,9 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
     setLayout(mMainLayout);
 
     // FIXME:// 此处需要修改
-    connect (mView->horizontalHeader (), &QHeaderView::sectionResized, [=] (int index, int oldSize, int newSize) {
-        QRect viewRect = mView->rect ();
-    });
+    //connect (mView->horizontalHeader (), &QHeaderView::sectionResized, [=] (int index, int oldSize, int newSize) {
+    //    QRect viewRect = mView->rect ();
+    //});
 
 #if 1
     connect (mModel, &ScannerTaskModel::dataChanged, this, [=] (const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>()) {
@@ -59,7 +59,6 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
         if (ScannerTaskModel::TaskOperation == index.column()) {
             Q_EMIT taskDetail(static_cast<ScannerTaskItem*>(index.internalPointer()));
         }
-
     });
 
     connect (mView, &QAbstractItemView::entered, this, [=] (const QModelIndex &indexT) {

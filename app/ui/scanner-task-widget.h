@@ -24,6 +24,7 @@ Q_SIGNALS:
     void taskDetail (const ScannerTaskItem* const item);
 
 private:
+    int                     mCurIndex = 0;
     QVBoxLayout*            mMainLayout;
 
     ScannerView*            mView;
