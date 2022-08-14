@@ -32,11 +32,12 @@ ScannerResultModel::ScannerResultModel(QObject* parent)
         mChangedItem.clear ();
     });
     
-    
-    void fixChanged (int);
-    void delChanged (int);
-    void misReportChanged (int);
 
+    //mThread = new QThread(this);
+    //connect(this, &ScannerResultModel::showData, mScanResultHelper, &ScanResultHelper::loadTaskResult);
+    //moveToThread(mThread);
+
+    //mThread->start();
     DBManager::instance()->refreshScanResult ();
     //mScanResultHelper->loadTaskResult();
 }
@@ -72,31 +73,39 @@ void ScannerResultModel::addItem(ScannerResultItem* item)
 {
     if (!item)      return;
 
+    mLocker.lock();
+
     mData.append(item);
     insertRows(mData.count() - 1, 1);
-    
     changeItemCount(item->getStatus2 ());
-    
-    QModelIndex idx = getIndexByItem(item);
-    
-    Q_EMIT dataChanged (idx, idx);
+
+    if ((mCurIndex - 10 <= 0) || (rowCount() < mCurIndex + 30)) {
+        QModelIndex idx = getIndexByItem(item);
+        Q_EMIT dataChanged (idx, idx);
+    }
+
+    mLocker.unlock();
 }
 
 void ScannerResultModel::delItem(ScannerResultItem *item)
 {
     if (!item)      return;
-    
+
+    mLocker.lock();
+
     QModelIndex idx = getIndexByItem(item);
-    
+
     if (!idx.isValid())     return;
     
     if (mData.contains (item))  mData.removeOne (item);
-    
     removeRow (idx.row());
-    
     changeItemCount(item->getStatus2 (), false);
-    
-    Q_EMIT dataChanged (idx, idx);
+
+    if (mCurIndex < 30 || rowCount() < mCurIndex + 30) {
+        Q_EMIT dataChanged (idx, idx);
+    }
+
+    mLocker.unlock();
 }
 
 int ScannerResultModel::getNoFixCount() 
@@ -427,6 +436,15 @@ void ScannerResultModel::itemStatusChanged(ScannerResultItem *item, ScannerResul
         changeItemCount(toChange);
         changeItemCount(item->getStatus2 (), false);
     }
+}
+
+void ScannerResultModel::onScrollbarMoved(float ratio)
+{
+    mLocker.lock();
+
+    mCurIndex = ratio * rowCount() + 1;
+
+    mLocker.unlock();
 }
 
 

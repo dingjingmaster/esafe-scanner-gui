@@ -2,7 +2,9 @@
 #define SCANNERRESULTMODEL_H
 #include <QMap>
 #include <QPair>
+#include <QThread>
 #include <QAbstractTableModel>
+#include <QtCore/QMutex>
 #include "scanner-result-item.h"
 
 class ScanResultHelper;
@@ -39,6 +41,7 @@ private:
 
 public Q_SLOTS:
     void selectAll (bool s);
+    void onScrollbarMoved (float ratio);
 
 Q_SIGNALS:
     void clearData ();
@@ -69,7 +72,10 @@ private:
     const int                                           mBackgroundR = 235;
     const int                                           mBackgroundG = 241;
     const int                                           mBackgroundB = 248;
-    
+
+    // 当前界面显示的数据index
+    int                                                 mCurIndex = 0;
+
     // 数据状态记录
     //"任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%5), 删除: (%5)");
     int                                                 mNoFix = 0;
@@ -81,6 +87,14 @@ private:
     // FIXME:// 不应该释放Item内存，这块需要用 智能指针 优化
     QList<ScannerResultItem*>                           mData;
     QMap<const ScannerResultItem*, QPair<int, int>>     mChangedItem;
+
+    // 数据库改变、加载数据线程
+    // NOTE:// 暂时没有使用，把 model 放到线程里，图形界面更新会有问题
+    QThread*                                            mThread;
+
+    // NOTE:// 暂时没有生效
+    // 锁定 mData、mChangedItem、mNoFix、mDelete、mMisReport
+    QMutex                                              mLocker;
 };
 
 #endif // SCANNERRESULTMODEL_H

@@ -21,10 +21,17 @@ public:
     ScanTaskHelper* getTaskHelper();
     ScanResultHelper* getResultHelper();
 
+    void setCurPage (CurPage page);
+
 Q_SIGNALS:
+    void stopDBMonitor();
+    void startDBMonitor();
     void refreshScanTask ();
     void refreshScanResult2 ();
     void refreshScanResult (QString taskName="", QString taskFilter="", QStringList scanDir=QStringList());
+
+private Q_SLOTS:
+    void updateModel();
 
 
 private:

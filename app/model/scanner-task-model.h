@@ -2,6 +2,7 @@
 #define SCANNERTASKMODEL_H
 
 #include <QAbstractTableModel>
+#include <QtCore/QMutex>
 
 #include "scanner-task-item.h"
 
@@ -27,6 +28,7 @@ public Q_SLOTS:
     void addItem (ScannerTaskItem* item);
     void delItem (ScannerTaskItem* item);
     void updateItem (ScannerTaskItem* item);
+    void onScrollbarMoved (float ratio);
 
 public:
     int rowCount (const QModelIndex& parent = QModelIndex()) const override;
@@ -47,10 +49,14 @@ private:
     const int                                           mBackgroundG = 241;
     const int                                           mBackgroundB = 248;
 
+    int                                                 mCurIndex = 0;
+
     ScanTaskHelper*                                     mScanTaskHelper;
     
     // ScannerxxItem
     QList<ScannerTaskItem*>                             mData;
+
+    QMutex                                              mLocker;
 };
 
 #endif // SCANNERTASKMODEL_H

@@ -34,7 +34,7 @@ QModelIndex ScannerTaskModel::getIndexByItem(const ScannerTaskItem* item, int co
     int rows = rowCount();
     for (auto i = 0; i < rows; ++i) {
         QModelIndex ii = index(i, column);
-        const ScannerTaskItem* it = static_cast <const ScannerTaskItem*> (ii.internalPointer());
+        auto it = static_cast <const ScannerTaskItem*> (ii.internalPointer());
         if (it == item) {
             return ii;
         }
@@ -88,7 +88,7 @@ void ScannerTaskModel::updateItem(ScannerTaskItem *item)
     qInfo() << "update task: " << item->getName();
 
     QModelIndex idx = getIndexByItem (item);
-    if (idx.isValid ()) {
+    if (idx.isValid () && ((mCurIndex - 10 < 0) || (rowCount() < mCurIndex + 30))) {
         QModelIndex idx1 = index (idx.row (), (int)(EnumSize) - 1);
         Q_EMIT dataChanged (idx, idx1);
     }
@@ -213,4 +213,9 @@ bool ScannerTaskModel::removeRows(int row, int count, const QModelIndex &parent)
     endRemoveRows();
 
     return true;
+}
+
+void ScannerTaskModel::onScrollbarMoved(float ratio)
+{
+    mCurIndex = ratio * rowCount() + 1;
 }

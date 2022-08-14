@@ -51,21 +51,14 @@ DBManager::DBManager(QObject *parent)
     mTimer = new QTimer;
     mTimer->setSingleShot(true);
 
-    connect(mTimer, &QTimer::timeout, this, [=] () {
-        qInfo() << "db file changed!";
-        if (CUR_RESULT == mPage) {
-            Q_EMIT refreshScanResult2 ();
-        } else {
-            Q_EMIT refreshScanTask ();
-        }
-    });
+    connect(mTimer, &QTimer::timeout, this, &DBManager::updateModel);
 
-    connect (mWatcher, &QFileSystemWatcher::fileChanged, this, [&] (QString) {
+    connect (mWatcher, &QFileSystemWatcher::fileChanged, this, [&] (const QString&) {
         // FIXME:// 定时器 1s 更新一次
         if (mTimer->isActive ()) {
             return;
         }
-        mTimer->start (3 * 1000);
+        mTimer->start (5 * 1000);
     });
 
     // 扫描任务
@@ -75,6 +68,30 @@ DBManager::DBManager(QObject *parent)
     connect (this, &DBManager::refreshScanResult2, mScanResult, &ScanResultHelper::refresResult);
     connect (this, &DBManager::refreshScanResult, mScanResult, &ScanResultHelper::loadTaskResult);
 
+    // db monitor
+    connect (this, &DBManager::stopDBMonitor, this, [=] () {mWatcher->removePath(DB_PATH);});
+    connect (this, &DBManager::startDBMonitor, this, [=] () {
+        mWatcher->addPath(DB_PATH);
+        updateModel();
+    });
+
     mScanTaskThread->start ();
     mScanResultThread->start ();
+}
+
+void DBManager::updateModel()
+{
+    qInfo() << "db file changed!";
+    if (CUR_RESULT == mPage) {
+        qDebug() << "scan result db changed";
+        Q_EMIT refreshScanResult2 ();
+    } else {
+        qDebug() << "scan task db changed";
+        Q_EMIT refreshScanTask ();
+    }
+}
+
+void DBManager::setCurPage(CurPage p)
+{
+    mPage = p;
 }

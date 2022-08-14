@@ -20,7 +20,10 @@ public:
     // 测试函数
     void test ();
 
+    void setScanDir(QString name);
+    void setScanDir(QStringList name);
     void setTaskName (QString name);
+    void setScanFilter (QString name);
 
     void clearData ();
     bool hasChecked ();                 // 是否有选中条目
@@ -39,6 +42,7 @@ public Q_SLOTS:
 private:
     QStringList             mScanDir;
     QString                 mTaskName;
+    QString                 mScanFilter;
 
     QVBoxLayout*            mMainLayout;
 

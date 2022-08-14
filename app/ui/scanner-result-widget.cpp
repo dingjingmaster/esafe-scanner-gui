@@ -23,6 +23,7 @@
 #include <QDBusPendingCall>
 
 #include <QApplication>
+#include <db/db-manager.h>
 
 #define FREEDESKTOP_FM_DBUS             "org.freedesktop.FileManager1"
 #define FREEDESKTOP_FM_DBUS_PATH        "/org/freedesktop/FileManager1"
@@ -151,6 +152,8 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         Q_EMIT mModel->clearData();
         headerView->setChecked(false);
         Q_EMIT headerView->checkBoxClicked (false);
+
+        DBManager::instance()->setCurPage(DBManager::CUR_TASK);
     });
 
     mDelBtn->connect(mDelBtn, &PushButton::clicked, this, [=] () {
@@ -315,7 +318,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
                 }
             }
         }
-
     });
 
     connect (mView, &QAbstractItemView::clicked, this, [=] (const QModelIndex &index) {
@@ -375,6 +377,11 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             // void showText(const QPoint &pos, const QString &text, QWidget *w, const QRect &rect, int msecDisplayTime)
             QToolTip::showText(p, text, this, QRect(+100, -100, w, h), 3000000);
         }
+    });
+
+    connect (mView->verticalScrollBar(), &QScrollBar::valueChanged, this, [=] (int val) {
+        auto s = mView->verticalScrollBar();
+        mModel->onScrollbarMoved(float(s->value()) / (s->maximum() - s->minimum()));
     });
 
 //    test();
@@ -448,7 +455,7 @@ void ScannerResultWidget::loadTaskResult(QString taskName, QString taskFilter, Q
     if (!mModel)        return;
 
     mTaskName = taskName;
-    
+
     Q_EMIT mModel->showData(taskName, taskFilter, scanDir);
 }
 
@@ -456,4 +463,19 @@ void ScannerResultWidget::updateStatus()
 {
     Q_EMIT statusString (QString("任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%4), 删除: (%5)")
                                  .arg(mTaskName).arg(mModel->getAllCount ()).arg (mModel->getNoFixCount ()).arg (mModel->getMisReportCount ()).arg (mModel->getDeleteCount ()));
+}
+
+void ScannerResultWidget::setScanDir(QString name)
+{
+    mScanDir = name.split("|");
+}
+
+void ScannerResultWidget::setScanFilter(QString name)
+{
+    mScanFilter = name;
+}
+
+void ScannerResultWidget::setScanDir(QStringList name)
+{
+    mScanDir = name;
 }

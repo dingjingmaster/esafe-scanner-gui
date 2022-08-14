@@ -11,6 +11,7 @@ ScannerView::ScannerView(QWidget *parent)
 
     verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
+#if 0
     connect (this, &ScannerView::updateView, this, [=] () {
         return;
         auto its = model ()->rowCount ();
@@ -20,5 +21,6 @@ ScannerView::ScannerView(QWidget *parent)
             update (model ()->index (it, 2));
         }
     });
+#endif
 }
 
