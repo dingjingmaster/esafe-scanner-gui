@@ -1,0 +1,1 @@
+file(GLOB WIDGET_SRC ${CMAKE_SOURCE_DIR}/app/widget/progress.cpp ${CMAKE_SOURCE_DIR}/app/widget/progress.h)

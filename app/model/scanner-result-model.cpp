@@ -156,6 +156,11 @@ QModelIndex ScannerResultModel::getIndexByItem(const ScannerResultItem *item, in
 
 void ScannerResultModel::saveResult()
 {
+    // FIXME:// 此处需要注意，result model数据不能被修改
+    mLocker.lock();
+
+    QStringList del;
+    QStringList misReport;
     auto ls = getChangedItem ();
 
     for (auto l : ls) {
@@ -164,14 +169,18 @@ void ScannerResultModel::saveResult()
 
         int status = item->getStatus2 ();
         if (ScannerResultItem::MisReport == status) {
-            mScanResultHelper->misReportByName (fileName);
+            misReport << fileName;
         } else if (ScannerResultItem::Deleted == status) {
-            mScanResultHelper->deleteItemByName (fileName);
+            del << fileName;
         } else {
             qDebug() << "not apply: " << fileName;
             continue;
         }
     }
+    mLocker.unlock();
+
+    mScanResultHelper->deleteItemByName (del);
+    mScanResultHelper->misReportByName (misReport);
 }
 
 QList<ScannerResultItem *> ScannerResultModel::getSelectedItem()

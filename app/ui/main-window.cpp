@@ -8,6 +8,8 @@
 #include "scanner-task-widget.h"
 #include "scanner-result-widget.h"
 
+#include "../widget/progress.h"
+
 #include <QDebug>
 #include <QApplication>
 
@@ -18,9 +20,11 @@ MainWindow::MainWindow(QWidget *parent)
     setObjectName("main");
     setContentsMargins(0, 0, 0, 0);
     setMinimumSize(mMinWidth, mMinHeight);
-    setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
+    setWindowFlags(windowFlags() | Qt::FramelessWindowHint);// | Qt::BypassWindowManagerHint | Qt::WindowStaysOnTopHint);
 
     setWindowTitle ("扫描自查工具");
+
+    //setGraphicsEffect(new QGraphicsBlurEffect);
 
     mMainLayout = new QVBoxLayout;
     QHBoxLayout* btnLayout = new QHBoxLayout;

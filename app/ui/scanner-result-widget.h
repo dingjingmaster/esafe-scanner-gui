@@ -4,6 +4,7 @@
 #include "view/scanner-view.h"
 #include <QWidget>
 
+class Progress;
 class PushButton;
 class QHBoxLayout;
 class QVBoxLayout;
@@ -28,8 +29,12 @@ public:
     void clearData ();
     bool hasChecked ();                 // 是否有选中条目
     void loadTaskResult (QString taskName, QString taskFilter, QStringList mScanDir);
+
+protected:
+    //bool event (QEvent* ev) override;
     
 Q_SIGNALS:
+    void saveData();
     void applyData();
     void updateView();
     void checkedItem(bool);
@@ -58,6 +63,12 @@ private:
 
     ScannerView*            mView;
     ScannerResultModel*     mModel;
+
+    bool                    mSavingData = false;
+    QThread*                mThreadSaveData;
+
+    // 进度条
+    Progress*               mProgress;
 };
 
 #endif // SCANNERRESULTWIDGET_H

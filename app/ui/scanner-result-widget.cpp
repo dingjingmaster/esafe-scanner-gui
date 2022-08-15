@@ -23,7 +23,9 @@
 #include <QDBusPendingCall>
 
 #include <QApplication>
-#include <db/db-manager.h>
+
+#include "../db/db-manager.h"
+#include "../widget/progress.h"
 
 #define FREEDESKTOP_FM_DBUS             "org.freedesktop.FileManager1"
 #define FREEDESKTOP_FM_DBUS_PATH        "/org/freedesktop/FileManager1"
@@ -44,9 +46,12 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mDelBtn = new PushButton(this, PushButton::Type2);
     mMisBtn = new PushButton(this, PushButton::Type2);
     mExpBtn = new PushButton(this, PushButton::Type2);
-    
+
     mModel = new ScannerResultModel;
     mView = new ScannerView;
+
+    mProgress = new Progress(mView);
+
     mView->setItemDelegate(new ScannerResultDelegate(this));
     HeaderView* headerView = new HeaderView(Qt::Horizontal, mView);
 
@@ -78,6 +83,11 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mView->setHorizontalHeader(headerView);
     mView->setModel(mModel);
     mMainLayout->addWidget(mView);
+
+    // save data
+    mThreadSaveData = new QThread;
+    connect (this, &ScannerResultWidget::saveData, mModel, &ScannerResultModel::saveResult);
+    mThreadSaveData->start();
 
     mView->horizontalHeader()->setMinimumSectionSize(10);
     mView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -134,9 +144,22 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
                 NotifyToFilter::getInstance()->sendData(msg.SerializeAsString());
             }
 #else
+
+            // 此处使用多线程
             mModel->saveResult ();
+            //box->connect(mThreadSaveData, &QThread::finished, this, [=] () {
+            //    mSavingData = false;
+            //    box->deleteLater();
+            //});
+
+            //if (!mSavingData) {
+            //    mSavingData = true;
+            //    Q_EMIT saveData();
+            //}
+
+            // box->deleteLater ();
+            //mThreadSaveData->wait(-1);
 #endif
-            box->deleteLater ();
         });
         if (mModel->hasChanged ()) {
             box->exec ();

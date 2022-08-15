@@ -12,8 +12,11 @@ class ScanResultHelper : public QObject
     Q_OBJECT
     friend class DBManager;
 public:
-    void misReportByName(QString);
-    void deleteItemByName (QString);
+    void misReportByName(QString&);
+    void deleteItemByName (QString&);
+
+    void misReportByName(QStringList&);
+    void deleteItemByName (QStringList&);
 
     void testInsertItem();
 

@@ -9,6 +9,7 @@ class QResizeEvent;
 class ScannerTaskWidget;
 class ScannerResultWidget;
 
+class Progress;
 class MainSubToolBar;
 
 class MainWindow : public QWidget
