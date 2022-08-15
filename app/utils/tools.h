@@ -9,5 +9,9 @@
 bool sqlite_lock();
 bool sqlite_unlock();
 
+// file
+bool file_lock ();
+bool file_unlock ();
+
 
 #endif // CTOOLS_H

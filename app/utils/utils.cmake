@@ -17,6 +17,9 @@ file(GLOB UTILS_SRC
     ${CMAKE_SOURCE_DIR}/app/utils/export-scan-result.h
     ${CMAKE_SOURCE_DIR}/app/utils/export-scan-result.cpp
 
+    ${CMAKE_SOURCE_DIR}/app/utils/scan-status-helper.h
+    ${CMAKE_SOURCE_DIR}/app/utils/scan-status-helper.cpp
+
 #    ${CMAKE_SOURCE_DIR}/app/utils/message-with-fp.pb.h
 #    ${CMAKE_SOURCE_DIR}/app/utils/message-with-fp.pb.cc
 

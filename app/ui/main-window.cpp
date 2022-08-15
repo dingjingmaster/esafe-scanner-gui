@@ -11,7 +11,9 @@
 #include "../widget/progress.h"
 
 #include <QDebug>
+#include <QTimer>
 #include <QApplication>
+#include <utils/scan-status-helper.h>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -26,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //setGraphicsEffect(new QGraphicsBlurEffect);
 
+    mCurStatus = new QLabel;
     mMainLayout = new QVBoxLayout;
     QHBoxLayout* btnLayout = new QHBoxLayout;
 
@@ -75,6 +78,9 @@ MainWindow::MainWindow(QWidget *parent)
     toolbar->addWidget(action1);
     mMainLayout->addWidget(toolbar);
 
+    mStatusTimer = new QTimer(this);
+    mStatusTimer->setInterval(3 * 1000);
+
     // button
     btnLayout->setContentsMargins(0, 0, 0, 0);
     btnLayout->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
@@ -94,6 +100,14 @@ MainWindow::MainWindow(QWidget *parent)
     mMainLayout->addWidget(mScannerTaskWidget);
     mMainLayout->addWidget(mScannerResultWidget);
     mScannerResultWidget->hide();
+
+    // 当前状态
+    mMainLayout->addWidget(mCurStatus);
+
+    connect(mStatusTimer, &QTimer::timeout, this, [=] () {
+        mStatusLabel->setText(ScanStatusHelper::getStatusString());
+    });
+    mStatusTimer->start();
     
     connect (mScannerResultWidget, &ScannerResultWidget::statusString, this, [=] (QString status) {
         mStatusLabel->setText(status);

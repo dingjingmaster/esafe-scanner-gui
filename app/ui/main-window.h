@@ -34,6 +34,9 @@ private:
 
     ScannerTaskWidget*      mScannerTaskWidget;
     ScannerResultWidget*    mScannerResultWidget;
+
+    QLabel*                 mCurStatus;
+    QTimer*                 mStatusTimer;
 };
 
 #endif // MAINWINDOW_H
