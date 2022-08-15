@@ -29,6 +29,13 @@ MainWindow::MainWindow(QWidget *parent)
     //setGraphicsEffect(new QGraphicsBlurEffect);
 
     mCurStatus = new QLabel;
+    mCurStatus->setWordWrap(true);
+    QString str = ScanStatusHelper::getStatusString();
+    if (nullptr != str && !str.isNull() && !str.isEmpty() && "" != str) {
+        mCurStatus->setText("正在扫描：" + str);
+    } else {
+        mCurStatus->setText("正在扫描：无");
+    }
     mMainLayout = new QVBoxLayout;
     QHBoxLayout* btnLayout = new QHBoxLayout;
 
@@ -81,7 +88,7 @@ MainWindow::MainWindow(QWidget *parent)
     mMainLayout->addWidget(toolbar);
 
     mStatusTimer = new QTimer;
-    mStatusTimer->setInterval(5 * 1000);
+    mStatusTimer->setInterval(2 * 1000);
 
     // button
     btnLayout->setContentsMargins(0, 0, 0, 0);

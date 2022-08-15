@@ -15,27 +15,26 @@ static bool init = false;
 
 QString ScanStatusHelper::getStatusString()
 {
-    static QTextStream* io = nullptr;
-    if (!init) {
-        const char* filePath = nullptr;
-        if (QFile::exists(FILE1)) {
-            filePath = FILE1;
-        } else if (QFile::exists(FILE2)) {
-            filePath = FILE2;
-        }
-
-        if (filePath) {
-            io = new QTextStream(filePath);
-            init = true;
-        }
-    }
-
     while (!file_lock());
-    if (io) {
-        QString str = io->readAll();
+
+    if (QFile::exists(FILE1)) {
+        QFile f(FILE1);
+        f.open(QIODevice::ReadOnly | QIODevice::Text);
+        QTextStream io(&f);
+        QString str = io.readAll();
+        f.close();
+        while (!file_unlock());
+        return (nullptr != str && !str.isNull() && !str.isEmpty() && "" != str) ? str : "";
+    } else if (QFile::exists(FILE2)) {
+        QFile f(FILE2);
+        f.open(QIODevice::ReadOnly | QIODevice::Text);
+        QTextStream io(&f);
+        QString str = io.readAll();
+        f.close();
         while (!file_unlock());
         return (nullptr != str && !str.isNull() && !str.isEmpty() && "" != str) ? str : "";
     }
+
     while (!file_unlock());
 
     return "";

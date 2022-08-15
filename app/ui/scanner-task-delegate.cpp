@@ -59,6 +59,8 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
         p->restore ();
         return;
 #endif
+        align |= (Qt::AlignHCenter | Qt::AlignVCenter);
+        break;
     }
     case 6:
         p->setPen(Qt::blue);

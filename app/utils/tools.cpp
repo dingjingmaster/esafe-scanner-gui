@@ -8,8 +8,8 @@
 static FILE* fl = NULL;
 const char* lockFile1 = NULL;
 
-#define LOCK_FILE3      "/dev/shm/.est.runningTask.lock"
-#define LOCK_FILE4      "/usr/local/ultrasec/dat/.est.runningTask.lock"
+#define LOCK_FILE3      "/dev/shm/.est.runingTask.lock"
+#define LOCK_FILE4      "/usr/local/ultrasec/dat/.est.runingTask.lock"
 static FILE* f2 = NULL;
 const char* lockFile2 = NULL;
 
