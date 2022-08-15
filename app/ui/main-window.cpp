@@ -105,9 +105,11 @@ MainWindow::MainWindow(QWidget *parent)
     mMainLayout->addWidget(mCurStatus);
 
     connect(mStatusTimer, &QTimer::timeout, this, [=] () {
-        QString str = ScanStatusHelper::getStatusString();
+        QString str = "正在扫描：" + ScanStatusHelper::getStatusString();
         if (nullptr != str && !str.isNull() && !str.isEmpty() && "" != str) {
             mStatusLabel->setText(str);
+        } else {
+            mStatusLabel->setText("正在扫描：无");
         }
     });
 
