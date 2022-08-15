@@ -16,6 +16,7 @@
 #include <QMessageBox>
 #include <QVBoxLayout>
 #include <QFileDialog>
+#include <QResizeEvent>
 #include <QDBusMessage>
 #include <QFontMetrics>
 #include <QStandardPaths>
@@ -95,10 +96,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mView->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
     mView->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Interactive);
     mView->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Interactive);
-    mView->horizontalHeader()->resizeSection (0, 40);
-    mView->horizontalHeader()->resizeSection (2, 80);
-    mView->horizontalHeader()->resizeSection (3, 180);
-    mView->horizontalHeader()->resizeSection (4, 180);
 
     connect (this, &ScannerResultWidget::applyData, this, [=] () {
         QMessageBox* box = new QMessageBox(this);
@@ -501,4 +498,36 @@ void ScannerResultWidget::setScanFilter(QString name)
 void ScannerResultWidget::setScanDir(QStringList name)
 {
     mScanDir = name;
+}
+
+void ScannerResultWidget::resizeEvent(QResizeEvent *event)
+{
+    // 放大
+    if ((event->oldSize().width() > 0) && (event->size().width() > event->oldSize().width())) {
+        setBigSize();
+    } else {
+        setDefaultSize();
+    }
+
+    QWidget::resizeEvent(event);
+}
+
+void ScannerResultWidget::setBigSize()
+{
+    if (!mView || !mView->horizontalHeader()) return;
+
+    mView->horizontalHeader()->resizeSection (0, 80);
+    mView->horizontalHeader()->resizeSection (2, 120);
+    mView->horizontalHeader()->resizeSection (3, 240);
+    mView->horizontalHeader()->resizeSection (4, 240);
+}
+
+void ScannerResultWidget::setDefaultSize()
+{
+    if (!mView || !mView->horizontalHeader()) return;
+
+    mView->horizontalHeader()->resizeSection (0, 40);
+    mView->horizontalHeader()->resizeSection (2, 90);
+    mView->horizontalHeader()->resizeSection (3, 200);
+    mView->horizontalHeader()->resizeSection (4, 200);
 }

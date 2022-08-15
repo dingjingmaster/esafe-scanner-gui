@@ -31,7 +31,11 @@ public:
     void loadTaskResult (QString taskName, QString taskFilter, QStringList mScanDir);
 
 protected:
-    //bool event (QEvent* ev) override;
+    void resizeEvent (QResizeEvent* event) override;
+
+private:
+    void setBigSize ();
+    void setDefaultSize ();
     
 Q_SIGNALS:
     void saveData();

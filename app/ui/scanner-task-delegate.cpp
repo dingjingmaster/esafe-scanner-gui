@@ -39,7 +39,7 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
         align |= Qt::AlignHCenter;
         break;
     case 5: {
-        break;
+#if 0
         QStyleOptionViewItemV4 opV4 = option;
         initStyleOption (&opV4, index);
         QStyle* style = opV4.widget ? opV4.widget->style () : QApplication::style();
@@ -58,6 +58,7 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
         p->restore ();
         p->restore ();
         return;
+#endif
     }
     case 6:
         p->setPen(Qt::blue);

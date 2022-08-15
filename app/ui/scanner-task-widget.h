@@ -23,6 +23,13 @@ Q_SIGNALS:
     void clicked ();
     void taskDetail (const ScannerTaskItem* const item);
 
+protected:
+    void resizeEvent (QResizeEvent* event) override;
+
+private:
+    void setBigSize ();
+    void setDefaultSize ();
+
 private:
     int                     mCurIndex = 0;
     QVBoxLayout*            mMainLayout;

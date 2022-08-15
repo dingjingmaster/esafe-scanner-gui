@@ -6,6 +6,8 @@
 #include <QDebug>
 #include <QVBoxLayout>
 #include <QHeaderView>
+#include <QResizeEvent>
+#include <QtWidgets/QToolTip>
 
 
 ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
@@ -20,20 +22,16 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
     mProxyModel->setSourceModel(mModel);
 
     mView->setModel(mProxyModel);
-    mView->horizontalHeader()->setMinimumSectionSize(10);
+    mView->horizontalHeader()->setMinimumSectionSize(40);
     mView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
     mView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive);
-    mView->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Fixed);
+    mView->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
     mView->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Interactive);
     mView->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Interactive);
     mView->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Interactive);
-    mView->horizontalHeader()->setSectionResizeMode(6, QHeaderView::Fixed);
-    mView->horizontalHeader()->resizeSection (0, 40);
-    mView->horizontalHeader()->resizeSection (2, 70);
-    mView->horizontalHeader()->resizeSection (3, 180);
-    mView->horizontalHeader()->resizeSection (4, 180);
-    mView->horizontalHeader()->resizeSection (5, 180);
-    mView->horizontalHeader()->resizeSection (6, 90);
+    mView->horizontalHeader()->setSectionResizeMode(6, QHeaderView::Interactive);
+
     //mView->setSortingEnabled(true);
     mMainLayout->addWidget(mView);
 
@@ -65,6 +63,15 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
         QModelIndex index = mProxyModel->mapToSource(indexT);
         if (ScannerTaskModel::TaskOperation == index.column()) {
             setCursor(Qt::PointingHandCursor);
+        } else if (ScannerTaskModel::TaskName == index.column() && index.row() >= 0) {
+            //QPoint p = mView->visualRect(index).bottomRight();
+            QPoint p = QCursor().pos (); //mView->visualRect(index).bottomRight();
+            QString text = static_cast<ScannerTaskItem*>(index.internalPointer())->getName();
+            QFontMetrics fm(font());
+            int w = fm.horizontalAdvance(text);
+            int h = fm.height();
+            // void showText(const QPoint &pos, const QString &text, QWidget *w, const QRect &rect, int msecDisplayTime)
+            QToolTip::showText(p, text, this, QRect(+100, -100, w, h), 3000000);
         } else {
             setCursor(Qt::ArrowCursor);
         }
@@ -107,4 +114,40 @@ void ScannerTaskWidget::test()
     mModel->addItem(sm13);
     mModel->addItem(sm14);
     mModel->addItem(sm15);
+}
+
+void ScannerTaskWidget::resizeEvent(QResizeEvent *event)
+{
+    // 放大
+    if ((event->oldSize().width() > 0) && (event->size().width() > event->oldSize().width())) {
+        setBigSize();
+    } else {
+        setDefaultSize();
+    }
+
+    QWidget::resizeEvent(event);
+}
+
+void ScannerTaskWidget::setDefaultSize()
+{
+    if (!mView || !mView->horizontalHeader()) return;
+
+    mView->horizontalHeader()->resizeSection (0, 40);
+    mView->horizontalHeader()->resizeSection (2, 70);
+    mView->horizontalHeader()->resizeSection (3, 180);
+    mView->horizontalHeader()->resizeSection (4, 180);
+    mView->horizontalHeader()->resizeSection (5, 180);
+    mView->horizontalHeader()->resizeSection (6, 90);
+}
+
+void ScannerTaskWidget::setBigSize()
+{
+    if (!mView || !mView->horizontalHeader()) return;
+
+    mView->horizontalHeader()->resizeSection (0, 80);
+    mView->horizontalHeader()->resizeSection (2, 100);
+    mView->horizontalHeader()->resizeSection (3, 300);
+    mView->horizontalHeader()->resizeSection (4, 300);
+    mView->horizontalHeader()->resizeSection (5, 300);
+    mView->horizontalHeader()->resizeSection (6, 100);
 }
