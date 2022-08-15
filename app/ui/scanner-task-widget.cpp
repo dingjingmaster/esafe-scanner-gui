@@ -67,11 +67,14 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
             //QPoint p = mView->visualRect(index).bottomRight();
             QPoint p = QCursor().pos (); //mView->visualRect(index).bottomRight();
             QString text = static_cast<ScannerTaskItem*>(index.internalPointer())->getName();
-            QFontMetrics fm(font());
-            int w = fm.horizontalAdvance(text);
-            int h = fm.height();
-            // void showText(const QPoint &pos, const QString &text, QWidget *w, const QRect &rect, int msecDisplayTime)
-            QToolTip::showText(p, text, this, QRect(+100, -100, w, h), 3000000);
+            if (nullptr != text && !text.isNull() && !text.isEmpty() && "" != text) {
+                QFontMetrics fm(font());
+                int w = fm.horizontalAdvance(text);
+                int h = fm.height();
+                // void showText(const QPoint &pos, const QString &text, QWidget *w, const QRect &rect, int msecDisplayTime)
+                QToolTip::showText(p, text, this, QRect(+100, -100, w, h), 3000000);
+            }
+
         } else {
             setCursor(Qt::ArrowCursor);
         }
