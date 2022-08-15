@@ -59,7 +59,7 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
         p->restore ();
         return;
 #endif
-        align |= (Qt::AlignHCenter | Qt::AlignVCenter);
+        align |= Qt::AlignCenter;
         break;
     }
     case 6:
