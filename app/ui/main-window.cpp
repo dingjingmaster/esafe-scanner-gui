@@ -40,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent)
     mScannerTaskWidget = new ScannerTaskWidget(this);
     mScannerResultWidget = new ScannerResultWidget(this);
 
+    mCurStatus->setContentsMargins(8, 0, 6, 3);
+
     mMainLayout->setSpacing(0);
     mMainLayout->setContentsMargins(0, 0, 0, 0);
     mMainLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
@@ -89,7 +91,7 @@ MainWindow::MainWindow(QWidget *parent)
     
     mStatusLabel = new QLabel;
     mStatusLabel->hide();
-     
+
     btnLayout->addWidget(btn1);
     btnLayout->addStretch();
     btnLayout->addWidget(mStatusLabel);
@@ -105,11 +107,11 @@ MainWindow::MainWindow(QWidget *parent)
     mMainLayout->addWidget(mCurStatus);
 
     connect(mStatusTimer, &QTimer::timeout, this, [=] () {
-        QString str = "正在扫描：" + ScanStatusHelper::getStatusString();
+        QString str = ScanStatusHelper::getStatusString();
         if (nullptr != str && !str.isNull() && !str.isEmpty() && "" != str) {
-            mStatusLabel->setText(str);
+            mCurStatus->setText("正在扫描：" + str);
         } else {
-            mStatusLabel->setText("正在扫描：无");
+            mCurStatus->setText("正在扫描：无");
         }
     });
 

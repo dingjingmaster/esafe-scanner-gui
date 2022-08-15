@@ -37,5 +37,6 @@ QString ScanStatusHelper::getStatusString()
         return (nullptr != str && !str.isNull() && !str.isEmpty() && "" != str) ? str : "";
     }
     while (!file_unlock());
+
     return "";
 }
