@@ -18,7 +18,7 @@ Progress::Progress(QWidget *parent)
 
 void Progress::newParent()
 {
-    if (!parent()) {
+    if (parent()) {
         parent()->installEventFilter(this);
         raise();
     }

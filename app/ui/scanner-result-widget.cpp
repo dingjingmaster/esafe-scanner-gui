@@ -50,10 +50,10 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mModel = new ScannerResultModel;
     mView = new ScannerView;
 
-    mProgress = new Progress(mView);
-
     mView->setItemDelegate(new ScannerResultDelegate(this));
     HeaderView* headerView = new HeaderView(Qt::Horizontal, mView);
+
+    mProgress = new Progress(mView);
 
     retBtn->setText(tr("返回"));
     Q_EMIT retBtn->enable (true);

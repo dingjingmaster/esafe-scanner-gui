@@ -30,9 +30,11 @@ bool sqlite_lock()
         }
     }
 
-    if (flock (fl->_fileno, LOCK_EX | LOCK_NB) == 0) {
-        qDebug() << "locked";
-        return true;
+    if (fl) {
+        if (flock (fl->_fileno, LOCK_EX | LOCK_NB) == 0) {
+            qDebug() << "locked";
+            return true;
+        }
     }
 
     return false;
@@ -72,9 +74,11 @@ bool file_lock()
         }
     }
 
-    if (flock (f2->_fileno, LOCK_EX | LOCK_NB) == 0) {
-        qDebug() << "locked";
-        return true;
+    if (f2) {
+        if (flock (f2->_fileno, LOCK_EX | LOCK_NB) == 0) {
+            qDebug() << "locked";
+            return true;
+        }
     }
 
     return false;
@@ -98,9 +102,9 @@ bool file_unlock()
 
 void init_lock_file ()
 {
-    if (access (LOCK_FILE1, F_OK)) {
+    if (!access (LOCK_FILE1, F_OK)) {
         lockFile1 = LOCK_FILE1;
-    } else if (access(LOCK_FILE2, F_OK)) {
+    } else if (!access(LOCK_FILE2, F_OK)) {
         lockFile1 = LOCK_FILE2;
     } else {
         qDebug() << "lock file not exists!";
@@ -116,9 +120,9 @@ void init_lock_file ()
 
 void init_lock_file2 ()
 {
-    if (access (LOCK_FILE3, F_OK)) {
+    if (!access (LOCK_FILE3, F_OK)) {
         lockFile2 = LOCK_FILE3;
-    } else if (access(LOCK_FILE4, F_OK)) {
+    } else if (!access(LOCK_FILE4, F_OK)) {
         lockFile2 = LOCK_FILE4;
     } else {
         qDebug() << "lock file not exists!";

@@ -15,7 +15,6 @@ static bool init = false;
 
 QString ScanStatusHelper::getStatusString()
 {
-    while (!file_lock());
     static QTextStream* io = nullptr;
     if (!init) {
         const char* filePath = nullptr;
@@ -31,9 +30,11 @@ QString ScanStatusHelper::getStatusString()
         }
     }
 
+    while (!file_lock());
     if (io) {
+        QString str = io->readAll();
         while (!file_unlock());
-        return io->readAll();
+        return (nullptr != str && !str.isNull() && !str.isEmpty() && "" != str) ? str : "";
     }
     while (!file_unlock());
     return "";

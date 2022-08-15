@@ -48,7 +48,7 @@ DBManager::DBManager(QObject *parent)
     mWatcher = new QFileSystemWatcher(this);
     mWatcher->addPath(DB_PATH);
 
-    mTimer = new QTimer;
+    mTimer = new QTimer(this);
     mTimer->setSingleShot(true);
 
     connect(mTimer, &QTimer::timeout, this, &DBManager::updateModel);

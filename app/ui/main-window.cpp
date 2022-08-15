@@ -78,8 +78,8 @@ MainWindow::MainWindow(QWidget *parent)
     toolbar->addWidget(action1);
     mMainLayout->addWidget(toolbar);
 
-    mStatusTimer = new QTimer(this);
-    mStatusTimer->setInterval(3 * 1000);
+    mStatusTimer = new QTimer;
+    mStatusTimer->setInterval(5 * 1000);
 
     // button
     btnLayout->setContentsMargins(0, 0, 0, 0);
@@ -105,10 +105,12 @@ MainWindow::MainWindow(QWidget *parent)
     mMainLayout->addWidget(mCurStatus);
 
     connect(mStatusTimer, &QTimer::timeout, this, [=] () {
-        mStatusLabel->setText(ScanStatusHelper::getStatusString());
+        QString str = ScanStatusHelper::getStatusString();
+        if (nullptr != str && !str.isNull() && !str.isEmpty() && "" != str) {
+            mStatusLabel->setText(str);
+        }
     });
-    mStatusTimer->start();
-    
+
     connect (mScannerResultWidget, &ScannerResultWidget::statusString, this, [=] (QString status) {
         mStatusLabel->setText(status);
     });
@@ -147,6 +149,8 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     setLayout(mMainLayout);
+
+    mStatusTimer->start();
 }
 
 void MainWindow::resizeEvent(QResizeEvent *)
