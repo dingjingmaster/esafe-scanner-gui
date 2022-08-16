@@ -164,69 +164,73 @@ void ScanResultHelperPrivate::onDBChanged()
     QStringList k = mTaskFilter.split("|");
     if (k.count() <= 0)     return;
 
+    QStringList policyIDs;
+    for (const auto ii : k) {
+        if (nullptr == ii || ii.isNull() || ii.isEmpty() || "" == ii)   continue;
+        policyIDs += ("'" + ii + "'");
+    }
+
+    QString policy = policyIDs.join(",");
 
     QSet<QString> allItem;
-    sqlite3_stmt* stmt = NULL;
+    sqlite3_stmt* stmt = nullptr;
 
     while (!sqlite_lock());
-    for (auto ik : k) {
-        //qInfo() << "filter name --> " << ik;
-        if (nullptr == ik || ik.isNull() || ik.isEmpty() || "" == ik)   continue;
-        QString sql = QString("SELECT `ID`, `scan_file_name`, `status`, `scan_finished_time`"
-                              " FROM scan_result WHERE status!=5 AND policy_id LIKE '%'").arg (ik);
+    QString sql = QString("SELECT `ID`, `scan_file_name`, `status`, `scan_finished_time`"
+                          " FROM scan_result WHERE status!=5 AND policy_id IN (%)").arg (policy);
+    qInfo() << "sql ==> " << sql;
+    int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
+    if (SQLITE_OK == ret) {
+        while (SQLITE_DONE != sqlite3_step(stmt)) {
+            QApplication::processEvents();
+            QString id = QString("%1").arg(sqlite3_column_int(stmt, 0));
+            QString fileName = QString(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
+            int status = sqlite3_column_int(stmt, 2);
+            int finishedTime = sqlite3_column_int(stmt, 3);
 
-        qInfo() << "sql ==> " << sql;
-        int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
-        if (SQLITE_OK == ret) {
-            while (SQLITE_DONE != sqlite3_step(stmt)) {
-                QString id = QString("%1").arg(sqlite3_column_int(stmt, 0));
-                QString fileName = QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
-                int status = sqlite3_column_int(stmt, 2);
-                int finishedTime = sqlite3_column_int(stmt, 3);
+            if (nullptr == id || id.isNull() || id.isEmpty() || "" == id
+                || nullptr == fileName || fileName.isNull() || fileName.isEmpty() || "" == fileName) {
+                continue;
+            }
 
-                if (nullptr == id || id.isNull () || id.isEmpty () || "" == id
-                    || nullptr == fileName || fileName.isNull() || fileName.isEmpty() || "" == fileName) {
-                    continue;
-                }
-
-                // scan directory
-                for (auto s : mScanDir) {
-                    if (fileName.startsWith(s)) {
-                        if (mData.contains (id)) {
-                            auto item= mData[id];
-                            if (status != item->getStatus2 ()
-                                || finishedTime != item->getFileCreateTime ()) {
-                                item->setFileCreateTime (finishedTime);
-                                item->setStatus (status);
-                                Q_EMIT q->updateFile (item);
-                            }
-                        } else {
-                            auto item = new ScannerResultItem;
-                            item->setTaskName(mTaskName);
-
-                            item->setID (id);
+            // scan directory
+            for (auto s : mScanDir) {
+                if (fileName.startsWith(s)) {
+                    if (mData.contains(id)) {
+                        auto item = mData[id];
+                        if (status != item->getStatus2()
+                            || finishedTime != item->getFileCreateTime()) {
+                            item->setFileCreateTime(finishedTime);
                             item->setStatus(status);
-                            item->setFileName(fileName);
-                            item->setFileCreateTime (finishedTime);
-                            item->setCanUntreated((item->getStatus2() == ScannerResultItem::MisReport) ? true : false);
-
-                            QFileInfo file (item->getFileName ());
-                            if (file.exists ()) {
-                                item->setFileModifyTime (file.metadataChangeTime ().toSecsSinceEpoch ());
-                            }
-
-                            mData[id] = item;
-                            Q_EMIT q->addNewFile(item);
+                            Q_EMIT q->updateFile(item);
                         }
-                        qInfo() << "task id:" << id;
-                        allItem += id;
-                        break;
+                    } else {
+                        auto item = new ScannerResultItem;
+                        item->setTaskName(mTaskName);
+
+                        item->setID(id);
+                        item->setStatus(status);
+                        item->setFileName(fileName);
+                        item->setFileCreateTime(finishedTime);
+                        item->setCanUntreated((item->getStatus2() == ScannerResultItem::MisReport) ? true : false);
+
+                        QFileInfo file(item->getFileName());
+                        if (file.exists()) {
+                            item->setFileModifyTime(file.metadataChangeTime().toSecsSinceEpoch());
+                        }
+
+                        mData[id] = item;
+                        Q_EMIT q->addNewFile(item);
                     }
+                    qInfo() << "task id:" << id;
+                    allItem += id;
+                    break;
                 }
             }
         }
         if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
     }
+
     if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
     while (!sqlite_unlock());
 

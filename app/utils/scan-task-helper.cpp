@@ -289,7 +289,7 @@ void ScanTaskHelperPrivate::onDBChanged()
                     Q_EMIT q->updateTask (item);
                 }
             } else {
-                ScannerTaskItem* item = new ScannerTaskItem;
+                auto item = new ScannerTaskItem;
                 item->setID (id);
 
                 item->setName(taskName);
@@ -307,6 +307,8 @@ void ScanTaskHelperPrivate::onDBChanged()
                 qInfo() << "new task id:" << id;
                 Q_EMIT q->addNewTask (item);
             }
+
+            QApplication::processEvents();
         }
     } else {
         qWarning() << "select: '" << sql << "' error";
