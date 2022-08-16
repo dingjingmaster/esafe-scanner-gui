@@ -30,6 +30,12 @@ public Q_SLOTS:
 private:
 
 Q_SIGNALS:
+    /**
+     * @brief
+     *  仅仅是处理了误报、删除操作的文件
+     */
+    void detailOne();
+
     void delOldFile (QString it);
     void addNewFile (ScannerResultItem* it);
     void updateFile (ScannerResultItem* it);

@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include <QDebug>
+#include <QtWidgets/QApplication>
 
 #define LOCK_FILE1      "/dev/shm/.est.db.lock"
 #define LOCK_FILE2      "/usr/local/ultrasec/dat/.est.db.lock"

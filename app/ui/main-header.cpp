@@ -51,12 +51,15 @@ MainHeader::MainHeader(QWidget *parent)
 void MainHeader::onApplyData()
 {
     mCloseBtn->setEnabled(false);
+    mMaxBtn->setEnabled(false);
+    mMinBtn->setEnabled(false);
 }
 
 void MainHeader::onApplyDataFinished()
 {
-    qInfo() << "DJ- detail OK!";
     mCloseBtn->setEnabled(true);
+    mMaxBtn->setEnabled(true);
+    mMinBtn->setEnabled(true);
 }
 
 void MainHeader::mouseMoveEvent(QMouseEvent* ev)

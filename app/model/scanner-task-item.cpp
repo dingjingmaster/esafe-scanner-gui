@@ -132,7 +132,7 @@ QString ScannerTaskItem::getStatus()
 {
     switch (mStatus) {
     case NoBegin:
-        return tr("未开始");
+        //return tr("未开始");
     case Scanning:
         return tr("扫描中");
     case Stop:

@@ -58,6 +58,9 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     HeaderView* headerView = new HeaderView(Qt::Horizontal, mView);
 
     mProgress = new Progress(mView);
+    mProgress->hide();
+
+    connect(mModel, &ScannerResultModel::progress, mProgress, &Progress::updateProcess);
 
     retBtn->setText(tr("返回"));
     Q_EMIT retBtn->enable (true);
@@ -91,10 +94,14 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
 
     connect (this, &ScannerResultWidget::startApplyData, this, [=] () {
         retBtn->enable(false);
+        mExpBtn->enable(false);
+        mMisBtn->enable(false);
+        mDelBtn->enable(false);
     });
 
     connect (this, &ScannerResultWidget::stopApplyData, this, [=] () {
         retBtn->enable(true);
+        mMisBtn->enable(true);
     });
 
     // save data
@@ -163,8 +170,9 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
 
             // 单线程版本
             Q_EMIT startApplyData();
+            mProgress->show();
             mModel->applyData();
-
+            mProgress->hide();
             Q_EMIT stopApplyData();
 
             // 此处使用多线程

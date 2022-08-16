@@ -307,8 +307,6 @@ void ScanTaskHelperPrivate::onDBChanged()
                 qInfo() << "new task id:" << id;
                 Q_EMIT q->addNewTask (item);
             }
-
-            QApplication::processEvents();
         }
     } else {
         qWarning() << "select: '" << sql << "' error";
@@ -372,7 +370,7 @@ void ScanTaskHelper::testInsertItem()
                               " scan_task_dir, scan_task_dir_filterout, scan_task_dir_filterout_fileext, "
                               " task_start_time, task_stop_time, task_file_count, task_scan_file_count, task_scan_finished_file_count,"
                               " task_status, scan_result_reuse, scan_task_file_monitor, scan_task_self_check)"
-                              " VALUES ('TASK 0011%1', 'name111%1', 004, 'A;B;C;D', '/', '.local', '', 1658558157,"
+                              " VALUES ('TASK 0011%1', 'name111%1', 004, 'A|B|C|D', '/', '.local', '', 1658558157,"
                               " 1658558157, 1000, 600, 100, 0, 0, 0, 1);").arg (i);
 
         while (!sqlite_lock());

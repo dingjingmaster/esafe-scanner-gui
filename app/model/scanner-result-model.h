@@ -50,6 +50,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void clearData ();
     void lazyUpdateView ();
+    void progress (int cur, int total);
     void showData (QString TaskName, QString filterName, QStringList scanDir);
 
 public:
@@ -85,6 +86,10 @@ private:
     int                                                 mNoFix = 0;
     int                                                 mDelete = 0;
     int                                                 mMisReport = 0;
+
+    // 进度条
+    int                                                 mCur = 0;
+    int                                                 mTotal = 0;
 
     ScanResultHelper*                                   mScanResultHelper;
     

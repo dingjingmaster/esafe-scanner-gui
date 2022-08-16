@@ -15,6 +15,11 @@ ScannerResultModel::ScannerResultModel(QObject* parent)
     connect(mScanResultHelper, &ScanResultHelper::addNewFile, this, &ScannerResultModel::addItem);
     connect(mScanResultHelper, qOverload<ScannerResultItem*>(&ScanResultHelper::delOldFile), this, &ScannerResultModel::delItem);
 
+    connect(mScanResultHelper, &ScanResultHelper::detailOne, this, [=] () {
+        int cur = (++mCur <= mTotal) ? mCur : mTotal;
+        progress(cur, mTotal);
+    });
+
     // 清空数据 showData (QString TaskName, QString filterName);
     //connect(this, &ScannerResultModel::clearData, mScanResultHelper, &ScanResultHelper::clearData);
     connect(this, &ScannerResultModel::showData, this, [=] (QString taskName, QString filterName, QStringList scanDir) {
@@ -493,6 +498,10 @@ void ScannerResultModel::onScrollbarMoved(float ratio)
 void ScannerResultModel::applyData()
 {
     auto items = getSaveItems();
+
+    mCur = 0;
+    mTotal =  items.first.size() + items.second.size();
+    Q_EMIT progress(0, mTotal);
 
     mScanResultHelper->misReportByIDs (items.second);
     mScanResultHelper->deleteItemByIDs (items.first);

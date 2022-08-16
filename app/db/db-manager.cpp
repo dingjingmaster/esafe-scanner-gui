@@ -54,7 +54,7 @@ DBManager::DBManager(QObject *parent)
     connect(mTimer, &QTimer::timeout, this, &DBManager::updateModel);
 
     connect (mWatcher, &QFileSystemWatcher::fileChanged, this, [&] (const QString&) {
-        // FIXME:// 定时器 1s 更新一次
+        // FIXME:// 定时器 5s 更新一次
         if (mTimer->isActive ()) {
             return;
         }

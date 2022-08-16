@@ -67,7 +67,7 @@ ScanResultHelper::ScanResultHelper(QString dbPath, QObject *parent)
 
 ScanResultHelper::~ScanResultHelper()
 {
-    if (d_ptr)          delete d_ptr;
+    delete d_ptr;
 }
 
 void ScanResultHelper::testInsertItem()
@@ -81,7 +81,7 @@ void ScanResultHelper::testInsertItem()
                               "VALUES ('/tmp/aa1%1', 'A', 0, 1658558157);").arg (i);
 
         while (!sqlite_lock());
-        int ret = sqlite3_exec(d->mDB, sql.toUtf8().constData(), NULL, NULL, &errorMsg);
+        int ret = sqlite3_exec(d->mDB, sql.toUtf8().constData(), nullptr, nullptr, &errorMsg);
         if (SQLITE_OK != ret) {
             qDebug() << "error: " << errorMsg;
             sqlite3_free(errorMsg);
@@ -165,7 +165,7 @@ void ScanResultHelperPrivate::onDBChanged()
     if (k.count() <= 0)     return;
 
     QStringList policyIDs;
-    for (const auto ii : k) {
+    for (const auto& ii : k) {
         if (nullptr == ii || ii.isNull() || ii.isEmpty() || "" == ii)   continue;
         policyIDs += ("'" + ii + "'");
     }
@@ -175,10 +175,16 @@ void ScanResultHelperPrivate::onDBChanged()
     QSet<QString> allItem;
     sqlite3_stmt* stmt = nullptr;
 
-    while (!sqlite_lock());
+    if (policy.isNull() || policy.isEmpty() || "" == policy) {
+        qDebug() << "filter is null";
+        return;
+    }
+
+    int ev = 0;
     QString sql = QString("SELECT `ID`, `scan_file_name`, `status`, `scan_finished_time`"
-                          " FROM scan_result WHERE status!=5 AND policy_id IN (%)").arg (policy);
+                          " FROM scan_result WHERE status!=5 AND policy_id IN (%1)").arg (policy);
     qInfo() << "sql ==> " << sql;
+    while (!sqlite_lock()); // {if (++ev % 10) QApplication::processEvents(); usleep(1000);};
     int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
     if (SQLITE_OK == ret) {
         while (SQLITE_DONE != sqlite3_step(stmt)) {
@@ -194,7 +200,7 @@ void ScanResultHelperPrivate::onDBChanged()
             }
 
             // scan directory
-            for (auto s : mScanDir) {
+            for (const auto& s : mScanDir) {
                 if (fileName.startsWith(s)) {
                     if (mData.contains(id)) {
                         auto item = mData[id];
@@ -224,6 +230,7 @@ void ScanResultHelperPrivate::onDBChanged()
                     }
                     qInfo() << "task id:" << id;
                     allItem += id;
+                    QApplication::processEvents();
                     break;
                 }
             }
@@ -238,17 +245,10 @@ void ScanResultHelperPrivate::onDBChanged()
 
     auto delItem = allItem - nowItem;
 
-    for (auto id : delItem) {
+    for (const auto& id : delItem) {
         if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
-        mLocker.lock();
-        if (mData.contains(id)) {
-            auto it = mData[id];
-            mData.remove(id);
-            //qInfo() << "delete file '" << id << "'";
-            Q_EMIT q->delOldFile(it);
-            delete it;
-        }
-        mLocker.unlock();
+        // 线程安全的
+        Q_EMIT q->delOldFile(id);
     }
 }
 
@@ -257,10 +257,10 @@ bool ScanResultHelperPrivate::selectIDByFilterName()
     QStringList k = mTaskFilter.split("|");
     if (k.count() <= 0)     return false;
 
-    sqlite3_stmt* stmt = NULL;
+    sqlite3_stmt* stmt = nullptr;
 
     while (!sqlite_lock());
-    for (auto ik : k) {
+    for (const auto& ik : k) {
         qInfo() << "filter name --> " << ik;
         if (nullptr == ik || ik.isNull() || ik.isEmpty() || "" == ik)   continue;
         QString sql = QString("SELECT ID FROM scan_result WHERE status!=5 AND policy_id LIKE '%") + ik + "%'";
@@ -287,7 +287,7 @@ noChanged:
 
 ScannerResultItem *ScanResultHelperPrivate::selectFileByID (QString id)
 {
-    ScannerResultItem* item = new ScannerResultItem;
+    auto* item = new ScannerResultItem;
     item->setTaskName(mTaskName);
 
     QString sql = QString("SELECT `ID`, `scan_file_name`, `status`, `scan_finished_time` "
@@ -295,7 +295,7 @@ ScannerResultItem *ScanResultHelperPrivate::selectFileByID (QString id)
                       " WHERE ID='%1'").arg(id);
 
     while (!sqlite_lock());
-    sqlite3_stmt* stmt = NULL;
+    sqlite3_stmt* stmt = nullptr;
     int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
     if (SQLITE_OK == ret) {
         while (SQLITE_DONE != sqlite3_step(stmt)) {
@@ -352,6 +352,7 @@ void ScanResultHelper::misReportByIDs(QStringList& ids)
             qWarning() << "report error: " << errMsg;
             sqlite3_free(errMsg);
         }
+        Q_EMIT detailOne();
         QApplication::processEvents();
     }
 }
@@ -374,7 +375,7 @@ void ScanResultHelper::deleteItemByIDs(QStringList& ids)
         } else {
             Q_EMIT delOldFile (id);
         }
-
+        Q_EMIT detailOne();
         QApplication::processEvents();
     }
 }
