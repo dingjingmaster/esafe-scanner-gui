@@ -29,11 +29,14 @@ public:
     int getDeleteCount ();
     int getMisReportCount ();
 
+    void applyData();
+
     QList<const ScannerResultItem*> getChangedItem ();
     QList<ScannerResultItem*> getSelectedItem ();
     QModelIndex getIndexByItem (const ScannerResultItem* it, int column=0);
 
-    void saveResult();
+    //void saveResult();
+    QPair<QStringList, QStringList> getSaveItems();
 
     void setSelectedItemStatus (ScannerResultItem::Status status);
 

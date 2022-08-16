@@ -1,4 +1,5 @@
 #include "push-button.h"
+#include "threads/scanner-result-save-thread.h"
 #include "view/header-view.h"
 #include "scanner-result-widget.h"
 //#include "utils/notify-to-filter.h"
@@ -23,10 +24,12 @@
 #include <QDBusConnection>
 #include <QDBusPendingCall>
 
+#include <QEventLoop>
 #include <QApplication>
 
 #include "../db/db-manager.h"
 #include "../widget/progress.h"
+#include "../threads/event-loop.h"
 
 #define FREEDESKTOP_FM_DBUS             "org.freedesktop.FileManager1"
 #define FREEDESKTOP_FM_DBUS_PATH        "/org/freedesktop/FileManager1"
@@ -85,10 +88,26 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mView->setModel(mModel);
     mMainLayout->addWidget(mView);
 
+
+    connect (this, &ScannerResultWidget::startApplyData, this, [=] () {
+        retBtn->enable(false);
+    });
+
+    connect (this, &ScannerResultWidget::stopApplyData, this, [=] () {
+        retBtn->enable(true);
+    });
+
     // save data
-    mThreadSaveData = new QThread;
-    connect (this, &ScannerResultWidget::saveData, mModel, &ScannerResultModel::saveResult);
-    mThreadSaveData->start();
+    //mThreadSaveData = new QThread;
+    //ScannerResultSaveThread* srThread = new ScannerResultSaveThread(mModel, DBManager::instance()->getResultHelper(), this);
+    //connect (this, &ScannerResultWidget::startApplyData, srThread, &ScannerResultSaveThread::onSaveScanResultData, Qt::QueuedConnection);
+    //connect (srThread, &ScannerResultSaveThread::saveScanResultDataFinished, this, [=] () {
+    //    Q_EMIT stopApplyData();
+    //    Q_EMIT retBtn->enable(true);
+    //    qInfo() << "DJ- finished";
+    //});
+    //srThread->moveToThread(mThreadSaveData);
+    //mThreadSaveData->start();
 
     mView->horizontalHeader()->setMinimumSectionSize(10);
     mView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -142,20 +161,22 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             }
 #else
 
+            // 单线程版本
+            Q_EMIT startApplyData();
+            mModel->applyData();
+
+            Q_EMIT stopApplyData();
+
             // 此处使用多线程
-            mModel->saveResult ();
-            //box->connect(mThreadSaveData, &QThread::finished, this, [=] () {
-            //    mSavingData = false;
+            //EventLoop loop;
+            // saveScanResultDataFinished
+            //box->connect (srThread, &ScannerResultSaveThread::saveScanResultDataFinished, this, [&] () {
             //    box->deleteLater();
+            //    loop.exit(0);
             //});
 
-            //if (!mSavingData) {
-            //    mSavingData = true;
-            //    Q_EMIT saveData();
-            //}
-
-            // box->deleteLater ();
-            //mThreadSaveData->wait(-1);
+            //Q_EMIT startApplyData();
+            //loop.exec();
 #endif
         });
         if (mModel->hasChanged ()) {
@@ -164,6 +185,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             box->deleteLater ();
         }
     });
+
 
     connect (retBtn, &PushButton::clicked, this, [=] () { 
         Q_EMIT applyData ();
@@ -194,7 +216,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             qDebug() << "delete: " << msg.DebugString().c_str();
             NotifyToFilter::getInstance()->sendData(msg.SerializeAsString());
 #endif
-            qDebug() << "del option";
             //mModel->setData (mModel->getIndexByItem (l, 2), "删除");
 
             mModel->setData (*l, "删除");

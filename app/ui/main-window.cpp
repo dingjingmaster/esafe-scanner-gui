@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     setObjectName("main");
     setContentsMargins(0, 0, 0, 0);
     setMinimumSize(mMinWidth, mMinHeight);
-    setWindowFlags(windowFlags() | Qt::FramelessWindowHint);// | Qt::BypassWindowManagerHint | Qt::WindowStaysOnTopHint);
+    setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
     setWindowTitle ("扫描自查工具");
 
@@ -74,6 +74,8 @@ MainWindow::MainWindow(QWidget *parent)
         }
     });
 
+    connect (mScannerResultWidget, &ScannerResultWidget::startApplyData, header, &MainHeader::onApplyData);
+    connect (mScannerResultWidget, &ScannerResultWidget::stopApplyData, header, &MainHeader::onApplyDataFinished);
 
     mMainLayout->addWidget(header);
 

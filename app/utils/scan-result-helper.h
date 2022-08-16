@@ -12,13 +12,10 @@ class ScanResultHelper : public QObject
     Q_OBJECT
     friend class DBManager;
 public:
-    void misReportByName(QString&);
-    void deleteItemByName (QString&);
-
-    void misReportByName(QStringList&);
-    void deleteItemByName (QStringList&);
-
     void testInsertItem();
+
+    void misReportByIDs(QStringList&);
+    void deleteItemByIDs(QStringList&);
 
 private:
     explicit ScanResultHelper(QString dbPath, QObject *parent = nullptr);
@@ -33,6 +30,7 @@ public Q_SLOTS:
 private:
 
 Q_SIGNALS:
+    void delOldFile (QString it);
     void addNewFile (ScannerResultItem* it);
     void updateFile (ScannerResultItem* it);
     void delOldFile (ScannerResultItem* it);

@@ -2,6 +2,8 @@
 #define DBMANAGER_H
 
 #include <QObject>
+#include "../utils/scan-result-helper.h"
+
 
 class QTimer;
 class QThread;
@@ -53,5 +55,7 @@ private:
 
     QFileSystemWatcher*     mWatcher;
 };
+
+
 
 #endif // DBMANAGER_H

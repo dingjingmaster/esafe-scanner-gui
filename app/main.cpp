@@ -30,7 +30,9 @@ int main(int argc, char *argv[])
 
     app.setApplicationDisplayName ("DLP");
 
-    app.setStyle(new MainStyle(""));
+    //app.setStyle(new MainStyle(""));
+
+    app.setStyle("fusion");
 
     MainWindow w;
     w.setWindowIcon (QIcon("://data/dsip.png"));

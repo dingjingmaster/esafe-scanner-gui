@@ -48,6 +48,17 @@ MainHeader::MainHeader(QWidget *parent)
     setLayout(mMainLayout);
 }
 
+void MainHeader::onApplyData()
+{
+    mCloseBtn->setEnabled(false);
+}
+
+void MainHeader::onApplyDataFinished()
+{
+    qInfo() << "DJ- detail OK!";
+    mCloseBtn->setEnabled(true);
+}
+
 void MainHeader::mouseMoveEvent(QMouseEvent* ev)
 {
     if (mDrag) {

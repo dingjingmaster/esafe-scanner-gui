@@ -13,7 +13,7 @@ ScannerResultModel::ScannerResultModel(QObject* parent)
 {
     // 数据库与model连接
     connect(mScanResultHelper, &ScanResultHelper::addNewFile, this, &ScannerResultModel::addItem);
-    connect(mScanResultHelper, &ScanResultHelper::delOldFile, this, &ScannerResultModel::delItem);
+    connect(mScanResultHelper, qOverload<ScannerResultItem*>(&ScanResultHelper::delOldFile), this, &ScannerResultModel::delItem);
 
     // 清空数据 showData (QString TaskName, QString filterName);
     //connect(this, &ScannerResultModel::clearData, mScanResultHelper, &ScanResultHelper::clearData);
@@ -154,6 +154,7 @@ QModelIndex ScannerResultModel::getIndexByItem(const ScannerResultItem *item, in
     return QModelIndex();
 }
 
+#if 0
 void ScannerResultModel::saveResult()
 {
     // FIXME:// 此处需要注意，result model数据不能被修改
@@ -177,10 +178,43 @@ void ScannerResultModel::saveResult()
             continue;
         }
     }
+    mChangedItem.clear();
     mLocker.unlock();
+
+    qDebug() << "delete item: " << del.size();
+    qDebug() << "misreport item: " << misReport.size();
 
     mScanResultHelper->deleteItemByName (del);
     mScanResultHelper->misReportByName (misReport);
+}
+#endif
+
+QPair<QStringList, QStringList> ScannerResultModel::getSaveItems()
+{
+    mLocker.lock();
+
+    QStringList del;
+    QStringList misReport;
+    auto ls = getChangedItem ();
+
+    for (auto l : ls) {
+        ScannerResultItem* item = const_cast<ScannerResultItem*>(l);
+        QString fileID = QString("%1").arg(item->getID ());
+
+        int status = item->getStatus2 ();
+        if (ScannerResultItem::MisReport == status) {
+            misReport << fileID;
+        } else if (ScannerResultItem::Deleted == status) {
+            del << fileID;
+        } else {
+            qDebug() << "not apply: " << fileID;
+            continue;
+        }
+    }
+    mChangedItem.clear();
+    mLocker.unlock();
+
+    return {del, misReport};// QPair<QStringList, QStringList>;
 }
 
 QList<ScannerResultItem *> ScannerResultModel::getSelectedItem()
@@ -455,6 +489,15 @@ void ScannerResultModel::onScrollbarMoved(float ratio)
 
     mLocker.unlock();
 }
+
+void ScannerResultModel::applyData()
+{
+    auto items = getSaveItems();
+
+    mScanResultHelper->misReportByIDs (items.second);
+    mScanResultHelper->deleteItemByIDs (items.first);
+}
+
 
 
 

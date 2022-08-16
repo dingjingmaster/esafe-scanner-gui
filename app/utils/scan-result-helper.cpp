@@ -12,6 +12,7 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QFileSystemWatcher>
+#include <QMutex>
 
 #include <sqlite3.h>
 
@@ -39,6 +40,8 @@ public:
     sqlite3*                            mDB;
     QFileSystemWatcher*                 mWatcher;
 
+    QMutex                              mLocker;
+
     // const
     ScanResultHelper*                   q_ptr;
     Q_DECLARE_PUBLIC(ScanResultHelper);
@@ -47,67 +50,24 @@ public:
 ScanResultHelper::ScanResultHelper(QString dbPath, QObject *parent)
     : QObject{parent}, d_ptr(new ScanResultHelperPrivate(dbPath, this))
 {
+    Q_D(ScanResultHelper);
+
+    connect (this, qOverload<QString>(&ScanResultHelper::delOldFile), this, [&] (QString id) {
+        d->mLocker.lock();
+        if (d->mData.contains(id)) {
+            auto item = d->mData[id];
+            d->mData.remove(id);
+            Q_EMIT delOldFile (item);
+            delete item;
+        }
+        d->mLocker.unlock();
+    });
 
 }
 
 ScanResultHelper::~ScanResultHelper()
 {
     if (d_ptr)          delete d_ptr;
-}
-
-void ScanResultHelper::misReportByName(QString& name)
-{
-    Q_D(ScanResultHelper);
-
-    if (!(d->mData.contains (name))) {
-        qWarning() << "item: '" << name << "' not existed";
-        return;
-    }
-
-    ScannerResultItem* item = d->mData[name];
-
-    QString sql = QString("UPDATE `scan_result` SET status_reported=1, status=6 WHERE ID=%1").arg (item->getID ());
-    qInfo() << "sql ==> " << sql;
-
-    while (!sqlite_lock());
-
-    char* errMsg = nullptr;
-    sqlite3_exec (d->mDB, sql.toUtf8().constData(), nullptr, nullptr, &errMsg);
-    if (errMsg) {
-        qWarning() << "report error: " << errMsg;
-        sqlite3_free(errMsg);
-    }
-
-    while (!sqlite_unlock());
-}
-
-void ScanResultHelper::deleteItemByName(QString& name)
-{
-    Q_D(ScanResultHelper);
-
-    if (!(d->mData.contains (name))) {
-        qWarning() << "item: '" << name << "' not existed";
-        return;
-    }
-
-    ScannerResultItem* item = d->mData[name];
-
-    QString sql = QString("UPDATE `scan_result` SET status_reported=1, status=5 WHERE ID=%1").arg (item->getID ());
-
-    while (!sqlite_lock());
-
-    char* errMsg = nullptr;
-    sqlite3_exec (d->mDB, sql.toUtf8().constData(), nullptr, nullptr, &errMsg);
-    if (errMsg) {
-        qWarning() << "report error: " << errMsg;
-        sqlite3_free(errMsg);
-    } else {
-        d->mData.remove (name);
-        Q_EMIT delOldFile (item);
-        delete item;
-    }
-
-    while (!sqlite_unlock());
 }
 
 void ScanResultHelper::testInsertItem()
@@ -135,6 +95,8 @@ void ScanResultHelper::clearData()
 {
     Q_D(ScanResultHelper);
 
+    d->mLocker.lock();
+
     d->mTaskName.clear();
     d->mTaskFilter.clear();
 
@@ -142,6 +104,8 @@ void ScanResultHelper::clearData()
         i.value()->deleteLater();
     }
     d->mData.clear();
+
+    d->mLocker.unlock();
 }
 
 void ScanResultHelper::refresResult()
@@ -167,64 +131,6 @@ void ScanResultHelper::loadTaskResult(QString taskName, QString taskFilter, QStr
     d->mTaskFilter = taskFilter;
 
     d->onDBChanged();
-}
-
-void ScanResultHelper::misReportByName(QStringList& names)
-{
-    Q_D(ScanResultHelper);
-
-    while (!sqlite_lock());
-    for (auto name : names) { // = names.constBegin(); name != names.constEnd(); ++name) {
-        if (!(d->mData.contains (name))) {
-            qWarning() << "item: '" << name << "' not existed";
-            continue;
-        }
-
-        ScannerResultItem* item = d->mData[name];
-
-        QString sql = QString("UPDATE `scan_result` SET status_reported=1, status=6 WHERE ID=%1").arg (item->getID ());
-        qInfo() << "sql ==> " << sql;
-
-
-        char* errMsg = nullptr;
-        sqlite3_exec (d->mDB, sql.toUtf8().constData(), nullptr, nullptr, &errMsg);
-        if (errMsg) {
-            qWarning() << "report error: " << errMsg;
-            sqlite3_free(errMsg);
-        }
-    }
-    while (!sqlite_unlock());
-}
-
-void ScanResultHelper::deleteItemByName(QStringList& names)
-{
-    Q_D(ScanResultHelper);
-
-    while (!sqlite_lock());
-    for (auto name : names) { // = names.constBegin(); name != names.constEnd(); ++name) {
-
-        if (!(d->mData.contains (name))) {
-            qWarning() << "item: '" << name << "' not existed";
-            return;
-        }
-
-        ScannerResultItem* item = d->mData[name];
-
-        QString sql = QString("UPDATE `scan_result` SET status_reported=1, status=5 WHERE ID=%1").arg (item->getID ());
-
-        char* errMsg = nullptr;
-        sqlite3_exec (d->mDB, sql.toUtf8().constData(), nullptr, nullptr, &errMsg);
-        if (errMsg) {
-            qWarning() << "report error: " << errMsg;
-            sqlite3_free(errMsg);
-        } else {
-            d->mData.remove (name);
-            Q_EMIT delOldFile (item);
-            delete item;
-        }
-    }
-
-    while (!sqlite_unlock());
 }
 
 ScanResultHelperPrivate::ScanResultHelperPrivate(QString db, ScanResultHelper *p)
@@ -269,7 +175,7 @@ void ScanResultHelperPrivate::onDBChanged()
         QString sql = QString("SELECT `ID`, `scan_file_name`, `status`, `scan_finished_time`"
                               " FROM scan_result WHERE status!=5 AND policy_id LIKE '%'").arg (ik);
 
-        //qInfo() << "sql ==> " << sql;
+        qInfo() << "sql ==> " << sql;
         int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
         if (SQLITE_OK == ret) {
             while (SQLITE_DONE != sqlite3_step(stmt)) {
@@ -330,6 +236,7 @@ void ScanResultHelperPrivate::onDBChanged()
 
     for (auto id : delItem) {
         if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
+        mLocker.lock();
         if (mData.contains(id)) {
             auto it = mData[id];
             mData.remove(id);
@@ -337,6 +244,7 @@ void ScanResultHelperPrivate::onDBChanged()
             Q_EMIT q->delOldFile(it);
             delete it;
         }
+        mLocker.unlock();
     }
 }
 
@@ -422,4 +330,47 @@ noChanged:
 
     return nullptr;
 
+}
+
+void ScanResultHelper::misReportByIDs(QStringList& ids)
+{
+    Q_D(ScanResultHelper);
+
+    for (const auto& id : ids) {
+        QString sql = QString("UPDATE `scan_result` SET status_reported=1, status=6 WHERE ID=%1").arg(id);
+        qInfo() << "sql ==> " << sql;
+
+        char *errMsg = nullptr;
+        while (!sqlite_lock());
+        sqlite3_exec(d->mDB, sql.toUtf8().constData(), nullptr, nullptr, &errMsg);
+        while (!sqlite_unlock());
+        if (errMsg) {
+            qWarning() << "report error: " << errMsg;
+            sqlite3_free(errMsg);
+        }
+        QApplication::processEvents();
+    }
+}
+
+void ScanResultHelper::deleteItemByIDs(QStringList& ids)
+{
+    Q_D(ScanResultHelper);
+
+    for (const auto& id : ids) {
+        QString sql = QString("UPDATE `scan_result` SET status_reported=1, status=5 WHERE ID=%1").arg (id);
+        qDebug() << "sql: " << sql;
+
+        char* errMsg = nullptr;
+        while (!sqlite_lock());
+        sqlite3_exec (d->mDB, sql.toUtf8().constData(), nullptr, nullptr, &errMsg);
+        while (!sqlite_unlock());
+        if (errMsg) {
+            qWarning() << "report error: " << errMsg << " DB FILE: " DB_PATH;
+            sqlite3_free(errMsg);
+        } else {
+            Q_EMIT delOldFile (id);
+        }
+
+        QApplication::processEvents();
+    }
 }

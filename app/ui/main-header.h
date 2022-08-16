@@ -20,6 +20,10 @@ Q_SIGNALS:
     void windowMax();
     void windowClose();
 
+public Q_SLOTS:
+    void onApplyData ();
+    void onApplyDataFinished ();
+
 protected:
     void mouseMoveEvent(QMouseEvent*) override;
     void mousePressEvent(QMouseEvent*) override;

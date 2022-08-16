@@ -38,6 +38,9 @@ private:
     void setDefaultSize ();
     
 Q_SIGNALS:
+    void stopApplyData();
+    void startApplyData();
+
     void saveData();
     void applyData();
     void updateView();
