@@ -55,7 +55,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mView = new ScannerView;
 
     mView->setItemDelegate(new ScannerResultDelegate(this));
-    HeaderView* headerView = new HeaderView(Qt::Horizontal, mView);
+    mHeaderView = new HeaderView(Qt::Horizontal, mView);
 
     mProgress = new Progress(mView);
     mProgress->hide();
@@ -87,7 +87,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mMainLayout->addItem(mBtnLayout);
 
     // tabview
-    mView->setHorizontalHeader(headerView);
+    mView->setHorizontalHeader(mHeaderView);
     mView->setModel(mModel);
     mMainLayout->addWidget(mView);
 
@@ -117,6 +117,9 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     //mThreadSaveData->start();
 
     mView->horizontalHeader()->setMinimumSectionSize(10);
+    mView->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    mView->verticalHeader()->setDefaultSectionSize (60);
+
     mView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     mView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
     mView->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
@@ -195,16 +198,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     });
 
 
-    connect (retBtn, &PushButton::clicked, this, [=] () { 
-        Q_EMIT applyData ();
-        Q_EMIT returnTaskList();
-        Q_EMIT checkedItem(false); 
-        Q_EMIT mModel->clearData();
-        headerView->setChecked(false);
-        Q_EMIT headerView->checkBoxClicked (false);
-
-        DBManager::instance()->setCurPage(DBManager::CUR_TASK);
-    });
+    connect (retBtn, &PushButton::clicked, this, &ScannerResultWidget::onBackToTaskView, Qt::UniqueConnection);
 
     mDelBtn->connect(mDelBtn, &PushButton::clicked, this, [=] () {
         QList<ScannerResultItem*> ls = mModel->getSelectedItem();
@@ -304,7 +298,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             for (auto l : ls) {
                 exp.write(*const_cast<ScannerResultItem*>(l));
                 const_cast<ScannerResultItem*>(l)->setChecked(false);
-                headerView->setChecked (false);
+                mHeaderView->setChecked (false);
             }
         }
     });
@@ -338,7 +332,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
 #endif
     });
 
-    connect (headerView, &HeaderView::checkBoxClicked, this, [=] (bool s) {
+    connect (mHeaderView, &HeaderView::checkBoxClicked, this, [=] (bool s) {
         mModel->selectAll(s);           // model select All
         Q_EMIT checkedItem(s);
 
@@ -376,7 +370,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             if (item)   item->setChecked(!item->getChecked());
             Q_EMIT mView->update(index);
             bool checkAll = mModel->isCheckAllItems();
-            headerView->setChecked(checkAll);
+            mHeaderView->setChecked(checkAll);
             Q_EMIT checkedItem(checkAll || mModel->hasChecked ()); 
             mView->updateView();
         } else if (ScannerResultModel::FileName == index.column() && index.row() >= 0) {
@@ -498,12 +492,15 @@ void ScannerResultWidget::clearData()
 {
     if (!mModel)        return;
 
-    mModel->clearData();
+    Q_EMIT mModel->clearData();
 }
 
 void ScannerResultWidget::loadTaskResult(QString taskName, QString taskFilter, QStringList scanDir)
 {
     if (!mModel)        return;
+
+    // 加载前清除数据
+    clearData();
 
     mTaskName = taskName;
 
@@ -513,7 +510,20 @@ void ScannerResultWidget::loadTaskResult(QString taskName, QString taskFilter, Q
 void ScannerResultWidget::updateStatus()
 {
     Q_EMIT statusString (QString("任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%4), 删除: (%5)")
-                                 .arg(mTaskName).arg(mModel->getAllCount ()).arg (mModel->getNoFixCount ()).arg (mModel->getMisReportCount ()).arg (mModel->getDeleteCount ()));
+                         .arg(mTaskName).arg(mModel->getAllCount ()).arg (mModel->getNoFixCount ()).arg (mModel->getMisReportCount ()).arg (mModel->getDeleteCount ()));
+}
+
+void ScannerResultWidget::onBackToTaskView()
+{
+    Q_EMIT applyData ();
+    Q_EMIT returnTaskList();
+    Q_EMIT checkedItem(false);
+    mHeaderView->setChecked(false);
+    Q_EMIT mHeaderView->checkBoxClicked (false);
+    DBManager::instance()->setCurPage(DBManager::CUR_TASK);
+
+    // FIXME:// 释放数据 暂时放在跳转到 result 界面时候(虽然这样浪费了大量内存，但是临时解决了崩溃)，后续 item 都用智能指针管理其生命周期
+    // Q_EMIT mModel->clearData();
 }
 
 void ScannerResultWidget::setScanDir(QString name)

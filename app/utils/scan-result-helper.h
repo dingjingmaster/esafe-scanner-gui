@@ -27,6 +27,9 @@ public Q_SLOTS:
     void refresResult();
     void loadTaskResult (QString taskName, QString taskFilter, QStringList scanDir);
 
+private Q_SLOTS:
+    void onItemDeleted (QString&);
+
 private:
 
 Q_SIGNALS:
@@ -36,7 +39,7 @@ Q_SIGNALS:
      */
     void detailOne();
 
-    void delOldFile (QString it);
+    void delOldFile (QString& it);
     void addNewFile (ScannerResultItem* it);
     void updateFile (ScannerResultItem* it);
     void delOldFile (ScannerResultItem* it);

@@ -29,12 +29,12 @@ ScannerResultModel::ScannerResultModel(QObject* parent)
     connect(this, &ScannerResultModel::clearData, this, [=] () {
         beginResetModel();
         mData.clear();
-        endResetModel();
-        mScanResultHelper->clearData();
-        mDelete = 0;
-        mNoFix = 0;
-        mMisReport = 0;
         mChangedItem.clear ();
+        mScanResultHelper->clearData();
+        endResetModel();
+        mNoFix = 0;
+        mDelete = 0;
+        mMisReport = 0;
     });
     
 

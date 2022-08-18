@@ -95,13 +95,13 @@ MainWindow::MainWindow(QWidget *parent)
     // button
     btnLayout->setContentsMargins(0, 0, 0, 0);
     btnLayout->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    PushButton* btn1 = new PushButton;
-    btn1->setText(tr("扫描任务"));
+    mScanBtn = new PushButton;
+    mScanBtn->setText(tr("扫描任务"));
     
     mStatusLabel = new QLabel;
     mStatusLabel->hide();
 
-    btnLayout->addWidget(btn1);
+    btnLayout->addWidget(mScanBtn);
     btnLayout->addStretch();
     btnLayout->addWidget(mStatusLabel);
     btnLayout->addSpacing(10);
@@ -124,38 +124,13 @@ MainWindow::MainWindow(QWidget *parent)
         }
     });
 
-    connect (mScannerResultWidget, &ScannerResultWidget::statusString, this, [=] (QString status) {
-        mStatusLabel->resize(QApplication::fontMetrics().size(Qt::TextSingleLine, status));
-        mStatusLabel->setText(status);
-    });
+    connect (mScannerResultWidget, &ScannerResultWidget::statusString, this, &MainWindow::onShowStatusString, Qt::UniqueConnection);
 
     // change content
-    connect(mScannerTaskWidget, &ScannerTaskWidget::taskDetail, this, [=] (const ScannerTaskItem* const item) {
-        if (!item)      return;
-
-        //
-        ScannerTaskItem* it = const_cast<ScannerTaskItem*> (item);
-        //qDebug() << "===> task name: " << it->getName() << "set filter name: " << it->getFilterName();
-
-        Q_EMIT mScannerResultWidget->statusString (QString("任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%4), 删除: (%5)")
-                .arg(it->getName ()).arg(0).arg (0).arg (0).arg (0));
-
-        Q_EMIT DBManager::instance ()->refreshScanResult (it->getName (), it->getFilterName (), it->getScanDir ());
-        //mScannerResultWidget->loadTaskResult (it->getName (), it->getFilterName (), it->getScanDir ());
-
-        btn1->setText(QString("扫描结果"));
-
-        mScannerResultWidget->setTaskName (it->getName ());
-
-        mStatusLabel->show();
-        mScannerResultWidget->show();
-        mScannerTaskWidget->hide();
-
-        DBManager::instance()->setCurPage(DBManager::CUR_RESULT);
-    });
+    connect(mScannerTaskWidget, &ScannerTaskWidget::taskDetail, this, &MainWindow::onLoadTaskResult, Qt::UniqueConnection);
     
     connect (mScannerResultWidget, &ScannerResultWidget::returnTaskList, this, [=] () {
-        btn1->setText(tr("扫描任务"));
+        mScanBtn->setText(tr("扫描任务"));
         mStatusLabel->hide();
         mScannerResultWidget->hide();
         mScannerTaskWidget->show();
@@ -173,4 +148,39 @@ void MainWindow::resizeEvent(QResizeEvent *)
     mScannerTaskWidget->setFixedWidth(width());
 
     qDebug() << "resize";
+}
+
+void MainWindow::onShowStatusString(QString status)
+{
+    if (!mStatusLabel->isHidden()) {
+        mStatusLabel->resize(QApplication::fontMetrics().size(Qt::TextSingleLine, status));
+        mStatusLabel->setText(status);
+    }
+}
+
+void MainWindow::onLoadTaskResult(const ScannerTaskItem * const item)
+{
+    if (!item)      return;
+
+    //
+    ScannerTaskItem* it = const_cast<ScannerTaskItem*> (item);
+    //qDebug() << "===> task name: " << it->getName() << "set filter name: " << it->getFilterName();
+
+    Q_EMIT mScannerResultWidget->statusString (QString("任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%4), 删除: (%5)")
+                                               .arg(it->getName ()).arg(0).arg (0).arg (0).arg (0));
+
+    // 此处释放 model 内数据
+    mScannerResultWidget->clearData();
+    Q_EMIT DBManager::instance ()->refreshScanResult (it->getName (), it->getFilterName (), it->getScanDir ());
+    //mScannerResultWidget->loadTaskResult (it->getName (), it->getFilterName (), it->getScanDir ());
+
+    mScanBtn->setText(QString("扫描结果"));
+
+    mScannerResultWidget->setTaskName (it->getName ());
+
+    mStatusLabel->show();
+    mScannerResultWidget->show();
+    mScannerTaskWidget->hide();
+
+    DBManager::instance()->setCurPage(DBManager::CUR_RESULT);
 }

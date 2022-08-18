@@ -52,17 +52,7 @@ ScanResultHelper::ScanResultHelper(QString dbPath, QObject *parent)
 {
     Q_D(ScanResultHelper);
 
-    connect (this, qOverload<QString>(&ScanResultHelper::delOldFile), this, [&] (QString id) {
-        d->mLocker.lock();
-        if (d->mData.contains(id)) {
-            auto item = d->mData[id];
-            d->mData.remove(id);
-            Q_EMIT delOldFile (item);
-            delete item;
-        }
-        d->mLocker.unlock();
-    });
-
+    connect (this, qOverload<QString&>(&ScanResultHelper::delOldFile), this, &ScanResultHelper::onItemDeleted, Qt::UniqueConnection);
 }
 
 ScanResultHelper::~ScanResultHelper()
@@ -101,7 +91,7 @@ void ScanResultHelper::clearData()
     d->mTaskFilter.clear();
 
     for (auto i = d->mData.begin(); i != d->mData.end(); ++i) {
-        i.value()->deleteLater();
+        delete i.value();
     }
     d->mData.clear();
 
@@ -118,6 +108,20 @@ void ScanResultHelper::refresResult()
     }
 
     loadTaskResult (d->mTaskName, d->mTaskFilter, d->mScanDir);
+}
+
+void ScanResultHelper::onItemDeleted(QString& id)
+{
+    Q_D (ScanResultHelper);
+
+    d->mLocker.lock();
+    if (d->mData.contains(id)) {
+        auto item = d->mData[id];
+        d->mData.remove(id);
+        Q_EMIT delOldFile (item);
+        item ->deleteLater();
+    }
+    d->mLocker.unlock();
 }
 
 void ScanResultHelper::loadTaskResult(QString taskName, QString taskFilter, QStringList scanDir)
@@ -153,8 +157,10 @@ ScanResultHelperPrivate::ScanResultHelperPrivate(QString db, ScanResultHelper *p
 ScanResultHelperPrivate::~ScanResultHelperPrivate()
 {
     if (mDB)            { sqlite3_close(mDB); mDB = nullptr;}
+    mLocker.lock();
     for (auto m = mData.begin(); m != mData.end(); ++m)    delete m.value();
     mData.clear();
+    mLocker.unlock();
 }
 
 void ScanResultHelperPrivate::onDBChanged()
@@ -202,8 +208,10 @@ void ScanResultHelperPrivate::onDBChanged()
             // scan directory
             for (const auto& s : mScanDir) {
                 if (fileName.startsWith(s)) {
-                    if (mData.contains(id)) {
-                        auto item = mData[id];
+                    mLocker.lock();
+                    auto item = (mData.contains(id)) ? mData[id] : nullptr;
+                    mLocker.unlock();
+                    if (item) {
                         if (status != item->getStatus2()
                             || finishedTime != item->getFileCreateTime()) {
                             item->setFileCreateTime(finishedTime);
@@ -225,7 +233,9 @@ void ScanResultHelperPrivate::onDBChanged()
                             item->setFileModifyTime(file.metadataChangeTime().toSecsSinceEpoch());
                         }
 
+                        mLocker.lock();
                         mData[id] = item;
+                        mLocker.unlock();
                         Q_EMIT q->addNewFile(item);
                     }
                     qInfo() << "task id:" << id;
@@ -241,11 +251,13 @@ void ScanResultHelperPrivate::onDBChanged()
     if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
     while (!sqlite_unlock());
 
+    mLocker.lock();
     QSet<QString> nowItem = mData.keys().toSet();
+    mLocker.unlock();
 
     auto delItem = allItem - nowItem;
 
-    for (const auto& id : delItem) {
+    for (auto id : delItem) {
         if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
         // 线程安全的
         Q_EMIT q->delOldFile(id);
@@ -361,7 +373,7 @@ void ScanResultHelper::deleteItemByIDs(QStringList& ids)
 {
     Q_D(ScanResultHelper);
 
-    for (const auto& id : ids) {
+    for (auto id : ids) {
         QString sql = QString("UPDATE `scan_result` SET status_reported=1, status=5 WHERE ID=%1").arg (id);
         qDebug() << "sql: " << sql;
 

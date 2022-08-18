@@ -118,12 +118,12 @@ bool ScannerResultItem::getChecked()
 
 QString ScannerResultItem::getTaskName()
 {
-    return (nullptr == mTaskName || mTaskName.isEmpty()) ? "" : mTaskName;
+    return (nullptr == mTaskName || mFileName.isNull() || mTaskName.isEmpty()) ? "" : mTaskName;
 }
 
 QString ScannerResultItem::getFileName()
 {
-    return (nullptr == mFileName || mFileName.isEmpty()) ? "" : mFileName;
+    return (nullptr == mFileName || mFileName.isNull() || mFileName.isEmpty()) ? "" : mFileName;
 }
 
 QString ScannerResultItem::getStatus()

@@ -5,6 +5,7 @@
 #include <QWidget>
 
 class Progress;
+class HeaderView;
 class PushButton;
 class QHBoxLayout;
 class QVBoxLayout;
@@ -50,6 +51,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void updateStatus();
+    void onBackToTaskView ();
 
 
 private:
@@ -57,6 +59,8 @@ private:
     QStringList             mScanDir;
     QString                 mTaskName;
     QString                 mScanFilter;
+
+    HeaderView*             mHeaderView;
 
     QVBoxLayout*            mMainLayout;
 

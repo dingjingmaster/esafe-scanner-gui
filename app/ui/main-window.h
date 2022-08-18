@@ -6,10 +6,12 @@
 #include <QLabel>
 
 class QResizeEvent;
+class ScannerTaskItem;
 class ScannerTaskWidget;
 class ScannerResultWidget;
 
 class Progress;
+class PushButton;
 class MainSubToolBar;
 
 class MainWindow : public QWidget
@@ -20,6 +22,10 @@ public:
 
 protected:
     void resizeEvent (QResizeEvent*) override;
+
+private Q_SLOTS:
+    void onShowStatusString (QString);
+    void onLoadTaskResult (const ScannerTaskItem* const item);
 
 Q_SIGNALS:
 
@@ -34,6 +40,8 @@ private:
 
     ScannerTaskWidget*      mScannerTaskWidget;
     ScannerResultWidget*    mScannerResultWidget;
+
+    PushButton*             mScanBtn;
 
     QLabel*                 mCurStatus;
     QTimer*                 mStatusTimer;
