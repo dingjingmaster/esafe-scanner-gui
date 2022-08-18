@@ -54,6 +54,7 @@ DBManager::DBManager(QObject *parent)
     connect(mTimer, &QTimer::timeout, this, &DBManager::updateModel);
 
     connect (mWatcher, &QFileSystemWatcher::fileChanged, this, [&] (const QString&) {
+        qDebug() << "file changed!";
         // FIXME:// 定时器 5s 更新一次
         if (mTimer->isActive ()) {
             return;
@@ -68,12 +69,14 @@ DBManager::DBManager(QObject *parent)
     connect (this, &DBManager::refreshScanResult2, mScanResult, &ScanResultHelper::refresResult);
     connect (this, &DBManager::refreshScanResult, mScanResult, &ScanResultHelper::loadTaskResult);
 
+#if 0
     // db monitor
     connect (this, &DBManager::stopDBMonitor, this, [=] () {mWatcher->removePath(DB_PATH);});
     connect (this, &DBManager::startDBMonitor, this, [=] () {
         mWatcher->addPath(DB_PATH);
         updateModel();
     });
+#endif
 
     mScanTaskThread->start ();
     mScanResultThread->start ();

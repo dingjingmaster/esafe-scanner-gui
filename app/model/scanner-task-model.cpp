@@ -73,11 +73,11 @@ void ScannerTaskModel::delItem(ScannerTaskItem *item)
 
     qInfo() << "delete task: " << item->getName();
 
-    mData.removeOne (item);
-
     QModelIndex idx = getIndexByItem (item);
     if (idx.isValid ()) {
+        mData.removeOne (item);
         removeRow (idx.row ());
+        Q_EMIT dataChanged (idx, idx);
     }
 }
 

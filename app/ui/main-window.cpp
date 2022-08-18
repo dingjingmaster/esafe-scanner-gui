@@ -124,7 +124,7 @@ MainWindow::MainWindow(QWidget *parent)
         }
     });
 
-    connect (mScannerResultWidget, &ScannerResultWidget::statusString, this, &MainWindow::onShowStatusString, Qt::UniqueConnection);
+    connect (mScannerResultWidget, &ScannerResultWidget::statusString, this, &MainWindow::onShowStatusString);
 
     // change content
     connect(mScannerTaskWidget, &ScannerTaskWidget::taskDetail, this, &MainWindow::onLoadTaskResult, Qt::UniqueConnection);
@@ -152,10 +152,8 @@ void MainWindow::resizeEvent(QResizeEvent *)
 
 void MainWindow::onShowStatusString(QString status)
 {
-    if (!mStatusLabel->isHidden()) {
-        mStatusLabel->resize(QApplication::fontMetrics().size(Qt::TextSingleLine, status));
-        mStatusLabel->setText(status);
-    }
+    mStatusLabel->resize(QApplication::fontMetrics().size(Qt::TextSingleLine, status));
+    mStatusLabel->setText(status);
 }
 
 void MainWindow::onLoadTaskResult(const ScannerTaskItem * const item)
@@ -165,9 +163,6 @@ void MainWindow::onLoadTaskResult(const ScannerTaskItem * const item)
     //
     ScannerTaskItem* it = const_cast<ScannerTaskItem*> (item);
     //qDebug() << "===> task name: " << it->getName() << "set filter name: " << it->getFilterName();
-
-    Q_EMIT mScannerResultWidget->statusString (QString("任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%4), 删除: (%5)")
-                                               .arg(it->getName ()).arg(0).arg (0).arg (0).arg (0));
 
     // 此处释放 model 内数据
     mScannerResultWidget->clearData();
@@ -181,6 +176,9 @@ void MainWindow::onLoadTaskResult(const ScannerTaskItem * const item)
     mStatusLabel->show();
     mScannerResultWidget->show();
     mScannerTaskWidget->hide();
+
+    Q_EMIT mScannerResultWidget->statusString (QString("任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%4), 删除: (%5)")
+                                               .arg(it->getName ()).arg(0).arg (0).arg (0).arg (0));
 
     DBManager::instance()->setCurPage(DBManager::CUR_RESULT);
 }

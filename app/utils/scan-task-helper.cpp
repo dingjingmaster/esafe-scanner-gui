@@ -315,7 +315,12 @@ void ScanTaskHelperPrivate::onDBChanged()
     if (stmt)       sqlite3_finalize(stmt);
     while (!sqlite_unlock());
 
-    QSet<QString> delT = allT - mData.keys().toSet ();
+    QSet<QString> delT = mData.keys().toSet () - allT;
+
+#if 1
+        qDebug() << "delete item: " << allT.size() << " -- " << mData.size() << " -- " << delT.size() << " -- " << delT;
+#endif
+
 
     for (auto id : delT) {
         if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
