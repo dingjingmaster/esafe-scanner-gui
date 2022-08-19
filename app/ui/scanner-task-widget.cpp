@@ -45,11 +45,9 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
     //    QRect viewRect = mView->rect ();
     //});
 
-#if 1
     connect (mModel, &ScannerTaskModel::dataChanged, this, [=] (const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>()) {
         mView->update();
     });
-#endif
 
     connect (mView, &QAbstractItemView::clicked, this, [=] (const QModelIndex &indexT) {
         QModelIndex index = mProxyModel->mapToSource(indexT);
@@ -57,14 +55,28 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
 
         // 跳转到扫描结果显示页面
         if (ScannerTaskModel::TaskOperation == index.column()) {
-            Q_EMIT taskDetail(static_cast<ScannerTaskItem*>(index.internalPointer()));
+            auto item = static_cast<ScannerTaskItem*>(index.internalPointer());
+            if (item->getSelfCheck()) {
+                Q_EMIT taskDetail(item);
+            }
         }
     });
 
     connect (mView, &QAbstractItemView::entered, this, [=] (const QModelIndex &indexT) {
+        setCursor(Qt::PointingHandCursor);
         QModelIndex index = mProxyModel->mapToSource(indexT);
-        if (ScannerTaskModel::TaskOperation == index.column()) {
-            setCursor(Qt::PointingHandCursor);
+        if (ScannerTaskModel::TaskOperation == index.column() && index.row() >= 0) {
+            QPoint p = QCursor().pos ();
+            //mView->visualRect(index).bottomRight();
+            auto at = static_cast<ScannerTaskItem*>(index.internalPointer())->getSelfCheck();
+            if (!at) {
+                setCursor(Qt::ArrowCursor);
+                QString text = "说明：管理员将该任务设置为非自查任务，用户不能查看扫描结果。";
+                QFontMetrics fm(font());
+                int w = fm.horizontalAdvance(text);
+                int h = fm.height();
+                QToolTip::showText(p, text, this, QRect(+100, -100, w, h), 30000);
+            }
         } else if (ScannerTaskModel::TaskName == index.column() && index.row() >= 0) {
             //QPoint p = mView->visualRect(index).bottomRight();
             QPoint p = QCursor().pos (); //mView->visualRect(index).bottomRight();
@@ -76,7 +88,6 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
                 // void showText(const QPoint &pos, const QString &text, QWidget *w, const QRect &rect, int msecDisplayTime)
                 QToolTip::showText(p, text, this, QRect(+100, -100, w, h), 3000000);
             }
-
         } else {
             setCursor(Qt::ArrowCursor);
         }

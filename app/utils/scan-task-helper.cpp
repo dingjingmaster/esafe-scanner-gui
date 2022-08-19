@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QApplication>
+#include <QMutex>
 
 #include "tools.h"
 
@@ -33,6 +34,8 @@ public:
     QMap<QString, ScannerTaskItem*> mData;                  // <TaskID, ScannerTaskItem*>
 
     sqlite3*                        mDB;
+
+    QMutex                          mLocker;
 
     // const
     ScanTaskHelper*                 q_ptr;
@@ -235,8 +238,8 @@ void ScanTaskHelperPrivate::onDBChanged()
 
     QString sql = QString("SELECT `task_id`, `task_status`, `task_start_time`, `task_stop_time`,"
                           " `task_scan_finished_file_count`, `task_scan_file_count`, `task_file_count`,"
-                          " `scan_task_filter_name`, `task_name`, `scan_task_dir` "
-                          " FROM scan_task WHERE scan_task_self_check=1");
+                          " `scan_task_filter_name`, `task_name`, `scan_task_dir`, `scan_task_self_check` "
+                          " FROM scan_task;");
 
     qDebug() << "scan_task sql: '" << sql << "'";
 
@@ -255,6 +258,7 @@ void ScanTaskHelperPrivate::onDBChanged()
             QString taskFilterName(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 7)));
             QString taskName(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 8)));
             QString scanDir(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 9)));
+            int scanSelfCheck = sqlite3_column_int (stmt, 10);
 
             if (nullptr == scanDir || scanDir.isNull () || scanDir.isEmpty () || "" == scanDir) {
                 scanDir = "/";
@@ -277,11 +281,13 @@ void ScanTaskHelperPrivate::onDBChanged()
                         || taskFileCount != item->getTaskFileCount ()
                         || taskFilterName != item->getFilterName ()
                         || taskName != item->getName ()
-                        || scanDir != item->getScanDir2 ()) {
+                        || scanDir != item->getScanDir2 ()
+                        || scanSelfCheck != item->getSelfCheck()) {
                     item->setScanDir (scanDir);
                     item->setStopTime(stopTime);
                     item->setStatus(taskStatus);
                     item->setStartTime(startTime);
+                    item->setIsSelfCheck(scanSelfCheck);
                     item->setTaskFileCount(taskFileCount);
                     item->setScanFileCount(taskScanFileCount);
                     item->setScanFinishedFileCount(taskScanFinishedFileCount);
@@ -297,6 +303,7 @@ void ScanTaskHelperPrivate::onDBChanged()
                 item->setStatus(taskStatus);
                 item->setStopTime(stopTime);
                 item->setStartTime(startTime);
+                item->setIsSelfCheck(scanSelfCheck);
                 item->setFilterName(taskFilterName);
                 item->setTaskFileCount(taskFileCount);
                 item->setScanFileCount(taskScanFileCount);
@@ -317,11 +324,6 @@ void ScanTaskHelperPrivate::onDBChanged()
 
     QSet<QString> delT = mData.keys().toSet () - allT;
 
-#if 1
-        qDebug() << "delete item: " << allT.size() << " -- " << mData.size() << " -- " << delT.size() << " -- " << delT;
-#endif
-
-
     for (auto id : delT) {
         if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
         if (mData.contains(id)) {
@@ -329,7 +331,7 @@ void ScanTaskHelperPrivate::onDBChanged()
             mData.remove(id);
             qInfo () << "delete task '" << id << "'";
             Q_EMIT q->delOldTask(it);
-            delete it;
+            it->deleteLater();
         }
     }
 }

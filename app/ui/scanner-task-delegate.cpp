@@ -1,4 +1,5 @@
 #include "scanner-task-delegate.h"
+#include "model/scanner-task-item.h"
 
 #include <QStyle>
 #include <QDebug>
@@ -25,11 +26,14 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
 {
     Q_UNUSED(index);
 
-    p->save();
+    auto item = static_cast<ScannerTaskItem*>(index.internalPointer());
+    if (!item)  return;
 
     QString text = index.model()->data(index).toString();
     QRect rect = option.rect;
     Qt::Alignment align = option.displayAlignment;
+
+    p->save();
 
     switch (index.column()) {
     case 0:
@@ -63,9 +67,13 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
         break;
     }
     case 6:
-        p->setPen(Qt::blue);
-        align |= Qt::AlignHCenter;
-        break;
+        //if (item->getSelfCheck()) {
+        //    p->setPen(Qt::blue);
+        //} else {
+        //    p->setPen(Qt::red);
+        //}
+        QStyledItemDelegate::paint(p, option, index);
+        return;
     default:
         break;
     }

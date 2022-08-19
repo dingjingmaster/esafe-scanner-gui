@@ -21,6 +21,9 @@ public:
     void setStopTime (qint64 stopTime);
     void setStartTime (qint64 startTime);
 
+    void setIsSelfCheck (int s);
+    void setIsSelfCheck (bool s);
+
     QString getScanDir2 ();
     QStringList getScanDir ();
     void setScanDir (QString scanDir);
@@ -33,6 +36,7 @@ public:
     QString getID ();
     QString getName ();
 
+    bool getSelfCheck();
     int getStatus2 ();
     QString getStatus ();
 
@@ -55,6 +59,8 @@ private:
     QString                 mScanDir;
     QString                 mOperation;
     QString                 mFilterName;
+
+    bool                    mSelfCheck;                     // 是否自查任务
 
     Status                  mStatus;
     qint64                  mStopTime;

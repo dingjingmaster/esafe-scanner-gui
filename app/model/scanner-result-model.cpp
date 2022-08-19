@@ -84,8 +84,8 @@ void ScannerResultModel::addItem(ScannerResultItem* item)
     insertRows(mData.count() - 1, 1);
     changeItemCount(item->getStatus2 ());
 
-    if ((mCurIndex - 10 <= 0) || (rowCount() < mCurIndex + 30)) {
-        QModelIndex idx = getIndexByItem(item);
+    QModelIndex idx = getIndexByItem(item);
+    if ((mCurIndex - 10 <= idx.row()) && (idx.row() < mCurIndex + 30)) {
         Q_EMIT dataChanged (idx, idx);
     }
 

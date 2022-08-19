@@ -33,8 +33,10 @@ QModelIndex ScannerTaskModel::getIndexByItem(const ScannerTaskItem* item, int co
 
     int rows = rowCount();
     for (auto i = 0; i < rows; ++i) {
+        mLocker.lock();
         QModelIndex ii = index(i, column);
         auto it = static_cast <const ScannerTaskItem*> (ii.internalPointer());
+        mLocker.unlock();
         if (it == item) {
             return ii;
         }
@@ -49,7 +51,9 @@ void ScannerTaskModel::resetModel()
 {
     beginResetModel ();
 
+    mLocker.lock();
     mData.clear ();
+    mLocker.unlock();
 
     endResetModel ();
 
@@ -62,7 +66,9 @@ void ScannerTaskModel::addItem(ScannerTaskItem* item)
 
     qDebug() << "add task item: " << item->getName();
 
+    mLocker.lock();
     mData.append(item);
+    mLocker.unlock();
 
     insertRows(mData.count() - 1, 1);
 }
@@ -75,9 +81,11 @@ void ScannerTaskModel::delItem(ScannerTaskItem *item)
 
     QModelIndex idx = getIndexByItem (item);
     if (idx.isValid ()) {
-        mData.removeOne (item);
         removeRow (idx.row ());
         Q_EMIT dataChanged (idx, idx);
+        mLocker.lock();
+        mData.removeOne (item);
+        mLocker.unlock();
     }
 }
 
@@ -88,7 +96,7 @@ void ScannerTaskModel::updateItem(ScannerTaskItem *item)
     qInfo() << "update task: " << item->getName();
 
     QModelIndex idx = getIndexByItem (item);
-    if (idx.isValid () && ((mCurIndex - 10 < 0) || (rowCount() < mCurIndex + 30))) {
+    if (idx.isValid () && (mCurIndex - 10 < idx.row()) && (mCurIndex + 30 < idx.row())) {
         QModelIndex idx1 = index (idx.row (), (int)(EnumSize) - 1);
         Q_EMIT dataChanged (idx, idx1);
     }
@@ -109,6 +117,8 @@ QVariant ScannerTaskModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())       return QVariant();
 
     auto item = static_cast<ScannerTaskItem*>(index.internalPointer());
+
+    if (!item)      return QVariant();
 
     if (Qt::DisplayRole == role) {
         if (0 == index.column()) {
@@ -134,9 +144,12 @@ QVariant ScannerTaskModel::data(const QModelIndex &index, int role) const
         return Qt::AlignCenter;
     } else if (Qt::ForegroundRole == role) {
         switch (index.column()) {
-        case 5: {
-            return QColor(0, 0, 255);
-            break;
+        case 6: {
+            if (item->getSelfCheck()) {
+                return QColor(0, 0, 255);
+            } else {
+                return QColor(105, 105, 105);
+            }
         }
         default:
             break;
@@ -183,7 +196,6 @@ QModelIndex ScannerTaskModel::index(int row, int column, const QModelIndex &pare
         if (row < 0 || row > mData.count() - 1) {
             return QModelIndex();
         }
-
         return createIndex(row, column, mData.at(row));
     }
 

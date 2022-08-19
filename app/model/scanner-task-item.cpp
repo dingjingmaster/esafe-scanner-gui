@@ -74,6 +74,16 @@ void ScannerTaskItem::setStartTime(qint64 startTime)
     mStartTime = startTime;
 }
 
+void ScannerTaskItem::setIsSelfCheck(int s)
+{
+    mSelfCheck = (s == 1) ? true : false;
+}
+
+void ScannerTaskItem::setIsSelfCheck(bool s)
+{
+    mSelfCheck = s;
+}
+
 QString ScannerTaskItem::getScanDir2()
 {
     return mScanDir;
@@ -117,6 +127,11 @@ QString ScannerTaskItem::getID()
 QString ScannerTaskItem::getName()
 {
     return (nullptr == mName || mName.isNull() || mName.isEmpty()) ? " " : mName;
+}
+
+bool ScannerTaskItem::getSelfCheck()
+{
+    return mSelfCheck;
 }
 
 int ScannerTaskItem::getStatus2()

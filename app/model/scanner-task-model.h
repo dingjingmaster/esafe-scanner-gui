@@ -52,7 +52,7 @@ private:
     int                                                 mCurIndex = 0;
 
     ScanTaskHelper*                                     mScanTaskHelper;
-    
+
     // ScannerxxItem
     QList<ScannerTaskItem*>                             mData;
 
