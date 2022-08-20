@@ -96,7 +96,7 @@ void ScannerTaskModel::updateItem(ScannerTaskItem *item)
     qInfo() << "update task: " << item->getName();
 
     QModelIndex idx = getIndexByItem (item);
-    if (idx.isValid () && (mCurIndex - 10 < idx.row()) && (mCurIndex + 30 < idx.row())) {
+    if (idx.isValid () && (mCurIndex - 10 < idx.row()) && (mCurIndex + 30 > idx.row())) {
         QModelIndex idx1 = index (idx.row (), (int)(EnumSize) - 1);
         Q_EMIT dataChanged (idx, idx1);
     }
