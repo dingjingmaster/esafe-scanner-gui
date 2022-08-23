@@ -190,6 +190,10 @@ QString ScannerTaskItem::getStopTime()
 
     qInfo() << "stop time:" << mStopTime;
 
+    if (mStopTime <= 0 && Stop == getStatus2() && getStartTime2() > 0) {
+        return QDateTime::fromSecsSinceEpoch(getStartTime2()).toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
+    }
+
     return mStopTime <= 0 ? "" : QDateTime::fromSecsSinceEpoch(mStopTime).toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
 }
 

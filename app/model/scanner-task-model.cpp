@@ -31,18 +31,20 @@ QModelIndex ScannerTaskModel::getIndexByItem(const ScannerTaskItem* item, int co
         return QModelIndex();
     }
 
+    mLocker.lock();
+
     int rows = rowCount();
     for (auto i = 0; i < rows; ++i) {
-        mLocker.lock();
         QModelIndex ii = index(i, column);
         auto it = static_cast <const ScannerTaskItem*> (ii.internalPointer());
-        mLocker.unlock();
         if (it == item) {
+            mLocker.unlock();
             return ii;
         }
     }
 
     qDebug() << "item not found!";
+    mLocker.unlock();
 
     return QModelIndex();
 }
@@ -82,7 +84,6 @@ void ScannerTaskModel::delItem(ScannerTaskItem *item)
     QModelIndex idx = getIndexByItem (item);
     if (idx.isValid ()) {
         removeRow (idx.row ());
-        Q_EMIT dataChanged (idx, idx);
         mLocker.lock();
         mData.removeOne (item);
         mLocker.unlock();
