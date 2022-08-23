@@ -521,6 +521,7 @@ void ScannerResultWidget::onBackToTaskView()
     mHeaderView->setChecked(false);
     Q_EMIT mHeaderView->checkBoxClicked (false);
     DBManager::instance()->setCurPage(DBManager::CUR_TASK);
+    Q_EMIT DBManager::instance()->refreshScanTask();
 
     // FIXME:// 释放数据 暂时放在跳转到 result 界面时候(虽然这样浪费了大量内存，但是临时解决了崩溃)，后续 item 都用智能指针管理其生命周期
     // Q_EMIT mModel->clearData();
