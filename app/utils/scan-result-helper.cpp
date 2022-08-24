@@ -200,7 +200,7 @@ void ScanResultHelperPrivate::onDBChanged()
             int status = sqlite3_column_int(stmt, 2);   // 状态不更新，只有客户端会改
             int finishedTime = sqlite3_column_int(stmt, 3);
 
-            if (nullptr == id || id.isNull() || id.isEmpty() || "" == id
+            if (!QFile::exists(fileName) || nullptr == id || id.isNull() || id.isEmpty() || "" == id
                 || nullptr == fileName || fileName.isNull() || fileName.isEmpty() || "" == fileName) {
                 continue;
             }
