@@ -27,12 +27,12 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
     mView->horizontalHeader()->setMinimumSectionSize(40);
     mView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
-    mView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive);
-    mView->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
-    mView->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Interactive);
-    mView->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Interactive);
-    mView->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Interactive);
-    mView->horizontalHeader()->setSectionResizeMode(6, QHeaderView::Interactive);
+    mView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+    mView->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Fixed);
+    mView->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Fixed);
+    mView->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Fixed);
+    mView->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Fixed);
+    mView->horizontalHeader()->setSectionResizeMode(6, QHeaderView::Fixed);
 
     //mView->setSortingEnabled(false);
     mMainLayout->addWidget(mView);
@@ -63,9 +63,9 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
     });
 
     connect (mView, &QAbstractItemView::entered, this, [=] (const QModelIndex &indexT) {
-        setCursor(Qt::PointingHandCursor);
         QModelIndex index = mProxyModel->mapToSource(indexT);
         if (ScannerTaskModel::TaskOperation == index.column() && index.row() >= 0) {
+            setCursor(Qt::PointingHandCursor);
             QPoint p = QCursor().pos ();
             //mView->visualRect(index).bottomRight();
             auto at = static_cast<ScannerTaskItem*>(index.internalPointer())->getSelfCheck();
@@ -78,6 +78,7 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
                 QToolTip::showText(p, text, this, QRect(+100, -100, w, h), 30000);
             }
         } else if (ScannerTaskModel::TaskName == index.column() && index.row() >= 0) {
+            setCursor(Qt::PointingHandCursor);
             //QPoint p = mView->visualRect(index).bottomRight();
             QPoint p = QCursor().pos (); //mView->visualRect(index).bottomRight();
             QString text = static_cast<ScannerTaskItem*>(index.internalPointer())->getName();
