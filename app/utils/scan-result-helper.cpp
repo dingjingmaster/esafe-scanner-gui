@@ -67,8 +67,8 @@ void ScanResultHelper::testInsertItem()
     char* errorMsg = nullptr;
 
     for (int i = 0; i < 1000000; ++i) {
-        QString sql = QString("INSERT INTO scan_result (scan_file_name, policy_id, status, scan_finished_time)"
-                              "VALUES ('/tmp/aa1%1', 'A', 0, 1658558157);").arg (i);
+        QString sql = QString("INSERT INTO scan_result (scan_file_name, policy_id, action_id, status, scan_finished_time, detect_result, file_size, file_type)"
+                              "VALUES ('/tmp/aa1%1', 'A', 'A', 0, 1658558157, '', '', '');").arg (i);
 
         while (!sqlite_lock());
         int ret = sqlite3_exec(d->mDB, sql.toUtf8().constData(), nullptr, nullptr, &errorMsg);
@@ -197,7 +197,7 @@ void ScanResultHelperPrivate::onDBChanged()
             QApplication::processEvents();
             QString id = QString("%1").arg(sqlite3_column_int(stmt, 0));
             QString fileName = QString(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
-            int status = sqlite3_column_int(stmt, 2);
+            int status = sqlite3_column_int(stmt, 2);   // 状态不更新，只有客户端会改
             int finishedTime = sqlite3_column_int(stmt, 3);
 
             if (nullptr == id || id.isNull() || id.isEmpty() || "" == id
@@ -212,10 +212,9 @@ void ScanResultHelperPrivate::onDBChanged()
                     auto item = (mData.contains(id)) ? mData[id] : nullptr;
                     mLocker.unlock();
                     if (item) {
-                        if (status != item->getStatus2()
-                            || finishedTime != item->getFileCreateTime()) {
+                        if (finishedTime != item->getFileCreateTime()) {
                             item->setFileCreateTime(finishedTime);
-                            item->setStatus(status);
+                            //item->setStatus(status);
                             Q_EMIT q->updateFile(item);
                         }
                     } else {
@@ -262,6 +261,8 @@ void ScanResultHelperPrivate::onDBChanged()
         // 线程安全的
         Q_EMIT q->delOldFile(id);
     }
+
+    Q_EMIT q->allItemsUpdated();
 }
 
 bool ScanResultHelperPrivate::selectIDByFilterName()

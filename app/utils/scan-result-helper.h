@@ -38,7 +38,7 @@ Q_SIGNALS:
      *  仅仅是处理了误报、删除操作的文件
      */
     void detailOne();
-
+    void allItemsUpdated ();
     void delOldFile (QString& it);
     void addNewFile (ScannerResultItem* it);
     void updateFile (ScannerResultItem* it);

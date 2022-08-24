@@ -20,6 +20,9 @@ ScannerResultModel::ScannerResultModel(QObject* parent)
         progress(cur, mTotal);
     });
 
+    // 这里不能打开，否则在用户选中数据后，数据库自动更新时候，统计不准确
+    //connect(mScanResultHelper, &ScanResultHelper::allItemsUpdated, this, &ScannerResultModel::updateCount);
+
     // 清空数据 showData (QString TaskName, QString filterName);
     //connect(this, &ScannerResultModel::clearData, mScanResultHelper, &ScanResultHelper::clearData);
     connect(this, &ScannerResultModel::showData, this, [=] (QString taskName, QString filterName, QStringList scanDir) {
@@ -90,6 +93,9 @@ void ScannerResultModel::addItem(ScannerResultItem* item)
     }
 
     mLocker.unlock();
+
+
+    Q_EMIT dataStatueChanged();
 }
 
 void ScannerResultModel::delItem(ScannerResultItem *item)
@@ -111,6 +117,9 @@ void ScannerResultModel::delItem(ScannerResultItem *item)
     }
 
     mLocker.unlock();
+
+
+    Q_EMIT dataStatueChanged();
 }
 
 int ScannerResultModel::getNoFixCount() 
@@ -428,6 +437,7 @@ void ScannerResultModel::updateCount()
     int     tDelete = 0;
     int     tMisReport = 0;
 
+    mLocker.lock();
     for (auto it : mData) {
         switch (it->getStatus2()) {
             case 6: {
@@ -445,10 +455,13 @@ void ScannerResultModel::updateCount()
             }
         }
     }
+    mLocker.unlock();
 
     mNoFix = tNoFix;
     mDelete = tDelete;
     mMisReport = tMisReport;
+
+    Q_EMIT dataStatueChanged();
 }
 
 void ScannerResultModel::setSelectedItemStatus(ScannerResultItem::Status status)

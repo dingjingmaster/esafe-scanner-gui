@@ -127,7 +127,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect (mScannerResultWidget, &ScannerResultWidget::statusString, this, &MainWindow::onShowStatusString);
 
     // change content
-    connect(mScannerTaskWidget, &ScannerTaskWidget::taskDetail, this, &MainWindow::onLoadTaskResult, Qt::UniqueConnection);
+    connect(mScannerTaskWidget, &ScannerTaskWidget::taskDetail, this, &MainWindow::onLoadTaskResult);
     
     connect (mScannerResultWidget, &ScannerResultWidget::returnTaskList, this, [=] () {
         mScanBtn->setText(tr("扫描任务"));
@@ -158,14 +158,20 @@ void MainWindow::onShowStatusString(QString status)
 
 void MainWindow::onLoadTaskResult(const ScannerTaskItem * const item)
 {
-    if (!item)      return;
+    // FIXME:// 此处可能会低概率崩溃，当进入扫描结果页的瞬间删除此条任务(任务删除在另一个线程里)
+    ScannerTaskItem* it = const_cast<ScannerTaskItem*> (item);
+
+    if (!item || !it)      return;
 
     //
-    ScannerTaskItem* it = const_cast<ScannerTaskItem*> (item);
     //qDebug() << "===> task name: " << it->getName() << "set filter name: " << it->getFilterName();
 
     // 此处释放 model 内数据
     mScannerResultWidget->clearData();
+
+    Q_EMIT mScannerResultWidget->statusString (QString("任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%4), 删除: (%5)")
+                                               .arg(it->getName ()).arg(0).arg (0).arg (0).arg (0));
+
     Q_EMIT DBManager::instance ()->refreshScanResult (it->getName (), it->getFilterName (), it->getScanDir ());
     //mScannerResultWidget->loadTaskResult (it->getName (), it->getFilterName (), it->getScanDir ());
 
@@ -176,9 +182,6 @@ void MainWindow::onLoadTaskResult(const ScannerTaskItem * const item)
     mStatusLabel->show();
     mScannerResultWidget->show();
     mScannerTaskWidget->hide();
-
-    Q_EMIT mScannerResultWidget->statusString (QString("任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%4), 删除: (%5)")
-                                               .arg(it->getName ()).arg(0).arg (0).arg (0).arg (0));
 
     DBManager::instance()->setCurPage(DBManager::CUR_RESULT);
 }

@@ -50,6 +50,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void clearData ();
     void lazyUpdateView ();
+    void dataStatueChanged ();
     void progress (int cur, int total);
     void showData (QString TaskName, QString filterName, QStringList scanDir);
 
@@ -69,7 +70,7 @@ public:
     bool insertRows (int row, int count, const QModelIndex &parent = QModelIndex()) override;
     bool removeRows (int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
-private:
+private Q_SLOTS:
     void updateCount ();
     void itemStatusChanged (ScannerResultItem* it, ScannerResultItem::Status s);
 
