@@ -106,18 +106,20 @@ void ScannerResultModel::delItem(ScannerResultItem *item)
 
     QModelIndex idx = getIndexByItem(item);
 
-    if (!idx.isValid())     return;
-    
+    if (!idx.isValid()) {
+        mLocker.unlock();
+        return;
+    }
+
     if (mData.contains (item))  mData.removeOne (item);
     removeRow (idx.row());
     changeItemCount(item->getStatus2 (), false);
 
+    mLocker.unlock();
+
     if (mCurIndex < 30 || rowCount() < mCurIndex + 30) {
         Q_EMIT dataChanged (idx, idx);
     }
-
-    mLocker.unlock();
-
 
     Q_EMIT dataStatueChanged();
 }

@@ -117,9 +117,10 @@ void ScanResultHelper::onItemDeleted(QString& id)
     d->mLocker.lock();
     if (d->mData.contains(id)) {
         auto item = d->mData[id];
-        d->mData.remove(id);
         Q_EMIT delOldFile (item);
-        item ->deleteLater();
+        // QMap 的 remove 里做了资源释放操作
+        d->mData.remove(id);
+        //item ->deleteLater();
     }
     d->mLocker.unlock();
 }
@@ -354,7 +355,7 @@ void ScanResultHelper::misReportByIDs(QStringList& ids)
     Q_D(ScanResultHelper);
 
     for (const auto& id : ids) {
-        QString sql = QString("UPDATE `scan_result` SET status_reported=1, status=6 WHERE ID=%1").arg(id);
+        QString sql = QString("UPDATE `scan_result` SET status=6 WHERE ID=%1").arg(id);
         qInfo() << "sql ==> " << sql;
 
         char *errMsg = nullptr;
@@ -375,7 +376,7 @@ void ScanResultHelper::deleteItemByIDs(QStringList& ids)
     Q_D(ScanResultHelper);
 
     for (auto id : ids) {
-        QString sql = QString("UPDATE `scan_result` SET status_reported=1, status=5 WHERE ID=%1").arg (id);
+        QString sql = QString("UPDATE `scan_result` SET status=5 WHERE ID=%1").arg (id);
         qDebug() << "sql: " << sql;
 
         char* errMsg = nullptr;

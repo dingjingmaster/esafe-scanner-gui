@@ -322,17 +322,13 @@ void ScanTaskHelperPrivate::onDBChanged()
     if (stmt)       sqlite3_finalize(stmt);
     while (!sqlite_unlock());
 
+    mLocker.lock();
     QSet<QString> delT = mData.keys().toSet () - allT;
+    mLocker.unlock();
 
     for (auto id : delT) {
         if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
-        if (mData.contains(id)) {
-            auto it = mData[id];
-            mData.remove(id);
-            qInfo () << "delete task '" << id << "'";
-            Q_EMIT q->delOldTask(it);
-            it->deleteLater();
-        }
+        Q_EMIT q->delOldTask(id);
     }
 }
 
@@ -340,7 +336,24 @@ void ScanTaskHelperPrivate::onDBChanged()
 ScanTaskHelper::ScanTaskHelper(QString dbPath, QObject* parent)
     : QObject(parent), d_ptr(new ScanTaskHelperPrivate(dbPath, this))
 {
+    connect (this, qOverload<QString&>(&ScanTaskHelper::delOldTask), this, [=] (QString& id) {
+        Q_D (ScanTaskHelper);
 
+        d->mLocker.lock();
+        auto item = d->mData.contains(id) ? d->mData[id] : nullptr;
+        d->mLocker.unlock();
+
+        if (d->mData.contains(id)) {
+            auto item = d->mData[id];
+            Q_EMIT delOldTask (item);
+
+            // 注意：remove() 里做了资源释放操作...
+            d->mData.remove(id);
+            //item->deleteLater();
+        }
+        d->mLocker.unlock();
+
+        },Qt::UniqueConnection);
 }
 
 ScanTaskHelper::~ScanTaskHelper()

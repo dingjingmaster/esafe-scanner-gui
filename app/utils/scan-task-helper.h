@@ -29,6 +29,7 @@ private:
     ~ScanTaskHelper();
 
 Q_SIGNALS:
+    void delOldTask (QString& it);
     void updateTask (ScannerTaskItem* it);
     void addNewTask (ScannerTaskItem* it);
     void delOldTask (ScannerTaskItem* it);

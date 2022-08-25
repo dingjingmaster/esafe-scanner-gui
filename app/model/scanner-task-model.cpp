@@ -12,8 +12,8 @@ ScannerTaskModel::ScannerTaskModel(QObject *parent)
 {
     // 数据库与model连接
     connect(mScanTaskHelper, &ScanTaskHelper::addNewTask, this, &ScannerTaskModel::addItem);
-    connect(mScanTaskHelper, &ScanTaskHelper::delOldTask, this, &ScannerTaskModel::delItem);
     connect(mScanTaskHelper, &ScanTaskHelper::updateTask, this, &ScannerTaskModel::updateItem);
+    connect(mScanTaskHelper, qOverload<ScannerTaskItem*>(&ScanTaskHelper::delOldTask), this, &ScannerTaskModel::delItem);
 
     qInfo() << "scan task model ...";
     Q_EMIT DBManager::instance ()->refreshScanTask();
@@ -80,14 +80,14 @@ void ScannerTaskModel::delItem(ScannerTaskItem *item)
     if (!item)      return;
 
     qInfo() << "delete task: " << item->getName();
-
     QModelIndex idx = getIndexByItem (item);
-    if (idx.isValid ()) {
+
+    mLocker.lock();
+    if (idx.isValid()) {
         removeRow (idx.row ());
-        mLocker.lock();
-        mData.removeOne (item);
-        mLocker.unlock();
     }
+    if (mData.contains(item)) mData.removeOne (item);
+    mLocker.unlock();
 }
 
 void ScannerTaskModel::updateItem(ScannerTaskItem *item)
