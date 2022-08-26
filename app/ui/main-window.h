@@ -30,8 +30,8 @@ private Q_SLOTS:
 Q_SIGNALS:
 
 private:
-    const int               mMinWidth = 900;
-    const int               mMinHeight = 600;
+    const int               mMinWidth = 1100;
+    const int               mMinHeight = 700;
 
     QLayout*                mMainLayout;
 
