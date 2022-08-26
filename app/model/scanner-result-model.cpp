@@ -25,8 +25,9 @@ ScannerResultModel::ScannerResultModel(QObject* parent)
 
     // 清空数据 showData (QString TaskName, QString filterName);
     //connect(this, &ScannerResultModel::clearData, mScanResultHelper, &ScanResultHelper::clearData);
-    connect(this, &ScannerResultModel::showData, this, [=] (QString taskName, QString filterName, QStringList scanDir) {
-        mScanResultHelper->loadTaskResult(taskName, filterName, scanDir);
+    connect(this, qOverload<QString, QString, QStringList, QString>(&ScannerResultModel::showData), this,
+            [=] (QString taskName, QString filterName, QStringList scanDir, QString filterOutDir) {
+        mScanResultHelper->loadTaskResult(taskName, filterName, scanDir, filterOutDir);
     });
 
     connect(this, &ScannerResultModel::clearData, this, [=] () {

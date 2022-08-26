@@ -231,3 +231,13 @@ QString ScannerTaskItem::getOperation()
 {
     return tr("查看结果");
 }
+
+void ScannerTaskItem::setFilterOutDir(QString& dir)
+{
+    mFilterOutDir = dir;
+}
+
+QString ScannerTaskItem::getFilterOutDir()
+{
+    return mFilterOutDir;
+}

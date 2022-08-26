@@ -29,7 +29,7 @@ public:
 
     void clearData ();
     bool hasChecked ();                 // 是否有选中条目
-    void loadTaskResult (QString taskName, QString taskFilter, QStringList mScanDir);
+    void loadTaskResult (QString taskName, QString taskFilter, QStringList mScanDir, QString scanOutDir);
 
 protected:
     void resizeEvent (QResizeEvent* event) override;

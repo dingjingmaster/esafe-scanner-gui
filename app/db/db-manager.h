@@ -30,7 +30,7 @@ Q_SIGNALS:
     void startDBMonitor();
     void refreshScanTask ();
     void refreshScanResult2 ();
-    void refreshScanResult (QString taskName="", QString taskFilter="", QStringList scanDir=QStringList());
+    void refreshScanResult (QString taskName="", QString taskFilter="", QStringList scanDir=QStringList(), QString filterOut="");
 
 private Q_SLOTS:
     void updateModel();

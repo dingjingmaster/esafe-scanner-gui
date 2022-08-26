@@ -34,6 +34,7 @@ public:
     QStringList                         mScanDir;
     QString                             mTaskName;
     QString                             mTaskFilter;
+    QString                             mFilterOutDir;
 
     QMap<QString, ScannerResultItem*>   mData;                  // <FileMD5, ScannerResultItem*>
 
@@ -107,7 +108,7 @@ void ScanResultHelper::refresResult()
         return;
     }
 
-    loadTaskResult (d->mTaskName, d->mTaskFilter, d->mScanDir);
+    loadTaskResult (d->mTaskName, d->mTaskFilter, d->mScanDir, d->mFilterOutDir);
 }
 
 void ScanResultHelper::onItemDeleted(QString& id)
@@ -125,7 +126,7 @@ void ScanResultHelper::onItemDeleted(QString& id)
     //d->mLocker.unlock();
 }
 
-void ScanResultHelper::loadTaskResult(QString taskName, QString taskFilter, QStringList scanDir)
+void ScanResultHelper::loadTaskResult(QString taskName, QString taskFilter, QStringList scanDir, QString filterOutDir)
 {
     Q_D(ScanResultHelper);
 
@@ -134,6 +135,7 @@ void ScanResultHelper::loadTaskResult(QString taskName, QString taskFilter, QStr
     d->mScanDir = scanDir;
     d->mTaskName = taskName;
     d->mTaskFilter = taskFilter;
+    d->mFilterOutDir = filterOutDir;
 
     d->onDBChanged();
 }
@@ -169,6 +171,7 @@ void ScanResultHelperPrivate::onDBChanged()
     Q_Q(ScanResultHelper);
 
     QStringList k = mTaskFilter.split("|");
+    QStringList od = mFilterOutDir.split("|");
     if (k.count() <= 0)     return;
 
     QStringList policyIDs;
@@ -187,7 +190,6 @@ void ScanResultHelperPrivate::onDBChanged()
         return;
     }
 
-    int ev = 0;
     QString sql = QString("SELECT `ID`, `scan_file_name`, `status`, `scan_finished_time`"
                           " FROM scan_result WHERE status!=5 AND policy_id IN (%1)").arg (policy);
     qInfo() << "sql ==> " << sql;
@@ -209,6 +211,25 @@ void ScanResultHelperPrivate::onDBChanged()
             // scan directory
             for (const auto& s : mScanDir) {
                 if (fileName.startsWith(s)) {
+
+                    bool filterOut = false;
+
+                    // filter out dir
+                    for (const auto& d : od) {
+                        if (d.startsWith("/")) {
+                            if (fileName.startsWith(d)) {
+                                filterOut = true;
+                                break;
+                            }
+                        } else {
+                            if (fileName.contains(d)) {
+                                filterOut = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (filterOut) break;
+
                     //mLocker.lock();
                     auto item = (mData.contains(id)) ? mData[id] : nullptr;
                     //mLocker.unlock();

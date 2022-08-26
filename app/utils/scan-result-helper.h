@@ -25,7 +25,7 @@ private:
 public Q_SLOTS:
     void clearData();
     void refresResult();
-    void loadTaskResult (QString taskName, QString taskFilter, QStringList scanDir);
+    void loadTaskResult (QString taskName, QString taskFilter, QStringList scanDir, QString filterOutDir);
 
 private Q_SLOTS:
     void onItemDeleted (QString&);

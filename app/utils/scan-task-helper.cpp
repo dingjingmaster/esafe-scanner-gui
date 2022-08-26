@@ -238,8 +238,8 @@ void ScanTaskHelperPrivate::onDBChanged()
 
     QString sql = QString("SELECT `task_id`, `task_status`, `task_start_time`, `task_stop_time`,"
                           " `task_scan_finished_file_count`, `task_scan_file_count`, `task_file_count`,"
-                          " `scan_task_filter_name`, `task_name`, `scan_task_dir`, `scan_task_self_check` "
-                          " FROM scan_task;");
+                          " `scan_task_filter_name`, `task_name`, `scan_task_dir`, `scan_task_self_check`, "
+                          " `scan_task_dir_filterout` FROM scan_task;");
 
     qDebug() << "scan_task sql: '" << sql << "'";
 
@@ -259,6 +259,7 @@ void ScanTaskHelperPrivate::onDBChanged()
             QString taskName(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 8)));
             QString scanDir(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 9)));
             int scanSelfCheck = sqlite3_column_int (stmt, 10);
+            QString scanTaskFilterDir (reinterpret_cast<const char*>(sqlite3_column_text(stmt, 11)));
 
             if (nullptr == scanDir || scanDir.isNull () || scanDir.isEmpty () || "" == scanDir) {
                 scanDir = "/";
@@ -282,7 +283,8 @@ void ScanTaskHelperPrivate::onDBChanged()
                         || taskFilterName != item->getFilterName ()
                         || taskName != item->getName ()
                         || scanDir != item->getScanDir2 ()
-                        || scanSelfCheck != item->getSelfCheck()) {
+                        || scanSelfCheck != item->getSelfCheck()
+                        || scanTaskFilterDir != item->getFilterOutDir()) {
                     item->setScanDir (scanDir);
                     item->setStopTime(stopTime);
                     item->setStatus(taskStatus);
@@ -290,6 +292,7 @@ void ScanTaskHelperPrivate::onDBChanged()
                     item->setIsSelfCheck(scanSelfCheck);
                     item->setTaskFileCount(taskFileCount);
                     item->setScanFileCount(taskScanFileCount);
+                    item->setFilterOutDir(scanTaskFilterDir);
                     item->setScanFinishedFileCount(taskScanFinishedFileCount);
                     qInfo() << "update task id:" << id;
                     Q_EMIT q->updateTask (item);
@@ -307,6 +310,7 @@ void ScanTaskHelperPrivate::onDBChanged()
                 item->setFilterName(taskFilterName);
                 item->setTaskFileCount(taskFileCount);
                 item->setScanFileCount(taskScanFileCount);
+                item->setFilterOutDir(scanTaskFilterDir);
                 item->setScanFinishedFileCount(taskScanFinishedFileCount);
 
                 mData[id] = item;

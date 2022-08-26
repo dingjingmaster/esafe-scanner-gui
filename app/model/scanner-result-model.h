@@ -52,7 +52,7 @@ Q_SIGNALS:
     void lazyUpdateView ();
     void dataStatueChanged ();
     void progress (int cur, int total);
-    void showData (QString TaskName, QString filterName, QStringList scanDir);
+    void showData (QString TaskName, QString filterName, QStringList scanDir, QString filterOutDir);
 
 public:
     int rowCount (const QModelIndex& parent = QModelIndex()) const override;

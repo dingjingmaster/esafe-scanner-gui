@@ -28,6 +28,7 @@ public:
     QStringList getScanDir ();
     void setScanDir (QString scanDir);
 
+    void setFilterOutDir(QString&);
     void setTaskFileCount(qint64 count);
     void setScanFileCount(qint64 count);
     void setFilterName (QString filterName);
@@ -46,6 +47,7 @@ public:
     qint64 getStopTime2 ();
     QString getStopTime ();
 
+    QString getFilterOutDir();
     QString getFilterName ();
     qint64 getTaskFileCount();
     qint64 getScanFileCount();
@@ -59,6 +61,7 @@ private:
     QString                 mScanDir;
     QString                 mOperation;
     QString                 mFilterName;
+    QString                 mFilterOutDir;
 
     bool                    mSelfCheck;                     // 是否自查任务
 
