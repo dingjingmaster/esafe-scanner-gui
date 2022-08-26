@@ -23,7 +23,7 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
 
     mView->setModel(mProxyModel);
     mView->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-    mView->verticalHeader()->setDefaultSectionSize (60);
+    mView->verticalHeader()->setDefaultSectionSize (80);
     mView->horizontalHeader()->setMinimumSectionSize(40);
     mView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
