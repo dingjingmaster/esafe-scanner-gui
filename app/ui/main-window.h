@@ -24,7 +24,7 @@ protected:
     void resizeEvent (QResizeEvent*) override;
 
 private Q_SLOTS:
-    void onShowStatusString (QString);
+    void onShowStatusString (const QString&);
     void onLoadTaskResult (const ScannerTaskItem* const item);
 
 Q_SIGNALS:

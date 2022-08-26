@@ -298,9 +298,15 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             for (auto l : ls) {
                 exp.write(*const_cast<ScannerResultItem*>(l));
                 const_cast<ScannerResultItem*>(l)->setChecked(false);
-                mHeaderView->setChecked (false);
             }
         }
+
+        // 允许选中
+        mHeaderView->setChecked(false);
+        Q_EMIT mHeaderView->checkBoxClicked (false);
+
+        // 更新界面
+        Q_EMIT mModel->lazyUpdateView();
     });
 
     
@@ -531,7 +537,7 @@ void ScannerResultWidget::onBackToTaskView()
     // Q_EMIT mModel->clearData();
 }
 
-void ScannerResultWidget::setScanDir(QString name)
+void ScannerResultWidget::setScanDir(const QString& name)
 {
     mScanDir = name.split("|");
 }

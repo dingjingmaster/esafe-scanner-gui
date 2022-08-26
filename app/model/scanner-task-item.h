@@ -14,10 +14,10 @@ public:
     explicit ScannerTaskItem(QObject *parent = nullptr);
     ScannerTaskItem(QString name, Status status, qint64 startTime, qint64 stopTime, QObject *parent = nullptr);
 
-    void setStatus (int tatus);
+    void setStatus (int status);
     void setID (QString id);
     void setName (QString name);
-    void setStatus (Status tatus);
+    void setStatus (Status status);
     void setStopTime (qint64 stopTime);
     void setStartTime (qint64 startTime);
 

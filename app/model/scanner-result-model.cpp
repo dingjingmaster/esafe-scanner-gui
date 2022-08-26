@@ -214,7 +214,7 @@ QPair<QStringList, QStringList> ScannerResultModel::getSaveItems()
     auto ls = getChangedItem ();
 
     for (auto l : ls) {
-        ScannerResultItem* item = const_cast<ScannerResultItem*>(l);
+        auto* item = const_cast<ScannerResultItem*>(l);
         QString fileID = QString("%1").arg(item->getID ());
 
         int status = item->getStatus2 ();
@@ -235,13 +235,15 @@ QPair<QStringList, QStringList> ScannerResultModel::getSaveItems()
 
 QList<ScannerResultItem *> ScannerResultModel::getSelectedItem()
 {
-    QList<ScannerResultItem *> ls;
+    mLocker.lock();
+    QList<ScannerResultItem*> ls;
 
     for (auto i = mData.constBegin(); i != mData.constEnd(); ++i) {
         if (i.i->t()->getChecked()) {
             ls.append(i.i->t());
         }
     }
+    mLocker.unlock();
 
     return ls;
 }

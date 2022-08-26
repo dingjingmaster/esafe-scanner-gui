@@ -399,8 +399,8 @@ void ScanTaskHelper::testInsertItem()
             qDebug() << "error: " << errorMsg;
             sqlite3_free(errorMsg);
         }
-
         while (!sqlite_unlock());
+        usleep(300);
     }
 }
 

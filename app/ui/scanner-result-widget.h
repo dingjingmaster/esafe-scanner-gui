@@ -22,7 +22,7 @@ public:
     // 测试函数
     void test ();
 
-    void setScanDir(QString name);
+    void setScanDir(const QString& name);
     void setScanDir(QStringList name);
     void setTaskName (QString name);
     void setScanFilter (QString name);

@@ -68,7 +68,7 @@ void ScanResultHelper::testInsertItem()
 
     for (int i = 0; i < 1000000; ++i) {
         QString sql = QString("INSERT INTO scan_result (scan_file_name, policy_id, action_id, status, scan_finished_time, detect_result, file_size, file_type)"
-                              "VALUES ('/tmp/aa1%1', 'A', 'A', 0, 1658558157, '', '', '');").arg (i);
+                              "VALUES ('/tmp/%1', 'A', 'A', 0, 1658558157, '', '', '');").arg (i);
 
         while (!sqlite_lock());
         int ret = sqlite3_exec(d->mDB, sql.toUtf8().constData(), nullptr, nullptr, &errorMsg);
@@ -76,8 +76,8 @@ void ScanResultHelper::testInsertItem()
             qDebug() << "error: " << errorMsg;
             sqlite3_free(errorMsg);
         }
-
         while (!sqlite_unlock());
+        usleep(300);
     }
 }
 
@@ -114,7 +114,7 @@ void ScanResultHelper::onItemDeleted(QString& id)
 {
     Q_D (ScanResultHelper);
 
-    d->mLocker.lock();
+    //d->mLocker.lock();
     if (d->mData.contains(id)) {
         auto item = d->mData[id];
         Q_EMIT delOldFile (item);
@@ -122,7 +122,7 @@ void ScanResultHelper::onItemDeleted(QString& id)
         d->mData.remove(id);
         //item ->deleteLater();
     }
-    d->mLocker.unlock();
+    //d->mLocker.unlock();
 }
 
 void ScanResultHelper::loadTaskResult(QString taskName, QString taskFilter, QStringList scanDir)
@@ -209,9 +209,9 @@ void ScanResultHelperPrivate::onDBChanged()
             // scan directory
             for (const auto& s : mScanDir) {
                 if (fileName.startsWith(s)) {
-                    mLocker.lock();
+                    //mLocker.lock();
                     auto item = (mData.contains(id)) ? mData[id] : nullptr;
-                    mLocker.unlock();
+                    //mLocker.unlock();
                     if (item) {
                         if (finishedTime != item->getFileCreateTime()) {
                             item->setFileCreateTime(finishedTime);
@@ -246,6 +246,8 @@ void ScanResultHelperPrivate::onDBChanged()
             }
         }
         if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
+    } else {
+        qWarning() << "sql execute error: " << sqlite3_errmsg(mDB);
     }
 
     if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}

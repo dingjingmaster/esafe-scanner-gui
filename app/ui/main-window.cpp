@@ -150,7 +150,7 @@ void MainWindow::resizeEvent(QResizeEvent *)
     qDebug() << "resize";
 }
 
-void MainWindow::onShowStatusString(QString status)
+void MainWindow::onShowStatusString(const QString& status)
 {
     mStatusLabel->resize(QApplication::fontMetrics().size(Qt::TextSingleLine, status));
     mStatusLabel->setText(status);
