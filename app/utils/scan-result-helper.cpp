@@ -205,6 +205,7 @@ void ScanResultHelperPrivate::onDBChanged()
 
             if (!QFile::exists(fileName) || nullptr == id || id.isNull() || id.isEmpty() || "" == id
                 || nullptr == fileName || fileName.isNull() || fileName.isEmpty() || "" == fileName) {
+                qWarning() << "file not exists or id、file name is empty";
                 continue;
             }
 
@@ -215,16 +216,19 @@ void ScanResultHelperPrivate::onDBChanged()
                     bool filterOut = false;
 
                     // filter out dir
-                    for (const auto& d : od) {
-                        if (d.startsWith("/")) {
-                            if (fileName.startsWith(d)) {
-                                filterOut = true;
-                                break;
-                            }
-                        } else {
-                            if (fileName.contains(d)) {
-                                filterOut = true;
-                                break;
+                    if (od.empty()) {
+                        for (const auto& d : od) {
+                            if (nullptr == d || "" == d || d.isEmpty()) continue;
+                            if (d.startsWith("/")) {
+                                if (fileName.startsWith(d)) {
+                                    filterOut = true;
+                                    break;
+                                }
+                            } else {
+                                if (fileName.contains(d)) {
+                                    filterOut = true;
+                                    break;
+                                }
                             }
                         }
                     }
