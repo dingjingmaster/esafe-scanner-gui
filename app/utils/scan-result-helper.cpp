@@ -219,13 +219,18 @@ void ScanResultHelperPrivate::onDBChanged()
                     if (od.empty()) {
                         for (const auto& d : od) {
                             if (nullptr == d || "" == d || d.isEmpty()) continue;
-                            if (d.startsWith("/")) {
-                                if (fileName.startsWith(d)) {
+                            QString dt = d;
+                            if (!d.endsWith("/")) {
+                                dt += "/";
+                            }
+
+                            if (dt.startsWith("/")) {
+                                if (fileName.startsWith(dt)) {
                                     filterOut = true;
                                     break;
                                 }
                             } else {
-                                if (fileName.contains(d)) {
+                                if (fileName.contains(dt)) {
                                     filterOut = true;
                                     break;
                                 }
