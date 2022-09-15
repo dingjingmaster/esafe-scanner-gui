@@ -63,13 +63,21 @@ MainWindow::MainWindow(QWidget *parent)
         }
         qApp->quit();
     });
-    connect(header, &MainHeader::windowMin,     this, [&] () {setWindowState(Qt::WindowMinimized);});
+
+
+    static bool maxWin = false;
+    connect(header, &MainHeader::windowMin,     this, [&] () {
+        maxWin = false;
+        setWindowState(Qt::WindowMinimized);
+    });
     connect(header, &MainHeader::windowMax,     this, [&] () {
-        auto state = windowState();
-        if (state & Qt::WindowMaximized) {
+        //auto state = windowState();
+        if (maxWin) {
+            maxWin = false;
             setWindowState(windowState () & ~Qt::WindowMaximized);
             setWindowState(Qt::WindowNoState);
         } else {
+            maxWin = true;
             setWindowState(Qt::WindowMaximized);
         }
     });
