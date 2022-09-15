@@ -23,7 +23,7 @@ MainHeader::MainHeader(QWidget *parent)
     mRightLayout->setSpacing(3);
 
     // title
-    mHeaderName->setText(tr("扫描自查工具"));
+    mHeaderName->setText(tr("敏感信息处理"));
     mLeftLayout->addWidget(mHeaderName);
 
     // button
