@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     setMinimumSize(mMinWidth, mMinHeight);
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
-    setWindowTitle ("扫描自查工具");
+    setWindowTitle ("敏感数据处理");
 
     //setGraphicsEffect(new QGraphicsBlurEffect);
 
