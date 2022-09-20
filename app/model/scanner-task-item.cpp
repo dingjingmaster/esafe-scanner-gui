@@ -96,7 +96,11 @@ QStringList ScannerTaskItem::getScanDir()
 
 void ScannerTaskItem::setScanDir(QString scanDir)
 {
-    mScanDir = scanDir;
+    if ("*" == scanDir || "" == scanDir || "*" == scanDir) {
+        mScanDir = "/";
+    } else {
+        mScanDir = scanDir;
+    }
 }
 
 void ScannerTaskItem::setTaskFileCount(qint64 count)
