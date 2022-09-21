@@ -96,7 +96,7 @@ QStringList ScannerTaskItem::getScanDir()
 
 void ScannerTaskItem::setScanDir(QString scanDir)
 {
-    if ("*" == scanDir || "" == scanDir || "*" == scanDir) {
+    if ("*" == scanDir || "" == scanDir) {
         mScanDir = "/";
     } else {
         mScanDir = scanDir;
