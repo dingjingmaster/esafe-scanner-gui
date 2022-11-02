@@ -18,7 +18,7 @@ ExportScanResult::~ExportScanResult()
 ofstream &ExportScanResult::write(ScannerResultItem& it)
 {
     mOutStream << it.getTaskName().toUtf8().toStdString() << ","
-               << it.getFileName().toUtf8().toStdString() << ","
+               << "\"" << it.getFileName().toUtf8().toStdString() << "\"" << ","
                << it.getStatus().toUtf8().toStdString() << ","
                << it.getFileCreateTime().toUtf8().toStdString() << ","
                << it.getFileModifyTime().toUtf8().toStdString() << endl;
