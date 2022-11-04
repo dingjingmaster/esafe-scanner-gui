@@ -7,7 +7,6 @@
 #include <QTextCodec>
 
 #include <QFile>
-#include <syslog.h>
 
 void messageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
@@ -62,6 +61,4 @@ void messageOutput(QtMsgType type, const QMessageLogContext &context, const QStr
     const char *function = context.function ? context.function : "";
 
     fprintf(stdout, "[%s - %s:%d] %s\n", file, function, context.line, localMsg.constData());
-
-    syslog(LOG_ERR, "dsip_sit [%s - %s:%d] %s\n", file, function, context.line, localMsg.constData());
 }
