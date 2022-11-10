@@ -211,7 +211,10 @@ void ScanResultHelperPrivate::onDBChanged()
 
             // scan directory
             for (const auto& s : mScanDir) {
-                if (fileName.startsWith(s)) {
+                auto sdir = s;
+                if (!sdir.endsWith ("/")) sdir += "/";
+
+                if (fileName.startsWith(sdir)) {
 
                     bool filterOut = false;
 
