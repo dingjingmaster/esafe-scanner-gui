@@ -37,7 +37,7 @@ ToolbarAction::ToolbarAction(QWidget *parent)
 void ToolbarAction::setIcon(QString pic)
 {
     if (!pic.isEmpty() && QFile::exists(pic)) {
-        mIcon->setPixmap(QPixmap(pic).scaled(mIconSize + 30, mIconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        mIcon->setPixmap(QPixmap(pic).scaled(mIconSize + 60, mIconSize + 60, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
 }
 

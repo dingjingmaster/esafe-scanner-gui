@@ -7,7 +7,7 @@ MainToolBar::MainToolBar(QWidget *parent)
     setObjectName("main-toolbar");
     setContentsMargins(0, 0, 0, 0);
     setAttribute(Qt::WidgetAttribute::WA_StyledBackground);
-    setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
+    //setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
     setFixedHeight(mMaxHeight);
 }

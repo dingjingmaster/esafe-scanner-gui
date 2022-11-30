@@ -139,14 +139,14 @@ QWidget *ScannerResultDelegate::createEditor(QWidget *parent, const QStyleOption
             if (!sr->hasChecked()) {
                 QComboBox* cb = new QComboBox(parent);
                 QStringList ls;
-                ls << "误报" << "删除";
+                ls << "例外文件" << "删除";
                 if (!iitem->canUntreated ()) {
                     ls << "未处理";
                 }
 
                 cb->addItems(ls);
 
-                if (text == "误报") {
+                if (text == "例外文件") {
                     cb->setCurrentIndex (0);
                 } else if (text == "删除") {
                     cb->setCurrentIndex (1);

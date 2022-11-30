@@ -15,6 +15,7 @@
     padding: 6px 0 0 10px;
     color: rgba(255, 255, 255, 1);
     font-size: 20px;
+    font-weight: 400;
     align: center;
 }
 
@@ -52,7 +53,7 @@
 
 #main-toolbar-action-icon {
     margin: 0px;
-    padding: 3px;
+    padding: 0px;
 
     width: 60px;
     height: 60px;
@@ -61,8 +62,8 @@
 #main-toolbar-action-label {
     margin: 0px;
     padding: 0px;
-    font-size: 12px;
-    font: bold;
+    font-size: 16px;
+    font-weight: 100;
     align: center;
     color: rgb(255, 255, 255);
 }

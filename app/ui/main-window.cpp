@@ -12,6 +12,7 @@
 
 #include <QDebug>
 #include <QTimer>
+#include <QScreen>
 #include <QApplication>
 #include <utils/scan-status-helper.h>
 
@@ -22,11 +23,10 @@ MainWindow::MainWindow(QWidget *parent)
     setObjectName("main");
     setContentsMargins(0, 0, 0, 0);
     setMinimumSize(mMinWidth, mMinHeight);
-    setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
-    setWindowTitle ("敏感数据处理");
+    setWindowTitle ("终端数据防泄漏系统");
 
-    //setGraphicsEffect(new QGraphicsBlurEffect);
+    setWindowFlags(Qt::FramelessWindowHint);
 
     mCurStatus = new QLabel;
     mCurStatus->setWordWrap(true);
@@ -64,7 +64,6 @@ MainWindow::MainWindow(QWidget *parent)
         qApp->quit();
     });
 
-
     static bool maxWin = false;
     connect(header, &MainHeader::windowMin,     this, [&] () {
         maxWin = false;
@@ -76,9 +75,11 @@ MainWindow::MainWindow(QWidget *parent)
             maxWin = false;
             setWindowState(windowState () & ~Qt::WindowMaximized);
             setWindowState(Qt::WindowNoState);
+            //setFixedSize(mMinWidth, mMinHeight);
         } else {
             maxWin = true;
             setWindowState(Qt::WindowMaximized);
+            //setFixedSize(qApp->screenAt (this->pos())->size());
         }
     });
 
@@ -92,7 +93,7 @@ MainWindow::MainWindow(QWidget *parent)
     toolbar->setContentsMargins(0, 0, 0, 0);
     toolbar->setAutoFillBackground(true);
     action1->setIcon("://data/scanner-new.png");
-    //action1->setText(tr("网络扫描管理"));
+    action1->setText(tr("敏感数据处理"));
     action1->setFocus();
     toolbar->addWidget(action1);
     mMainLayout->addWidget(toolbar);

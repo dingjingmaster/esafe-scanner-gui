@@ -30,7 +30,7 @@ PushButton::PushButton(QWidget *parent, Type type)
         QWidget* widget = new QWidget;
         widget->setFixedHeight(3);
         mLabel->setStyleSheet("color: rgb(0, 0, 0);");
-        widget->setStyleSheet("background-color:blue;");
+        widget->setStyleSheet("background-color:rgb(204, 48, 51);");
         mLayout->addWidget(widget);
         break;
     }

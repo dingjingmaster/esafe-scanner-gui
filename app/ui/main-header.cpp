@@ -1,16 +1,18 @@
 #include "main-header.h"
 
+//#include "xatom-helper.h"
+
 #include <QDebug>
 #include <QHBoxLayout>
 
 MainHeader::MainHeader(QWidget *parent)
     : QWidget{parent}
 {
+    setMouseTracking(true);
     setObjectName("main-header");
     setMaximumHeight(mMaxHeight);
     setContentsMargins(0, 0, 0, 0);
     setAttribute(Qt::WidgetAttribute::WA_StyledBackground);
-    setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
     mMainLayout = new QHBoxLayout;
     mMainLayout->setContentsMargins(0, 0, 0, 0);
@@ -23,7 +25,7 @@ MainHeader::MainHeader(QWidget *parent)
     mRightLayout->setSpacing(3);
 
     // title
-    mHeaderName->setText(tr("敏感数据处理"));
+    mHeaderName->setText(tr("终端数据防泄漏系统"));
     mLeftLayout->addWidget(mHeaderName);
 
     // button
@@ -66,6 +68,7 @@ void MainHeader::mouseMoveEvent(QMouseEvent* ev)
 {
     if (mDrag) {
         QPoint dist = ev->globalPos() - mMouseStartPoint;
+        qDebug() << ev->globalPos() << " -- " << dist << (mWindowTopLeftPoint + dist);
         QWidget* parentt = qobject_cast<QWidget*>(parent());
         if (parentt) {
             parentt->move(mWindowTopLeftPoint + dist);
@@ -95,5 +98,7 @@ void MainHeader::mouseReleaseEvent(QMouseEvent* ev)
 
 void MainHeader::mouseDoubleClickEvent(QMouseEvent *)
 {
+    qDebug() << "double clicked!";
+
     Q_EMIT windowMax();
 }

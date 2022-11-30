@@ -330,7 +330,7 @@ QVariant ScannerResultModel::headerData(int section, Qt::Orientation orentation,
         case 1:
             return QString("文件名称");
         case 2:
-            return QString("处理方式");
+            return QString("处理状态");
         case 3:
             return QString("文件扫描时间");
         case 4:

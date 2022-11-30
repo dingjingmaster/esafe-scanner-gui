@@ -8,7 +8,7 @@ MainSubToolBar::MainSubToolBar(QWidget *parent)
     : QWidget{parent}
 {
     setObjectName("main-subtoolbar");
-    setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
+    //setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
     mMainLayout = new QHBoxLayout;
     mMainLayout->setContentsMargins(0, 0, 0, 0);

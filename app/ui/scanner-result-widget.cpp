@@ -74,7 +74,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mRightLayout->addWidget(mDelBtn);
 
     mMisBtn->setStyleSheet("background-color:red;");
-    mMisBtn->setText(tr("误报"));
+    mMisBtn->setText(tr("例外文件"));
     mRightLayout->addWidget(mMisBtn);
 
     mExpBtn->setStyleSheet("background-color:red;");
@@ -249,7 +249,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             NotifyToFilter::getInstance()->sendData(msg.SerializeAsString());
 #endif
             //mModel->setData (mModel->getIndexByItem (l, 2), "误报");
-            mModel->setData (*l, "误报");
+            mModel->setData (*l, "例外文件");
         }
         Q_EMIT mModel->lazyUpdateView();
         mModel->setSelectedItemStatus(ScannerResultItem::MisReport);
@@ -313,13 +313,13 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     // 更新状态
     connect (mModel, &ScannerResultModel::dataChanged, this, [=] (const QModelIndex &topLeft,
              const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>()) {
-       Q_EMIT statusString (QString("任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%4), 删除: (%5)")
-                .arg(mTaskName).arg(mModel->getAllCount ()).arg (mModel->getNoFixCount ()).arg (mModel->getMisReportCount ()).arg (mModel->getDeleteCount ()));
+        Q_EMIT statusString (QString("任务名称: %1, 未处理数 %2 条, 例外文件数 %3 条, 共 %4 条结果")
+                                     .arg(mTaskName).arg(mModel->getNoFixCount()).arg (mModel->getMisReportCount()).arg (mModel->getAllCount())); //.arg (mModel->getDeleteCount ()));
     });
 
     connect (mModel, &ScannerResultModel::dataStatueChanged, this, [=] () {
-       Q_EMIT statusString (QString("任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%4), 删除: (%5)")
-                .arg(mTaskName).arg(mModel->getAllCount ()).arg (mModel->getNoFixCount ()).arg (mModel->getMisReportCount ()).arg (mModel->getDeleteCount ()));
+        Q_EMIT statusString (QString("任务名称: %1, 未处理数 %2 条, 例外文件数 %3 条, 共 %4 条结果")
+                .arg(mTaskName).arg(mModel->getNoFixCount()).arg (mModel->getMisReportCount()).arg (mModel->getAllCount())); //.arg (mModel->getDeleteCount ()));
     });
 
     connect (mModel, &ScannerResultModel::lazyUpdateView, this, [=] () {
@@ -519,8 +519,8 @@ void ScannerResultWidget::loadTaskResult(QString taskName, QString taskFilter, Q
 
 void ScannerResultWidget::updateStatus()
 {
-    Q_EMIT statusString (QString("任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%4), 删除: (%5)")
-                         .arg(mTaskName).arg(mModel->getAllCount ()).arg (mModel->getNoFixCount ()).arg (mModel->getMisReportCount ()).arg (mModel->getDeleteCount ()));
+    Q_EMIT statusString (QString("任务名称: %1, 未处理数 %2 条, 例外文件数 %3 条, 共 %4 条结果")
+                         .arg(mTaskName).arg(mModel->getNoFixCount()).arg (mModel->getMisReportCount()).arg (mModel->getAllCount())); //.arg (mModel->getDeleteCount ()));
 }
 
 void ScannerResultWidget::onBackToTaskView()
