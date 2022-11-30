@@ -178,8 +178,8 @@ void MainWindow::onLoadTaskResult(const ScannerTaskItem * const item)
     // 此处释放 model 内数据
     mScannerResultWidget->clearData();
 
-    Q_EMIT mScannerResultWidget->statusString (QString("任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%4), 删除: (%5)")
-                                               .arg(it->getName ()).arg(0).arg (0).arg (0).arg (0));
+    Q_EMIT mScannerResultWidget->statusString (QString("任务名称: %1, 未处理数 %2 条, 例外文件数 %3 条, 共 %4 条结果")
+                                                .arg (it->getName()).arg (0).arg (0).arg (0));
 
     Q_EMIT DBManager::instance ()->refreshScanResult (it->getName (), it->getFilterName (), it->getScanDir (), it->getFilterOutDir());
     //mScannerResultWidget->loadTaskResult (it->getName (), it->getFilterName (), it->getScanDir ());

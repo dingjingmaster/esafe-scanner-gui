@@ -51,37 +51,37 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
         QApplication::style()->drawControl(QStyle::CE_CheckBox, &cbOp, p);
         break;
     }
-    case 2: {
-        if (auto sr = static_cast <ScannerResultWidget*>(mObj)) {
-            if (sr->hasChecked()) {
-                QStyledItemDelegate::paint (p, option, index);   
-                sr->update ();
-                break;
-            }
-        }
-
-        QStyledItemDelegate::paint (p, option, index);
-        p->save();
-        QRect rect1 = rect;
-        rect1.setX (rect.left () + rect.width () - 8 - 6);
-        rect1.setY (rect.top () + (float)(rect.height () - 5) / 2);
-        rect1.setWidth (8);
-        rect1.setHeight (5);
-        QPainterPath path;
-        path.moveTo (rect1.topLeft ());
-        path.lineTo (rect1.topRight ());
-        path.lineTo (rect1.bottomRight () - QPoint(4, 0));
-        path.lineTo (rect1.topLeft());
-        path.closeSubpath();
-
-        p->setBrush (pal.color (QPalette::ButtonText));
-        p->setRenderHint (QPainter::HighQualityAntialiasing, true);
-
-        p->drawPath (path);
-        p->restore();
-
-        break;
-    } 
+//    case 2: {
+//        if (auto sr = static_cast <ScannerResultWidget*>(mObj)) {
+//            if (sr->hasChecked()) {
+//                QStyledItemDelegate::paint (p, option, index);
+//                sr->update ();
+//                break;
+//            }
+//        }
+//
+//        QStyledItemDelegate::paint (p, option, index);
+//        p->save();
+//        QRect rect1 = rect;
+//        rect1.setX (rect.left () + rect.width () - 8 - 6);
+//        rect1.setY (rect.top () + (float)(rect.height () - 5) / 2);
+//        rect1.setWidth (8);
+//        rect1.setHeight (5);
+//        QPainterPath path;
+//        path.moveTo (rect1.topLeft ());
+//        path.lineTo (rect1.topRight ());
+//        path.lineTo (rect1.bottomRight () - QPoint(4, 0));
+//        path.lineTo (rect1.topLeft());
+//        path.closeSubpath();
+//
+//        p->setBrush (pal.color (QPalette::ButtonText));
+//        p->setRenderHint (QPainter::HighQualityAntialiasing, true);
+//
+//        p->drawPath (path);
+//        p->restore();
+//
+//        break;
+//    }
     case 3:
     case 4:
     case 5: {
@@ -110,10 +110,10 @@ void ScannerResultDelegate::setEditorData(QWidget *editor, const QModelIndex &in
     if (!index.isValid ())      return;
     
     switch (index.column()) {
-    case 2: 
-    {
-        return ;
-    } 
+//    case 2:
+//    {
+//        return ;
+//    }
     case 0:
     case 1:
     case 3:
@@ -134,30 +134,30 @@ QWidget *ScannerResultDelegate::createEditor(QWidget *parent, const QStyleOption
     auto iitem = static_cast <ScannerResultItem*>(index.internalPointer ());
 
     switch (index.column()) {
-    case 2: {
-        if (auto sr = static_cast <ScannerResultWidget*>(mObj)) {
-            if (!sr->hasChecked()) {
-                QComboBox* cb = new QComboBox(parent);
-                QStringList ls;
-                ls << "例外文件" << "删除";
-                if (!iitem->canUntreated ()) {
-                    ls << "未处理";
-                }
-
-                cb->addItems(ls);
-
-                if (text == "例外文件") {
-                    cb->setCurrentIndex (0);
-                } else if (text == "删除") {
-                    cb->setCurrentIndex (1);
-                } else {
-                    cb->setCurrentIndex (2);
-                }
-                return cb;
-            }
-        }
-        return nullptr;
-    } 
+//    case 2: {
+//        if (auto sr = static_cast <ScannerResultWidget*>(mObj)) {
+//            if (!sr->hasChecked()) {
+//                QComboBox* cb = new QComboBox(parent);
+//                QStringList ls;
+//                ls << "例外文件" << "删除";
+//                if (!iitem->canUntreated ()) {
+//                    ls << "未处理";
+//                }
+//
+//                cb->addItems(ls);
+//
+//                if (text == "例外文件") {
+//                    cb->setCurrentIndex (0);
+//                } else if (text == "删除") {
+//                    cb->setCurrentIndex (1);
+//                } else {
+//                    cb->setCurrentIndex (2);
+//                }
+//                return cb;
+//            }
+//        }
+//        return nullptr;
+//    }
     case 0:
     case 1:
     case 3:
