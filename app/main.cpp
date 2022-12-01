@@ -3,6 +3,8 @@
 #include "ui/main-window.h"
 #include "style/main-style.h"
 
+#include <QRgba64>
+
 //#include <QCommonStyle>
 #include <QTextCodec>
 
@@ -32,6 +34,13 @@ int main(int argc, char *argv[])
     //app.setStyle(new MainStyle(""));
 
     app.setStyle("fusion");
+
+
+    QPalette palette = QApplication::palette();
+    QColor red = qRgb(255, 138, 140);
+    palette.setColor (QPalette::All, QPalette::Highlight, red);
+    QApplication::setPalette (palette);
+
 
     MainWindow w;
     w.setWindowIcon (QIcon("://data/dsip.png"));

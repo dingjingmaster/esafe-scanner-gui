@@ -78,7 +78,6 @@ void MainHeader::mouseMoveEvent(QMouseEvent* ev)
 
 void MainHeader::mousePressEvent(QMouseEvent* ev)
 {
-    qInfo() << "" << __FUNCTION__;
     if (ev->button() == Qt::LeftButton) {
         mDrag = true;
         QWidget* parentt = qobject_cast<QWidget*>(parent());
