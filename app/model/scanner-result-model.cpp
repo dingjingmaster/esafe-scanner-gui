@@ -365,7 +365,7 @@ bool ScannerResultModel::setData(const QModelIndex &index, const QVariant &value
         // 更新当前 model 里 status 状态
         item->setStatus (value.toString ());
         Q_EMIT dataChanged (index, index);
-        
+
         return true;
     }
     default:

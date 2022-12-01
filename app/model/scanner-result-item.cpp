@@ -71,7 +71,7 @@ void ScannerResultItem::setStatus(Status status)
 
 void ScannerResultItem::setStatus(QString status)
 {
-    if ("误报" == status) {
+    if ("例外文件" == status) {
         mStatus = MisReport;
     } else if ("删除" == status) {
         mStatus = Deleted;
@@ -130,7 +130,7 @@ QString ScannerResultItem::getStatus()
 {
     switch (mStatus) {
     case MisReport:
-        return "误报";
+        return "例外文件";
     case Deleted:
         return "删除";
     default:
@@ -147,7 +147,7 @@ ScannerResultItem::Status ScannerResultItem::getStatus2()
 
 int ScannerResultItem::getStatus(QString status)
 {
-    if ("误报" == status) {
+    if ("例外文件" == status) {
         return static_cast<int>(MisReport);
     } else if ("删除" == status) {
         return static_cast<int>(Deleted);
