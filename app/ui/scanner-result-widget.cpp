@@ -206,55 +206,64 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             QMessageBox::warning(this, "警告", "请选中需要删除的数据后，再执行删除操作！", QMessageBox::Ok);
             return;
         }
-        
-        for (auto l : ls) {
-#if 0
-            com::esafenet::scanner::client::ScannerClientMessage msg;
-            msg.Clear();
-            msg.set_filename(const_cast<ScannerResultItem*>(l)->getFileName().toStdString());
-            // FIXME://
-            msg.set_id(0);
-            msg.set_operation(OP_DELETE);
-            qDebug() << "delete: " << msg.DebugString().c_str();
-            NotifyToFilter::getInstance()->sendData(msg.SerializeAsString());
-#endif
-            //mModel->setData (mModel->getIndexByItem (l, 2), "删除");
 
-            mModel->setData (*l, "删除");
-        }
+        QMessageBox* box = new QMessageBox(this);
+        box->setText ("是否确定为删除文件");
+        box->setWindowTitle("");
 
-        Q_EMIT mModel->lazyUpdateView();
-        mModel->setSelectedItemStatus(ScannerResultItem::Deleted);
-        mModel->applyData();
-        updateStatus();
+        QPushButton* apply = new QPushButton(box);
+        QPushButton* cancel = new QPushButton(box);
+
+        apply->setText ("确定");
+        cancel->setText ("取消");
+
+        box->addButton (apply, QMessageBox::AcceptRole);
+        box->addButton (cancel, QMessageBox::RejectRole);
+        box->connect (apply, &QPushButton::clicked, this, [=] () {
+            for (auto l : ls) {
+                mModel->setData (*l, "删除");
+            }
+
+            Q_EMIT mModel->lazyUpdateView();
+            mModel->setSelectedItemStatus(ScannerResultItem::Deleted);
+            mModel->applyData();
+            updateStatus();
+        });
+        box->exec();
+        box->deleteLater();
     });
 
     connect(mMisBtn, &PushButton::clicked, this, [=] () {
         QList<ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
-            QMessageBox::warning(this, "警告", "请选中误报的数据后，再执行操作！", QMessageBox::Ok);
+            QMessageBox::warning(this, "警告", "请选中例外的数据后，再执行操作！", QMessageBox::Ok);
             return;
         }
 
-        for (auto l : ls) {
-#if 0
-            com::esafenet::scanner::client::ScannerClientMessage msg;
-            msg.Clear();
-            msg.set_filename(const_cast<ScannerResultItem*>(l)->getFileName().toStdString());
+        QMessageBox* box = new QMessageBox(this);
+        box->setText ("是否确定为例外文件");
+        box->setWindowTitle("");
 
-            // FIXME://
-            msg.set_id(0);
-            msg.set_operation(OP_MISINFO);
-            qDebug() << "misinformation: " << msg.DebugString().c_str();
-            NotifyToFilter::getInstance()->sendData(msg.SerializeAsString());
-#endif
-            //mModel->setData (mModel->getIndexByItem (l, 2), "误报");
-            mModel->setData (*l, "例外文件");
-        }
-        Q_EMIT mModel->lazyUpdateView();
-        mModel->setSelectedItemStatus(ScannerResultItem::MisReport);
-        mModel->applyData();
-        updateStatus();
+        QPushButton* apply = new QPushButton(box);
+        QPushButton* cancel = new QPushButton(box);
+
+        apply->setText ("确定");
+        cancel->setText ("取消");
+
+        box->addButton (apply, QMessageBox::AcceptRole);
+        box->addButton (cancel, QMessageBox::RejectRole);
+
+        box->connect (apply, &QPushButton::clicked, this, [=] () {
+            for (auto l : ls) {
+                mModel->setData (*l, "例外文件");
+            }
+            Q_EMIT mModel->lazyUpdateView();
+            mModel->setSelectedItemStatus(ScannerResultItem::MisReport);
+            mModel->applyData();
+            updateStatus();
+        });
+        box->exec();
+        box->deleteLater();
     });
 
     connect(mExpBtn, &PushButton::clicked, this, [=] () {

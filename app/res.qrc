@@ -5,5 +5,7 @@
         <file>data/dsip.png</file>
         <file>data/scanner-new.png</file>
         <file>data/scanner-new1.png</file>
+        <file>data/menu-del.png</file>
+        <file>data/menu-misreport.png</file>
     </qresource>
 </RCC>
