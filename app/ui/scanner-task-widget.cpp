@@ -150,9 +150,9 @@ void ScannerTaskWidget::setDefaultSize()
     if (!mView || !mView->horizontalHeader()) return;
 
     mView->horizontalHeader()->resizeSection (0, 40);
-    mView->horizontalHeader()->resizeSection (2, 70);
-    mView->horizontalHeader()->resizeSection (3, 180);
-    mView->horizontalHeader()->resizeSection (4, 180);
+    mView->horizontalHeader()->resizeSection (2, 80);
+    mView->horizontalHeader()->resizeSection (3, 210);
+    mView->horizontalHeader()->resizeSection (4, 210);
     mView->horizontalHeader()->resizeSection (5, 240);
     mView->horizontalHeader()->resizeSection (6, 90);
 }

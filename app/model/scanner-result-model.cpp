@@ -411,7 +411,7 @@ Qt::ItemFlags ScannerResultModel::flags(const QModelIndex &index) const
     
     switch (index.column ()) {
     case 2:
-        flags |= Qt::ItemIsEditable;
+        //flags |= Qt::ItemIsEditable;
         break;
     default:
         break;
@@ -445,11 +445,11 @@ void ScannerResultModel::updateCount()
     mLocker.lock();
     for (auto it : mData) {
         switch (it->getStatus2()) {
-            case 6: {
+            case ScannerResultItem::MisReport: {
                 ++tMisReport;
                 break;
             }
-            case 5: {
+            case ScannerResultItem::Deleted: {
                 ++tDelete;
                 break;
             }
@@ -515,14 +515,100 @@ void ScannerResultModel::onScrollbarMoved(float ratio)
 
 void ScannerResultModel::applyData()
 {
-    auto items = getSaveItems();
+    //auto items = getSaveItems();
+    auto items = getSaveItemPointAndIds();
 
     mCur = 0;
-    mTotal =  items.first.size() + items.second.size();
+    mTotal =  items.first.second.size() + items.second.second.size();
     Q_EMIT progress(0, mTotal);
 
-    mScanResultHelper->misReportByIDs (items.second);
-    mScanResultHelper->deleteItemByIDs (items.first);
+    mScanResultHelper->misReportByIDs (items.second.second);
+    mScanResultHelper->deleteItemByIDs (items.first.second);
+
+    if (!items.first.first.isEmpty()) {
+        for (auto it : items.first.first) {
+            delItem (it);
+        }
+    }
+}
+
+void ScannerResultModel::applyMisReportData(const QModelIndex &idx)
+{
+    if (!idx.isValid()) { return; }
+
+    auto item = static_cast<ScannerResultItem*>(idx.internalPointer());
+    if (!item) { return;}
+    item->setStatus (ScannerResultItem::MisReport);
+    mScanResultHelper->misReportByIDs ((QStringList() << QString("%1").arg(item->getID())));
+    updateCount();
+}
+
+void ScannerResultModel::applyDelData(const QModelIndex& idx)
+{
+    if (!idx.isValid()) { return; }
+
+    auto item = static_cast<ScannerResultItem*>(idx.internalPointer());
+    if (!item) { return;}
+    mScanResultHelper->deleteItemByIDs ((QStringList() << QString("%1").arg(item->getID())));
+    delItem (item);
+    updateCount();
+}
+
+QPair<QList<ScannerResultItem *>, QList<ScannerResultItem *>> ScannerResultModel::getSaveItemPoints()
+{
+    mLocker.lock();
+
+    QList<ScannerResultItem*> del;
+    QList<ScannerResultItem*> misReport;
+    auto ls = getChangedItem ();
+
+    for (auto l : ls) {
+        auto* item = const_cast<ScannerResultItem*>(l);
+        int status = item->getStatus2 ();
+        if (ScannerResultItem::MisReport == status) {
+            misReport << item;
+        } else if (ScannerResultItem::Deleted == status) {
+            del << item;
+        } else {
+            continue;
+        }
+    }
+    mChangedItem.clear();
+    mLocker.unlock();
+
+    return {del, misReport};// QPair<QStringList, QStringList>;
+}
+
+QPair<QPair<QList<ScannerResultItem *>, QStringList>, QPair<QList<ScannerResultItem *>, QStringList>>
+ScannerResultModel::getSaveItemPointAndIds()
+{
+    mLocker.lock();
+
+    QList<ScannerResultItem*> del;
+    QStringList delIds;
+    QList<ScannerResultItem*> misReport;
+    QStringList misReportIds;
+
+    auto ls = getChangedItem ();
+
+    for (auto l : ls) {
+        auto* item = const_cast<ScannerResultItem*>(l);
+        QString fileID = QString("%1").arg(item->getID ());
+        int status = item->getStatus2 ();
+        if (ScannerResultItem::MisReport == status) {
+            misReport << item;
+            misReportIds << fileID;
+        } else if (ScannerResultItem::Deleted == status) {
+            del << item;
+            delIds << fileID;
+        } else {
+            continue;
+        }
+    }
+    mChangedItem.clear();
+    mLocker.unlock();
+
+    return {{del, delIds}, {misReport, misReportIds}};// QPair<QStringList, QStringList>;
 }
 
 

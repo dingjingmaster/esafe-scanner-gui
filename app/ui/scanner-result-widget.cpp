@@ -30,6 +30,7 @@
 #include "../db/db-manager.h"
 #include "../widget/progress.h"
 #include "../threads/event-loop.h"
+#include "scanner-result-widget-menu.h"
 
 #define FREEDESKTOP_FM_DBUS             "org.freedesktop.FileManager1"
 #define FREEDESKTOP_FM_DBUS_PATH        "/org/freedesktop/FileManager1"
@@ -38,8 +39,6 @@
 ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     : QWidget{parent}
 {
-    //GOOGLE_PROTOBUF_VERIFY_VERSION;
-
     mMainLayout = new QVBoxLayout;
 
     mBtnLayout = new QHBoxLayout;
@@ -59,6 +58,9 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
 
     mProgress = new Progress(mView);
     mProgress->hide();
+
+    setContextMenuPolicy (Qt::CustomContextMenu);
+    mMenu = new ScannerResultWidgetMenu(this);
 
     connect(mModel, &ScannerResultModel::progress, mProgress, &Progress::updateProcess);
 
@@ -90,7 +92,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mView->setHorizontalHeader(mHeaderView);
     mView->setModel(mModel);
     mMainLayout->addWidget(mView);
-
 
     connect (this, &ScannerResultWidget::startApplyData, this, [=] () {
         retBtn->enable(false);
@@ -197,10 +198,9 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         }
     });
 
-
     connect (retBtn, &PushButton::clicked, this, &ScannerResultWidget::onBackToTaskView, Qt::UniqueConnection);
 
-    mDelBtn->connect(mDelBtn, &PushButton::clicked, this, [=] () {
+    connect(mDelBtn, &PushButton::clicked, this, [=] () {
         QList<ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
             QMessageBox::warning(this, "警告", "请选中需要删除的数据后，再执行删除操作！", QMessageBox::Ok);
@@ -225,17 +225,17 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
 
         Q_EMIT mModel->lazyUpdateView();
         mModel->setSelectedItemStatus(ScannerResultItem::Deleted);
+        mModel->applyData();
         updateStatus();
-
     });
 
-    mMisBtn->connect(mMisBtn, &PushButton::clicked, this, [=] () {
+    connect(mMisBtn, &PushButton::clicked, this, [=] () {
         QList<ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
             QMessageBox::warning(this, "警告", "请选中误报的数据后，再执行操作！", QMessageBox::Ok);
             return;
         }
-        
+
         for (auto l : ls) {
 #if 0
             com::esafenet::scanner::client::ScannerClientMessage msg;
@@ -253,10 +253,11 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         }
         Q_EMIT mModel->lazyUpdateView();
         mModel->setSelectedItemStatus(ScannerResultItem::MisReport);
+        mModel->applyData();
         updateStatus();
     });
 
-    mExpBtn->connect(mExpBtn, &PushButton::clicked, this, [=] () {
+    connect(mExpBtn, &PushButton::clicked, this, [=] () {
         QList<ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
             QMessageBox::warning(this, "警告", "请选中需要导出的数据后，再执行导出操作！", QMessageBox::Ok);
@@ -309,7 +310,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         Q_EMIT mModel->lazyUpdateView();
     });
 
-    
     // 更新状态
     connect (mModel, &ScannerResultModel::dataChanged, this, [=] (const QModelIndex &topLeft,
              const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>()) {
@@ -444,6 +444,16 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     connect (this, &ScannerResultWidget::updateView, mView, &ScannerView::updateView);
 
     setLayout(mMainLayout);
+
+    connect (mMenu, &ScannerResultWidgetMenu::deleteItem, mModel, &ScannerResultModel::applyDelData);
+    connect (mMenu, &ScannerResultWidgetMenu::misReportItem, mModel, &ScannerResultModel::applyMisReportData);
+
+    connect (this, &ScannerResultWidget::customContextMenuRequested, [=] (const QPoint& pos) {
+        QModelIndex idx = mView->currentIndex();
+        if (!idx.isValid() || idx.row() < 0 || idx.column() < 0) return;
+        mMenu->setItem (idx);
+        mMenu->exec(QCursor::pos());
+    });
 }
 
 ScannerResultWidget::~ScannerResultWidget()
@@ -525,7 +535,7 @@ void ScannerResultWidget::updateStatus()
 
 void ScannerResultWidget::onBackToTaskView()
 {
-    Q_EMIT applyData ();
+    //Q_EMIT applyData ();
     Q_EMIT returnTaskList();
     Q_EMIT checkedItem(false);
     mHeaderView->setChecked(false);
@@ -569,9 +579,9 @@ void ScannerResultWidget::setBigSize()
     if (!mView || !mView->horizontalHeader()) return;
 
     mView->horizontalHeader()->resizeSection (0, 80);
-    mView->horizontalHeader()->resizeSection (2, 120);
-    mView->horizontalHeader()->resizeSection (3, 240);
-    mView->horizontalHeader()->resizeSection (4, 240);
+    mView->horizontalHeader()->resizeSection (2, 130);
+    mView->horizontalHeader()->resizeSection (3, 250);
+    mView->horizontalHeader()->resizeSection (4, 250);
 }
 
 void ScannerResultWidget::setDefaultSize()
@@ -579,7 +589,9 @@ void ScannerResultWidget::setDefaultSize()
     if (!mView || !mView->horizontalHeader()) return;
 
     mView->horizontalHeader()->resizeSection (0, 40);
-    mView->horizontalHeader()->resizeSection (2, 90);
-    mView->horizontalHeader()->resizeSection (3, 200);
-    mView->horizontalHeader()->resizeSection (4, 200);
+    mView->horizontalHeader()->resizeSection (2, 100);
+    mView->horizontalHeader()->resizeSection (3, 240);
+    mView->horizontalHeader()->resizeSection (4, 240);
 }
+
+

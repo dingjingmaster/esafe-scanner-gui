@@ -14,8 +14,8 @@ class ScanResultHelper : public QObject
 public:
     void testInsertItem();
 
-    void misReportByIDs(QStringList&);
-    void deleteItemByIDs(QStringList&);
+    void misReportByIDs(const QStringList&);
+    void deleteItemByIDs(const QStringList&);
 
 private:
     explicit ScanResultHelper(QString dbPath, QObject *parent = nullptr);

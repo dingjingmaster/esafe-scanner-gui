@@ -33,7 +33,7 @@ bool sqlite_lock()
 
     if (fl) {
         if (flock (fl->_fileno, LOCK_EX | LOCK_NB) == 0) {
-            qDebug() << "locked";
+//            qDebug() << "locked";
             return true;
         }
     }
@@ -48,7 +48,7 @@ bool sqlite_unlock()
 
     if (fl) {
         if (flock (fl->_fileno, LOCK_UN) == 0) {
-            qDebug() << "unlocked\n";
+//            qDebug() << "unlocked\n";
             return true;
         }
     } else {
@@ -77,7 +77,7 @@ bool file_lock()
 
     if (f2) {
         if (flock (f2->_fileno, LOCK_EX | LOCK_NB) == 0) {
-            qDebug() << "locked";
+//            qDebug() << "locked";
             return true;
         }
     }
@@ -91,7 +91,7 @@ bool file_unlock()
 
     if (f2) {
         if (flock (f2->_fileno, LOCK_UN) == 0) {
-            qDebug() << "unlocked\n";
+//            qDebug() << "unlocked\n";
             return true;
         }
     } else {

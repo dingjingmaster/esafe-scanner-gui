@@ -29,14 +29,14 @@ public:
     int getDeleteCount ();
     int getMisReportCount ();
 
-    void applyData();
-
     QList<const ScannerResultItem*> getChangedItem ();
     QList<ScannerResultItem*> getSelectedItem ();
     QModelIndex getIndexByItem (const ScannerResultItem* it, int column=0);
 
     //void saveResult();
     QPair<QStringList, QStringList> getSaveItems();
+    QPair<QList<ScannerResultItem*>, QList<ScannerResultItem*>> getSaveItemPoints();
+    QPair<QPair<QList<ScannerResultItem*>, QStringList>, QPair<QList<ScannerResultItem*>, QStringList>> getSaveItemPointAndIds();
 
     void setSelectedItemStatus (ScannerResultItem::Status status);
 
@@ -46,6 +46,11 @@ private:
 public Q_SLOTS:
     void selectAll (bool s);
     void onScrollbarMoved (float ratio);
+
+    // 对数据库进行操作的接口
+    void applyData();
+    void applyDelData(const QModelIndex& idx);
+    void applyMisReportData(const QModelIndex& idx);
 
 Q_SIGNALS:
     void clearData ();

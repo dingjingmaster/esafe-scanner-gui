@@ -385,7 +385,7 @@ noChanged:
 
 }
 
-void ScanResultHelper::misReportByIDs(QStringList& ids)
+void ScanResultHelper::misReportByIDs(const QStringList& ids)
 {
     Q_D(ScanResultHelper);
 
@@ -406,7 +406,7 @@ void ScanResultHelper::misReportByIDs(QStringList& ids)
     }
 }
 
-void ScanResultHelper::deleteItemByIDs(QStringList& ids)
+void ScanResultHelper::deleteItemByIDs(const QStringList& ids)
 {
     Q_D(ScanResultHelper);
 

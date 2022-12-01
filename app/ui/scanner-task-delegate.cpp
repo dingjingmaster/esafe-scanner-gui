@@ -67,11 +67,11 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
         break;
     }
     case 6:
-        //if (item->getSelfCheck()) {
-        //    p->setPen(Qt::blue);
-        //} else {
-        //    p->setPen(Qt::red);
-        //}
+//        if (item->getSelfCheck()) {
+//            p->setPen(Qt::blue);
+//        } else {
+//            p->setPen(Qt::red);
+//        }
         QStyledItemDelegate::paint(p, option, index);
         return;
     default:

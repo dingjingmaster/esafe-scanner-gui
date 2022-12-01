@@ -10,6 +10,7 @@ class PushButton;
 class QHBoxLayout;
 class QVBoxLayout;
 class ScannerResultModel;
+class ScannerResultWidgetMenu;
 
 class ScannerResultWidget : public QWidget
 {
@@ -55,31 +56,33 @@ public Q_SLOTS:
 
 
 private:
-    int                     mCurIndex = 0;
-    QStringList             mScanDir;
-    QString                 mTaskName;
-    QString                 mScanFilter;
+    int                         mCurIndex = 0;
+    QStringList                 mScanDir;
+    QString                     mTaskName;
+    QString                     mScanFilter;
 
-    HeaderView*             mHeaderView;
+    HeaderView*                 mHeaderView;
 
-    QVBoxLayout*            mMainLayout;
+    QVBoxLayout*                mMainLayout;
 
-    QHBoxLayout*            mBtnLayout;
-    QHBoxLayout*            mLeftLayout;
-    QHBoxLayout*            mRightLayout;
+    QHBoxLayout*                mBtnLayout;
+    QHBoxLayout*                mLeftLayout;
+    QHBoxLayout*                mRightLayout;
     
-    PushButton*             mMisBtn;
-    PushButton*             mDelBtn;
-    PushButton*             mExpBtn;
+    PushButton*                 mMisBtn;
+    PushButton*                 mDelBtn;
+    PushButton*                 mExpBtn;
 
-    ScannerView*            mView;
-    ScannerResultModel*     mModel;
+    ScannerView*                mView;
+    ScannerResultModel*         mModel;
 
-    bool                    mSavingData = false;
-    QThread*                mThreadSaveData;
+    bool                        mSavingData = false;
+    QThread*                    mThreadSaveData;
 
     // 进度条
-    Progress*               mProgress;
+    Progress*                   mProgress;
+
+    ScannerResultWidgetMenu*    mMenu;
 };
 
 #endif // SCANNERRESULTWIDGET_H
