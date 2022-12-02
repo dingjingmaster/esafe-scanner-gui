@@ -53,7 +53,10 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
     }
     case 2: {
 #if 1
-        QStyledItemDelegate::paint (p, option, index);
+        QString text = index.model()->data(index).toString();
+        p->setBrush(pal.windowText());
+        //QStyledItemDelegate::paint (p, option, index);
+        p->drawText(rect, Qt::AlignCenter, text);
 #else
         if (auto sr = static_cast <ScannerResultWidget*>(mObj)) {
             if (sr->hasChecked()) {
@@ -99,7 +102,11 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
         QString text = index.model()->data(index).toString();
         align |= Qt::AlignLeft;
         p->setBrush(pal.windowText());
-        p->drawText(rect, align, text);
+        QFont f = option.font;
+        QFontMetrics fm(f);
+        QString text1 = fm.elidedText (text, Qt::ElideRight, rect.width() * 2 - 10);
+        p->setFont (f);
+        p->drawText(rect, align | Qt::TextWordWrap | Qt::ElideRight, text1);
         break;
     }
     default:

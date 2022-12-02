@@ -226,8 +226,17 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
 
             Q_EMIT mModel->lazyUpdateView();
             mModel->setSelectedItemStatus(ScannerResultItem::Deleted);
+
+            Q_EMIT startApplyData();
+            mProgress->show();
             mModel->applyData();
+            mProgress->hide();
+            Q_EMIT stopApplyData();
             updateStatus();
+
+            mHeaderView->setChecked(false);
+            Q_EMIT mHeaderView->checkBoxClicked (false);
+            Q_EMIT mModel->lazyUpdateView();
         });
         box->exec();
         box->deleteLater();
@@ -259,7 +268,15 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             }
             Q_EMIT mModel->lazyUpdateView();
             mModel->setSelectedItemStatus(ScannerResultItem::MisReport);
+
+            Q_EMIT startApplyData();
+            mProgress->show();
             mModel->applyData();
+            mProgress->hide();
+            Q_EMIT stopApplyData();
+            mHeaderView->setChecked(false);
+            Q_EMIT mHeaderView->checkBoxClicked (false);
+            Q_EMIT mModel->lazyUpdateView();
             updateStatus();
         });
         box->exec();
@@ -304,6 +321,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
 #endif
             qDebug() << "name: " << name;
             qDebug() << "path: " << path;
+
             ExportScanResult exp(path, this);
             for (auto l : ls) {
                 exp.write(*const_cast<ScannerResultItem*>(l));

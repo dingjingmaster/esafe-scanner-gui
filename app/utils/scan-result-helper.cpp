@@ -69,7 +69,7 @@ void ScanResultHelper::testInsertItem()
 
     for (int i = 0; i < 1000000; ++i) {
         QString sql = QString("INSERT INTO scan_result (scan_file_name, policy_id, action_id, status, scan_finished_time, detect_result, file_size, file_type)"
-                              "VALUES ('/tmp/%1', 'A', 'A', 0, 1658558157, '', '', '');").arg (i);
+                              "VALUES ('/tmp/最奥大苏打地区党伽倻过渡期一个肚脐眼过渡期一个对齐我有个对齐过渡期为过渡期蔓延到股权五斗柜趣味有多高趣味-%1', 'A', 'A', 0, 1658558157, '', '', '');").arg (i);
 
         while (!sqlite_lock());
         int ret = sqlite3_exec(d->mDB, sql.toUtf8().constData(), nullptr, nullptr, &errorMsg);
