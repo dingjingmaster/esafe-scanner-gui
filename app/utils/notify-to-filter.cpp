@@ -1,64 +1,43 @@
-#include "message-with-fp.pb.h"
 #include "notify-to-filter.h"
 
 #include <QLocalSocket>
-#include <QMutex>
 
-NotifyToFilter* NotifyToFilter::gInstance = nullptr;
-
-NotifyToFilter *NotifyToFilter::getInstance()
+void notify_policy_filter (ScannerResultItem::Status status)
 {
-    static QMutex lock;
+    typedef struct _Message
+    {
+        unsigned long messageType;        // 即消息索引号
+        unsigned long messageLength;             // 消息头后面消息体长度
+        char data[12];
+    } Message;
 
-    if (!NotifyToFilter::gInstance) {
-        lock.lock();
-        if (!NotifyToFilter::gInstance) {
-            gInstance = new NotifyToFilter;
-        }
-        lock.unlock();
-    }
+    static const char* socket = "/usr/local/ultrasec/start/ultrasec_pf.sock";
 
-    return gInstance;
-}
+    QLocalSocket sock;
+    Message msg = {
+        .messageType = 1039,
+        .messageLength = (unsigned long)((status == ScannerResultItem::Deleted) ? 6 : 9),
+    };
 
-bool NotifyToFilter::sendData(std::string data)
-{
-    if (QLocalSocket::UnconnectedState == mSocket->state()) {
-        qDebug() << "server not connect & connting ...";
-        mSocket->connectToServer(LOCAL_SOCKET_NAME);
-    }
-
-    bool ret = false;
-
-#if 1
-    com::esafenet::scanner::client::ScannerClientMessage msg;
-    msg.ParseFromArray(data.c_str(), data.length());
-    qDebug() << "debug, send string: " << msg.DebugString().c_str();
-#endif
-
-    if (mSocket->waitForConnected()) {
-        ret = mSocket->write(data.c_str(), data.length()) > 0;
-        mSocket->flush();
-        mSocket->close();
+    if (ScannerResultItem::Deleted == status) {
+        strncpy (msg.data, "delete", 6);
     } else {
-        qDebug() << "write to server timeout!";
+        strncpy (msg.data, "misreport", 9);
     }
 
-    return ret;
-}
-
-NotifyToFilter::NotifyToFilter(QObject *parent)
-    : QObject{parent}, mSocket(new QLocalSocket(this))
-{
-    mSocket->abort();
-    mSocket->connectToServer(LOCAL_SOCKET_NAME, QLocalSocket::WriteOnly);
-}
-
-NotifyToFilter::~NotifyToFilter()
-{
-    if (mSocket) {
-        mSocket->disconnectFromServer();
-        mSocket->deleteLater();
+    sock.connectToServer (socket);
+    if (sock.waitForConnected (50000)) {
+        if (!sock.isValid()) {
+            qWarning() << "error: " << sock.error();
+        } else {
+            qWarning() << "Start write";
+            sock.write ((const char*) &msg, sizeof (Message));
+            sock.flush();
+            qWarning() << "Start end";
+        }
+    } else {
+        qWarning() << "timeout";
     }
 
+    sock.close();
 }

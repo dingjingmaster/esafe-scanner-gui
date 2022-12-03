@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QColor>
 
+#include "../utils/notify-to-filter.h"
 #include "../utils/scan-result-helper.h"
 
 ScannerResultModel::ScannerResultModel(QObject* parent)
@@ -541,6 +542,7 @@ void ScannerResultModel::applyMisReportData(const QModelIndex &idx)
     item->setStatus (ScannerResultItem::MisReport);
     mScanResultHelper->misReportByIDs ((QStringList() << QString("%1").arg(item->getID())));
     updateCount();
+    notify_policy_filter (ScannerResultItem::MisReport);
 }
 
 void ScannerResultModel::applyDelData(const QModelIndex& idx)
@@ -552,6 +554,7 @@ void ScannerResultModel::applyDelData(const QModelIndex& idx)
     mScanResultHelper->deleteItemByIDs ((QStringList() << QString("%1").arg(item->getID())));
     delItem (item);
     updateCount();
+    notify_policy_filter (ScannerResultItem::Deleted);
 }
 
 QPair<QList<ScannerResultItem *>, QList<ScannerResultItem *>> ScannerResultModel::getSaveItemPoints()

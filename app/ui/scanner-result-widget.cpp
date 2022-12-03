@@ -2,7 +2,7 @@
 #include "threads/scanner-result-save-thread.h"
 #include "view/header-view.h"
 #include "scanner-result-widget.h"
-//#include "utils/notify-to-filter.h"
+#include "utils/notify-to-filter.h"
 #include "scanner-result-delegate.h"
 #include "utils/export-scan-result.h"
 //#include "utils/message-with-fp.pb.h"
@@ -26,6 +26,7 @@
 
 #include <QEventLoop>
 #include <QApplication>
+#include <QLocalSocket>
 
 #include "../db/db-manager.h"
 #include "../widget/progress.h"
@@ -34,7 +35,6 @@
 
 #define FREEDESKTOP_FM_DBUS             "org.freedesktop.FileManager1"
 #define FREEDESKTOP_FM_DBUS_PATH        "/org/freedesktop/FileManager1"
-
 
 ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     : QWidget{parent}
@@ -237,6 +237,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             mHeaderView->setChecked(false);
             Q_EMIT mHeaderView->checkBoxClicked (false);
             Q_EMIT mModel->lazyUpdateView();
+            notify_policy_filter (ScannerResultItem::Deleted);
         });
         box->exec();
         box->deleteLater();
@@ -278,6 +279,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             Q_EMIT mHeaderView->checkBoxClicked (false);
             Q_EMIT mModel->lazyUpdateView();
             updateStatus();
+            notify_policy_filter (ScannerResultItem::MisReport);
         });
         box->exec();
         box->deleteLater();
@@ -620,5 +622,4 @@ void ScannerResultWidget::setDefaultSize()
     mView->horizontalHeader()->resizeSection (3, 240);
     mView->horizontalHeader()->resizeSection (4, 240);
 }
-
 
