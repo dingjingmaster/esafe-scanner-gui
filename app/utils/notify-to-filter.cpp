@@ -25,18 +25,21 @@ void notify_policy_filter (ScannerResultItem::Status status)
         strncpy (msg.data, "misreport", 9);
     }
 
-    sock.connectToServer (socket);
-    if (sock.waitForConnected (50000)) {
-        if (!sock.isValid()) {
-            qWarning() << "error: " << sock.error();
+    for (int i = 3; i > 0; --i) {
+        sock.connectToServer (socket);
+        if (sock.waitForConnected (1000)) {
+            if (!sock.isValid()) {
+                qWarning() << "error: " << sock.error();
+            } else {
+                qWarning() << "Start write";
+                sock.write ((const char*) &msg, sizeof (Message));
+                sock.flush();
+                qWarning() << "Start end";
+                break;
+            }
         } else {
-            qWarning() << "Start write";
-            sock.write ((const char*) &msg, sizeof (Message));
-            sock.flush();
-            qWarning() << "Start end";
+            qWarning() << "timeout";
         }
-    } else {
-        qWarning() << "timeout";
     }
 
     sock.close();
