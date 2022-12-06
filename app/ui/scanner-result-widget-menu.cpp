@@ -13,8 +13,8 @@ ScannerResultWidgetMenu::ScannerResultWidgetMenu(QWidget *parent)
 {
     connect (addAction (QIcon(":/data/menu-del.png"), "删除"), &QAction::triggered, this, [=] (bool) {
         QMessageBox* box = new QMessageBox(this);
-        box->setText ("是否确定删除");
-        box->setWindowTitle("");
+        box->setText ("是否确定删除？");
+        box->setWindowTitle("提示");
 
         QPushButton* apply = new QPushButton(box);
         QPushButton* cancel = new QPushButton(box);
@@ -34,8 +34,8 @@ ScannerResultWidgetMenu::ScannerResultWidgetMenu(QWidget *parent)
 
     connect (addAction (QIcon(":/data/menu-misreport.png"), "例外文件"), &QAction::triggered, this, [=] (bool) {
         QMessageBox* box = new QMessageBox(this);
-        box->setText ("是否确定为例外文件");
-        box->setWindowTitle("");
+        box->setText ("是否确定为例外文件？");
+        box->setWindowTitle("提示");
 
         QPushButton* apply = new QPushButton(box);
         QPushButton* cancel = new QPushButton(box);

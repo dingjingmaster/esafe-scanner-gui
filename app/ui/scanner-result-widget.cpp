@@ -208,7 +208,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         }
 
         QMessageBox* box = new QMessageBox(this);
-        box->setText ("是否确定删除");
+        box->setText ("是否确定删除？");
         box->setWindowTitle("");
 
         QPushButton* apply = new QPushButton(box);
@@ -251,7 +251,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         }
 
         QMessageBox* box = new QMessageBox(this);
-        box->setText ("是否确定为例外文件");
+        box->setText ("是否确定为例外文件？");
         box->setWindowTitle("");
 
         QPushButton* apply = new QPushButton(box);
