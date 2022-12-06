@@ -13,7 +13,7 @@ ScannerResultWidgetMenu::ScannerResultWidgetMenu(QWidget *parent)
 {
     connect (addAction (QIcon(":/data/menu-del.png"), "删除"), &QAction::triggered, this, [=] (bool) {
         QMessageBox* box = new QMessageBox(this);
-        box->setText ("是否确定为删除文件");
+        box->setText ("是否确定删除");
         box->setWindowTitle("");
 
         QPushButton* apply = new QPushButton(box);

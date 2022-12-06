@@ -208,7 +208,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         }
 
         QMessageBox* box = new QMessageBox(this);
-        box->setText ("是否确定为删除文件");
+        box->setText ("是否确定删除");
         box->setWindowTitle("");
 
         QPushButton* apply = new QPushButton(box);
