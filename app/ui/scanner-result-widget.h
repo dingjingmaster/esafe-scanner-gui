@@ -52,6 +52,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void updateStatus();
+    void lazyUpdateView();
     void onBackToTaskView ();
 
 

@@ -9,8 +9,7 @@ ScannerView::ScannerView(QWidget *parent)
     setMouseTracking(true);
 
     setSelectionBehavior(QAbstractItemView::SelectRows);
-    //setSelectionMode(QAbstractItemView::SingleSelection);
-    setSelectionMode(QAbstractItemView::MultiSelection);
+    setSelectionMode(QAbstractItemView::NoSelection);
 
     verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }

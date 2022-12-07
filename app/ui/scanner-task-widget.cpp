@@ -37,6 +37,7 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
     //mView->setSortingEnabled(false);
     mMainLayout->addWidget(mView);
 
+    mView->setSelectionMode(QAbstractItemView::SingleSelection);
     mView->setItemDelegate(new ScannerTaskDelegate);
     setLayout(mMainLayout);
 

@@ -93,6 +93,25 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mView->setModel(mModel);
     mMainLayout->addWidget(mView);
 
+//    QItemSelectionModel* selection = mView->selectionModel();
+//    connect (selection, &QItemSelectionModel::selectionChanged, this, [=] (const QItemSelection& selected, const QItemSelection& deselected) {
+//        QModelIndexList  ls;
+//        ls << selected.indexes() << deselected.indexes();
+//        for (auto l : ls) {
+//            ScannerResultItem* item = static_cast<ScannerResultItem*> (l.internalPointer());
+//            if (item) {
+//                qDebug() << item->getFileName();
+//                if (item->getChecked()) {
+//                    selection->select (l, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+//                } else {
+//                    selection->select (l, QItemSelectionModel::Deselect | QItemSelectionModel::Rows);
+//                }
+//            }
+//        }
+//        mView->update();
+//        //selection->setCurrentIndex (idx, QItemSelectionModel::Select);
+//    });
+
     connect (this, &ScannerResultWidget::startApplyData, this, [=] () {
         retBtn->enable(false);
         mExpBtn->enable(false);
@@ -105,6 +124,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         mMisBtn->enable(true);
     });
 
+    connect (mModel, &ScannerResultModel::lazyUpdateView, this, &ScannerResultWidget::lazyUpdateView);
     // save data
     //mThreadSaveData = new QThread;
     //ScannerResultSaveThread* srThread = new ScannerResultSaveThread(mModel, DBManager::instance()->getResultHelper(), this);
@@ -351,25 +371,25 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
                 .arg(mTaskName).arg(mModel->getNoFixCount()).arg (mModel->getMisReportCount()).arg (mModel->getAllCount())); //.arg (mModel->getDeleteCount ()));
     });
 
-    connect (mModel, &ScannerResultModel::lazyUpdateView, this, [=] () {
-        //
-        auto s = mView->verticalScrollBar();
-        auto scrollBarRatio = float(s->value()) / (s->maximum() - s->minimum());
-        auto curItemIndex = scrollBarRatio * mModel->rowCount();
-        auto startIndex = ((curItemIndex - 30) >= 0) ? (curItemIndex - 30) : 0;
-        auto stopIndex = ((curItemIndex + 30) < mModel->rowCount()) ? (curItemIndex + 30) : mModel->rowCount();
-
-        // 开始更新
-        for (auto i = startIndex; i <= stopIndex; ++i) {
-            mView->update(mModel->index(i, 0));
-            mView->update(mModel->index(i, 2));
-        }
-
-#if DEBUG
-        qInfo() << visibleRegion();
-        qInfo() << QString("min: %1, max: %2, cur: %3, %4 %%").arg(s->minimum()).arg(s->maximum()).arg(s->value()).arg(float(s->value()) / (s->maximum() - s->minimum()));
-#endif
-    });
+//    connect (mModel, &ScannerResultModel::lazyUpdateView, this, [=] () {
+//        //
+//        auto s = mView->verticalScrollBar();
+//        auto scrollBarRatio = float(s->value()) / (s->maximum() - s->minimum());
+//        auto curItemIndex = scrollBarRatio * mModel->rowCount();
+//        auto startIndex = ((curItemIndex - 30) >= 0) ? (curItemIndex - 30) : 0;
+//        auto stopIndex = ((curItemIndex + 30) < mModel->rowCount()) ? (curItemIndex + 30) : mModel->rowCount();
+//
+//        // 开始更新
+//        for (auto i = startIndex; i <= stopIndex; ++i) {
+//            mView->update(mModel->index(i, 0));
+//            mView->update(mModel->index(i, 2));
+//        }
+//
+//#if DEBUG
+//        qInfo() << visibleRegion();
+//        qInfo() << QString("min: %1, max: %2, cur: %3, %4 %%").arg(s->minimum()).arg(s->maximum()).arg(s->value()).arg(float(s->value()) / (s->maximum() - s->minimum()));
+//#endif
+//    });
 
     connect (mHeaderView, &HeaderView::checkBoxClicked, this, [=] (bool s) {
         mModel->selectAll(s);           // model select All
@@ -380,6 +400,8 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             Q_EMIT mMisBtn->enable (false);
             Q_EMIT mExpBtn->enable (false);
         }
+
+        lazyUpdateView();
     });
 
     connect (mView, &QAbstractItemView::doubleClicked, this, [=] (const QModelIndex& index) {
@@ -408,17 +430,13 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             auto item = static_cast<ScannerResultItem*>(index.internalPointer());
             if (item) {
                 item->setChecked(!item->getChecked());
-                if (item->getChecked()) {
-                    mView->selectRow (index.row());
-                } else {
-
-                }
             }
             Q_EMIT mView->update(index);
             bool checkAll = mModel->isCheckAllItems();
             mHeaderView->setChecked(checkAll);
             Q_EMIT checkedItem(checkAll || mModel->hasChecked ()); 
-            mView->updateView();
+            //mView->updateView();
+            lazyUpdateView();
         } else if (ScannerResultModel::FileName == index.column() && index.row() >= 0) {
 #if 0
             QDBusConnection dbus = QDBusConnection::connectToBus (QDBusConnection::SessionBus, FREEDESKTOP_FM_DBUS);
@@ -628,5 +646,23 @@ void ScannerResultWidget::setDefaultSize()
     mView->horizontalHeader()->resizeSection (2, 100);
     mView->horizontalHeader()->resizeSection (3, 240);
     mView->horizontalHeader()->resizeSection (4, 240);
+}
+
+void ScannerResultWidget::lazyUpdateView()
+{
+    auto s = mView->verticalScrollBar();
+    auto scrollBarRatio = float(s->value()) / (s->maximum() - s->minimum());
+    auto curItemIndex = scrollBarRatio * mModel->rowCount();
+    auto startIndex = ((curItemIndex - 30) >= 0) ? (curItemIndex - 30) : 0;
+    auto stopIndex = ((curItemIndex + 30) < mModel->rowCount()) ? (curItemIndex + 30) : mModel->rowCount();
+
+    // 开始更新
+    for (auto i = startIndex; i <= stopIndex; ++i) {
+        mView->update(mModel->index(i, 0));
+        mView->update(mModel->index(i, 1));
+        mView->update(mModel->index(i, 2));
+        mView->update(mModel->index(i, 3));
+        mView->update(mModel->index(i, 4));
+    }
 }
 

@@ -31,6 +31,16 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
     Qt::Alignment align = option.displayAlignment;
     QPalette pal;
 
+    // 绘制背景
+    auto item = static_cast<ScannerResultItem*>(index.internalPointer());
+    if (item && item->getChecked()) {
+        p->save();
+        p->setPen (Qt::NoPen);
+        p->setBrush (QColor(255, 138, 140));
+        p->drawRect (rect);
+        p->restore();
+    }
+
     switch (index.column()) {
     case 0: {
         QRect rectCB(rect.left() + (rect.width() - 20) / 2, rect.top() + (rect.height() - 20) / 2, 20, 20);
