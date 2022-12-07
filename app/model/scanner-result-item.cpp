@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QDateTime>
+#include <QItemSelectionModel>
 
 ScannerResultItem::ScannerResultItem(QObject *parent)
     : QObject{parent}

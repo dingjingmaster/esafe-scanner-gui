@@ -92,15 +92,16 @@ QRect MainStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
 void MainStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p, const QWidget *widget) const
 {
     QPainter *painter = p;
-    const QStyleOption *option = opt;
+    QStyleOption option = *opt;
 
     switch (pe) {
     case PE_IndicatorItemViewItemCheck: {
-        proxy()->drawPrimitive(PE_IndicatorCheckBox, opt, p, widget);
+        //option.state |= QStyle::State_Selected;
+        proxy()->drawPrimitive(PE_IndicatorCheckBox, &option, p, widget);
         break;
     }
     case PE_IndicatorCheckBox: {
-        if (const QStyleOptionButton *checkbox = qstyleoption_cast<const QStyleOptionButton*>(option)) {
+        if (const QStyleOptionButton *checkbox = qstyleoption_cast<const QStyleOptionButton*>(opt)) {
             const bool useDarkPalette = false;
             bool enable = checkbox->state & State_Enabled;
             bool mouseOver = false; //checkbox->state & State_MouseOver;
@@ -126,65 +127,26 @@ void MainStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
 
             p->save();
             painter->setClipRect(rect);
-            painter->setRenderHint(QPainter::Antialiasing,true);
+            painter->setRenderHint(QPainter::Antialiasing, true);
             if (enable) {
                 if (on | noChange) {
-                    if (sunKen) {
-                        painter->setPen(QColor(25, 101, 207));
-                        painter->setBrush(QColor(25, 101, 207));
-                    } else if (mouseOver) {
-                        painter->setPen(QColor(36, 109, 212));
-                        painter->setBrush(QColor(25, 101, 207));
-                    } else {
-                    
-                        painter->setPen(QColor(36, 109, 212));
-                        painter->setBrush(QColor(25, 101, 207));
-                        
-//                        painter->setPen(QColor(36, 109, 212));
-//                        painter->setBrush(checkbox->palette.brush(QPalette::Active, QPalette::Highlight));
-                    }
+                    painter->setPen(QColor(255, 0, 0));
+                    painter->setBrush(QColor(255, 138, 140));
                     painter->drawRoundedRect(rect, x_Radius, y_Radius);
 
                     painter->setPen(QPen(checkbox->palette.brush(QPalette::Active, QPalette::HighlightedText), 2,
                                          Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-                    painter->setBrush(Qt::NoBrush);
+                    //painter->setBrush(Qt::NoBrush);
                     painter->drawPath(path);
                 } else {
-                    if (sunKen) {
-                        if (useDarkPalette) {
-                            painter->setPen(QColor(36, 109, 212));
-                            painter->setBrush(QColor(6, 35, 97));
-                        } else {
-                            painter->setPen(QColor(36, 109, 212));
-                            painter->setBrush(QColor(179, 221, 255));
-                        }
-                    } else if (mouseOver) {
-                        if (useDarkPalette) {
-                            painter->setPen(QColor(55, 144, 250));
-                            painter->setBrush(QColor(9, 53, 153));
-                        } else {
-                            painter->setPen(QColor(97, 173, 255));
-                            painter->setBrush(QColor(219, 240, 255));
-                        }
-                    } else {
-                        if (useDarkPalette) {
-                            painter->setPen(QColor(72, 72, 77));
-                            painter->setBrush(QColor(48, 48, 51));
-                        } else {
-                            painter->setPen(QColor(191, 191, 191));
-                            painter->setBrush(checkbox->palette.color(QPalette::Active, QPalette::Window));
-                        }
-                    }
+                    QColor red = qRgb(255, 138, 140);
+                    painter->setPen(red);
+                    painter->setBrush(checkbox->palette.color(QPalette::Active, QPalette::Window));
                     painter->drawRoundedRect(rect, x_Radius, y_Radius);
                 }
             } else {
-                if (useDarkPalette) {
-                    painter->setPen(QColor(48, 48, 51));
-                    painter->setBrush(QColor(28, 28, 30));
-                } else {
-                    painter->setPen(QColor(224, 224, 224));
-                    painter->setBrush(QColor(233, 233, 233));
-                }
+                painter->setPen(QColor(224, 224, 224));
+                painter->setBrush(QColor(233, 233, 233));
                 painter->drawRoundedRect(rect, x_Radius, y_Radius);
                 if (on | noChange) {
                     painter->setPen(QPen(checkbox->palette.brush(QPalette::Disabled, QPalette::ButtonText), 2,
@@ -242,6 +204,8 @@ void MainStyle::drawControl(ControlElement element, const QStyleOption *opt, QPa
             }
         }
         break;
+    }
+    case QStyle::CE_ItemViewItem: {
     }
     default:
         QProxyStyle::drawControl(element, opt, p, widget);

@@ -406,7 +406,14 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         if (!index.isValid())   return;
         if (index.column() == 0) {
             auto item = static_cast<ScannerResultItem*>(index.internalPointer());
-            if (item)   item->setChecked(!item->getChecked());
+            if (item) {
+                item->setChecked(!item->getChecked());
+                if (item->getChecked()) {
+                    mView->selectRow (index.row());
+                } else {
+
+                }
+            }
             Q_EMIT mView->update(index);
             bool checkAll = mModel->isCheckAllItems();
             mHeaderView->setChecked(checkAll);

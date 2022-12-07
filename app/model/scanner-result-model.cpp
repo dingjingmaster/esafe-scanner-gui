@@ -313,7 +313,10 @@ QVariant ScannerResultModel::data(const QModelIndex &index, int role) const
         if (0 == index.column()) {
             return QColor::fromRgb(mBackgroundR, mBackgroundG, mBackgroundB);
         }
-    } else if (Qt::TextAlignmentRole == role) {
+    } else if (Qt::CheckStateRole == role) {
+        return item->getChecked() ? Qt::Checked : Qt::Unchecked;
+    }
+    else if (Qt::TextAlignmentRole == role) {
         return Qt::AlignCenter;
     }
 

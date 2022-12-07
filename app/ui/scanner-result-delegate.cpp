@@ -113,7 +113,7 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
         break;
     }
 
-    p->restore();    
+    p->restore();
 }
 
 void ScannerResultDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const

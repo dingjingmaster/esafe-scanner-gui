@@ -31,9 +31,7 @@ int main(int argc, char *argv[])
 
     app.setApplicationDisplayName ("DLP");
 
-    //app.setStyle(new MainStyle(""));
-
-    app.setStyle("fusion");
+    app.setStyle(new MainStyle("fusion"));
 
 
     QPalette palette = QApplication::palette();
