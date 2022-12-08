@@ -1,9 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QLabel>
 #include <QWidget>
 #include <QLayout>
-#include <QLabel>
+#include <QMainWindow>
 
 class QResizeEvent;
 class ScannerTaskItem;
@@ -22,6 +23,9 @@ public:
 
 protected:
     void resizeEvent (QResizeEvent*) override;
+    void mouseMoveEvent(QMouseEvent*) override;
+    void mousePressEvent(QMouseEvent*) override;
+    void mouseReleaseEvent(QMouseEvent*) override;
 
 private Q_SLOTS:
     void onShowStatusString (const QString&);
@@ -45,6 +49,11 @@ private:
 
     QLabel*                 mCurStatus;
     QTimer*                 mStatusTimer;
+
+    bool                    mDrag;
+    QPoint                  mOffset;
+    QPoint                  mMouseStartPoint;
+    QPoint                  mWindowTopLeftPoint;
 };
 
 #endif // MAINWINDOW_H

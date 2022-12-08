@@ -21,6 +21,6 @@ add_executable(dsip_sit
     ${SINGLEAPP_SRC} ${UI_SRC} ${VIEW_SRC} ${MODEL_SRC} ${UTILS_SRC} ${QGSETTINGS_SRC} ${STYLE_SRC} ${DB_SRC} ${WIDGET_SRC} ${THREADS_SRC})
 #target_compile_options(dsip_sit PUBLIC -O0 -finput-charset=utf8 -fexec-charset=utf8)
 
-target_link_libraries(dsip_sit
-    Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets Qt5::DBus ${SQLITE3_LIBRARIES} ${GIO_LIBRARIES})
+target_link_libraries(dsip_sit -lX11
+    Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets Qt5::DBus Qt5::X11Extras ${SQLITE3_LIBRARIES} ${GIO_LIBRARIES})
 

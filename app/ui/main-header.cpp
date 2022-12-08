@@ -64,36 +64,36 @@ void MainHeader::onApplyDataFinished()
     mMinBtn->setEnabled(true);
 }
 
-void MainHeader::mouseMoveEvent(QMouseEvent* ev)
-{
-    if (mDrag) {
-        QPoint dist = ev->globalPos() - mMouseStartPoint;
-        qDebug() << ev->globalPos() << " -- " << dist << (mWindowTopLeftPoint + dist);
-        QWidget* parentt = qobject_cast<QWidget*>(parent());
-        if (parentt) {
-            parentt->move(mWindowTopLeftPoint + dist);
-        }
-    }
-}
-
-void MainHeader::mousePressEvent(QMouseEvent* ev)
-{
-    if (ev->button() == Qt::LeftButton) {
-        mDrag = true;
-        QWidget* parentt = qobject_cast<QWidget*>(parent());
-        if (parentt) {
-            mMouseStartPoint = ev->globalPos();
-            mWindowTopLeftPoint = parentt->frameGeometry().topLeft();
-        }
-    }
-}
-
-void MainHeader::mouseReleaseEvent(QMouseEvent* ev)
-{
-    if (ev->button() == Qt::LeftButton) {
-        mDrag = false;
-    }
-}
+//void MainHeader::mouseMoveEvent(QMouseEvent* ev)
+//{
+//    if (mDrag) {
+//        QPoint dist = ev->globalPos() - mMouseStartPoint;
+//        qDebug() << ev->globalPos() << " -- " << dist << (mWindowTopLeftPoint + dist);
+//        QWidget* parentt = qobject_cast<QWidget*>(parent());
+//        if (parentt) {
+//            parentt->move(mWindowTopLeftPoint + dist);
+//        }
+//    }
+//}
+//
+//void MainHeader::mousePressEvent(QMouseEvent* ev)
+//{
+//    if (ev->button() == Qt::LeftButton) {
+//        mDrag = true;
+//        QWidget* parentt = qobject_cast<QWidget*>(parent());
+//        if (parentt) {
+//            mMouseStartPoint = ev->globalPos();
+//            mWindowTopLeftPoint = parentt->frameGeometry().topLeft();
+//        }
+//    }
+//}
+//
+//void MainHeader::mouseReleaseEvent(QMouseEvent* ev)
+//{
+//    if (ev->button() == Qt::LeftButton) {
+//        mDrag = false;
+//    }
+//}
 
 void MainHeader::mouseDoubleClickEvent(QMouseEvent *)
 {

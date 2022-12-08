@@ -25,9 +25,9 @@ public Q_SLOTS:
     void onApplyDataFinished ();
 
 protected:
-    void mouseMoveEvent(QMouseEvent*) override;
-    void mousePressEvent(QMouseEvent*) override;
-    void mouseReleaseEvent(QMouseEvent*) override;
+//    void mouseMoveEvent(QMouseEvent*) override;
+//    void mousePressEvent(QMouseEvent*) override;
+//    void mouseReleaseEvent(QMouseEvent*) override;
     void mouseDoubleClickEvent(QMouseEvent*) override;
 
 private:

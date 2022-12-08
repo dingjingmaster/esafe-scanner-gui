@@ -3,6 +3,9 @@ file(GLOB UI_SRC
     ${CMAKE_SOURCE_DIR}/app/ui/scanner-result-widget-menu.h
     ${CMAKE_SOURCE_DIR}/app/ui/scanner-result-widget-menu.cpp
 
+    ${CMAKE_SOURCE_DIR}/app/ui/xatom-helper.h
+    ${CMAKE_SOURCE_DIR}/app/ui/xatom-helper.cpp
+
     ${CMAKE_SOURCE_DIR}/app/ui/main-window.cpp
     ${CMAKE_SOURCE_DIR}/app/ui/main-window.h
 
