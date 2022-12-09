@@ -185,11 +185,19 @@ QString ScannerTaskItem::getStartTime()
 
 qint64 ScannerTaskItem::getStopTime2()
 {
+    if (mStatus == Scanning) {
+        return 0;
+    }
+
     return mStopTime;
 }
 
 QString ScannerTaskItem::getStopTime()
 {
+    if (mStatus == Scanning) {
+        return "";
+    }
+
     QDateTime tim = QDateTime::fromSecsSinceEpoch (mStopTime);
 
     qInfo() << "stop time:" << mStopTime;
