@@ -84,9 +84,10 @@ void ScannerResultModel::addItem(ScannerResultItem* item)
     if (!item)      return;
 
     mLocker.lock();
-
     mData.append(item);
     insertRows(mData.count() - 1, 1);
+    mLocker.unlock();
+
     changeItemCount(item->getStatus2 ());
 
     QModelIndex idx = getIndexByItem(item);
@@ -94,7 +95,6 @@ void ScannerResultModel::addItem(ScannerResultItem* item)
         Q_EMIT dataChanged (idx, idx);
     }
 
-    mLocker.unlock();
 
 
     Q_EMIT dataStatueChanged();
@@ -114,10 +114,10 @@ void ScannerResultModel::delItem(ScannerResultItem *item)
     }
 
     if (mData.contains (item))  mData.removeOne (item);
+    mLocker.unlock();
+
     removeRow (idx.row());
     changeItemCount(item->getStatus2 (), false);
-
-    mLocker.unlock();
 
     if (mCurIndex < 30 || rowCount() < mCurIndex + 30) {
         Q_EMIT dataChanged (idx, idx);
@@ -510,11 +510,7 @@ void ScannerResultModel::itemStatusChanged(ScannerResultItem *item, ScannerResul
 
 void ScannerResultModel::onScrollbarMoved(float ratio)
 {
-    mLocker.lock();
-
     mCurIndex = ratio * rowCount() + 1;
-
-    mLocker.unlock();
 }
 
 void ScannerResultModel::applyData()

@@ -390,7 +390,7 @@ void ScanResultHelper::misReportByIDs(const QStringList& ids)
     Q_D(ScanResultHelper);
 
     for (const auto& id : ids) {
-        QString sql = QString("UPDATE `scan_result` SET status=6, status_reported=0 WHERE ID=%1 AND status != 6").arg(id);
+        QString sql = QString("UPDATE `scan_result` SET status=6, status_reported=0 WHERE ID=%1 AND status!=6").arg(id);
         qInfo() << "sql ==> " << sql;
 
         char *errMsg = nullptr;
