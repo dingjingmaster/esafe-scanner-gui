@@ -158,6 +158,15 @@ MainWindow::MainWindow(QWidget *parent)
         mScannerResultWidget->clearData();
     });
 
+    connect (this, &MainWindow::activePrimaryWindow, this, [=] () {
+        show();
+        setWindowState (windowState() | Qt::WindowActive);
+        activateWindow();
+        raise();
+        setFocus(Qt::NoFocusReason);
+        qInfo() << "active window";
+    });
+
     setLayout(mMainLayout);
 
     mStatusTimer->start();

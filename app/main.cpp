@@ -29,33 +29,42 @@ int main(int argc, char *argv[])
     SingletonApp app (argc, argv, APP_NAME);
     SingletonApp::setApplicationName ("DLP");
 
-    app.setApplicationDisplayName ("DLP");
-
-    app.setStyle(new MainStyle("fusion"));
-
+    SingletonApp::setApplicationDisplayName ("DLP");
+    SingletonApp::setStyle(new MainStyle("fusion"));
 
     QPalette palette = QApplication::palette();
     QColor red = qRgb(255, 138, 140);
     palette.setColor (QPalette::All, QPalette::Highlight, red);
     QApplication::setPalette (palette);
 
-
-    MainWindow w;
-    w.setWindowIcon (QIcon("://data/dsip.png"));
-
-    QFile file ("://data/stylesheet.qss");
-    if (file.open(QFile::ReadOnly)) {
-        w.setStyleSheet(file.readAll());
-        file.close();
-    }
-
+    MainWindow* w = nullptr;
     if (app.isPrimary()) {
-        w.show();
+        w = new MainWindow;
+        w->setWindowIcon (QIcon("://data/dsip.png"));
+
+        QFile file ("://data/stylesheet.qss");
+        if (file.open(QFile::ReadOnly)) {
+            w->setStyleSheet(file.readAll());
+            file.close();
+        }
+
+        SingletonApp::connect (&app, &SingletonApp::receivedMessage, [=] (quint32, QByteArray msg) {
+            qWarning() << "msg: " << msg;
+            if ("active" == msg) {
+                qWarning() << "msg: " << msg;
+                Q_EMIT w->activePrimaryWindow();
+            }
+        });
+
+        w->show();
     } else {
-        qApp->exit();
+        qWarning() << "send msg";
+        app.sendMessage ("active");
+        SingletonApp::exit (0);
+        exit (0);
     }
 
-    return app.exec();
+    return SingletonApp::exec();
 }
 
 void messageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)

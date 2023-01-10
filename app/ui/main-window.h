@@ -32,6 +32,7 @@ private Q_SLOTS:
     void onLoadTaskResult (const ScannerTaskItem* const item);
 
 Q_SIGNALS:
+    void activePrimaryWindow();
 
 private:
     const int               mMinWidth = 1100;
