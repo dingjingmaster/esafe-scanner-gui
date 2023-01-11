@@ -160,6 +160,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect (this, &MainWindow::activePrimaryWindow, this, [=] () {
         show();
+        if (windowFlags() & Qt::WindowMinimized) {
+            setWindowState (windowState() | Qt::WindowNoState);
+        }
         setWindowState (windowState() | Qt::WindowActive);
         activateWindow();
         raise();
