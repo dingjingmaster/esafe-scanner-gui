@@ -349,6 +349,22 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
                 exp.write(*const_cast<ScannerResultItem*>(l));
                 const_cast<ScannerResultItem*>(l)->setChecked(false);
             }
+
+            QMessageBox information (QMessageBox::NoIcon, nullptr, "文件导出成功！", QMessageBox::Ok, this);
+            information.button (QMessageBox::Ok)->setText ("确定");
+            information.button (QMessageBox::Ok)->setIcon(QIcon());
+            information.setContentsMargins (0, 0, 0, 0);
+            information.setStyleSheet ("* {padding:0; margin:0;}"
+                                       " QPushButton{padding:3px;margin:3px;}"
+                                       " QDialogButtonBox {align:center; qproperty-centerButtons:true;}");
+            if (auto textField = information.findChild<QWidget*>("qt_msgbox_label")) {
+                if (QLabel* label = dynamic_cast<QLabel*> (textField)) {
+                    label->setFixedSize (180, 60);
+                    label->setContentsMargins (0, 0, 0, 0);
+                    label->setAlignment (Qt::AlignCenter);
+                }
+            }
+            information.exec();
         }
 
         // 允许选中
