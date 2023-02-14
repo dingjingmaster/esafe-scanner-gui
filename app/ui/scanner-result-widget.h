@@ -4,6 +4,7 @@
 #include "view/scanner-view.h"
 #include <QWidget>
 
+class QLabel;
 class Progress;
 class HeaderView;
 class PushButton;
@@ -19,6 +20,9 @@ class ScannerResultWidget : public QWidget
 public:
     explicit ScannerResultWidget(QWidget *parent = nullptr);
     ~ScannerResultWidget();
+
+    void setSelectedStatus ();
+    void setNoSelectedStatus ();
 
     // 测试函数
     void test ();
@@ -51,9 +55,10 @@ Q_SIGNALS:
     void statusString (QString);        //"任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%5), 删除: (%5)");
 
 public Q_SLOTS:
-    void updateStatus();
-    void lazyUpdateView();
+    void updateStatus ();
+    void lazyUpdateView ();
     void onBackToTaskView ();
+    void onShowStatusString (QString);
 
 
 private:
@@ -62,6 +67,7 @@ private:
     QString                     mTaskName;
     QString                     mScanFilter;
 
+    QLabel*                     mStatusLabel;
     HeaderView*                 mHeaderView;
 
     QVBoxLayout*                mMainLayout;

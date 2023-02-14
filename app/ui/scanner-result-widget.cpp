@@ -50,6 +50,8 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mMisBtn = new PushButton(this, PushButton::Type2);
     mExpBtn = new PushButton(this, PushButton::Type2);
 
+    mStatusLabel = new QLabel;
+
     mModel = new ScannerResultModel;
     mView = new ScannerView;
 
@@ -83,10 +85,14 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mExpBtn->setText(tr("导出"));
     mRightLayout->addWidget(mExpBtn);
 
+    mRightLayout->addWidget (mStatusLabel);
+
     mBtnLayout->addItem(mLeftLayout);
     mBtnLayout->addStretch();
     mBtnLayout->addItem(mRightLayout);
     mMainLayout->addItem(mBtnLayout);
+
+    setNoSelectedStatus();
 
     // tabview
     mView->setHorizontalHeader(mHeaderView);
@@ -220,7 +226,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
 
     connect (retBtn, &PushButton::clicked, this, &ScannerResultWidget::onBackToTaskView, Qt::UniqueConnection);
 
-    connect(mDelBtn, &PushButton::clicked, this, [=] () {
+    connect (mDelBtn, &PushButton::clicked, this, [=] () {
         QList<ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
             QMessageBox::warning(this, "警告", "请选中需要删除的数据后，再执行删除操作！", QMessageBox::Ok);
@@ -263,7 +269,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         box->deleteLater();
     });
 
-    connect(mMisBtn, &PushButton::clicked, this, [=] () {
+    connect (mMisBtn, &PushButton::clicked, this, [=] () {
         QList<ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
             QMessageBox::warning(this, "警告", "请选中例外的数据后，再执行操作！", QMessageBox::Ok);
@@ -305,7 +311,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         box->deleteLater();
     });
 
-    connect(mExpBtn, &PushButton::clicked, this, [=] () {
+    connect (mExpBtn, &PushButton::clicked, this, [=] () {
         QList<ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
             QMessageBox::warning(this, "警告", "请选中需要导出的数据后，再执行导出操作！", QMessageBox::Ok);
@@ -374,6 +380,8 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         // 更新界面
         Q_EMIT mModel->lazyUpdateView();
     });
+
+    connect (this, &ScannerResultWidget::statusString, this, &ScannerResultWidget::onShowStatusString);
 
     // 更新状态
     connect (mModel, &ScannerResultModel::dataChanged, this, [=] (const QModelIndex &topLeft,
@@ -477,9 +485,15 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     });
     
     connect (this, &ScannerResultWidget::checkedItem, this, [=] (bool b) {
-        Q_EMIT mDelBtn->enable (b);
-        Q_EMIT mMisBtn->enable (b);
-        Q_EMIT mExpBtn->enable (b);
+//        Q_EMIT mDelBtn->enable (b);
+//        Q_EMIT mMisBtn->enable (b);
+//        Q_EMIT mExpBtn->enable (b);
+        if (b) {
+            setSelectedStatus();
+        }
+        else {
+            setNoSelectedStatus();
+        }
     });
 
     connect (mView, &QAbstractItemView::entered, this, [=] (const QModelIndex &index) {
@@ -680,5 +694,36 @@ void ScannerResultWidget::lazyUpdateView()
         mView->update(mModel->index(i, 3));
         mView->update(mModel->index(i, 4));
     }
+}
+
+void ScannerResultWidget::onShowStatusString(QString str)
+{
+    if (!mStatusLabel->isHidden()) {
+        mStatusLabel->resize(QApplication::fontMetrics().size(Qt::TextSingleLine, str));
+    }
+    mStatusLabel->setText(str);
+}
+
+void ScannerResultWidget::setNoSelectedStatus()
+{
+    mDelBtn->hide();
+    mMisBtn->hide();
+    mExpBtn->hide();
+
+    mStatusLabel->show();
+}
+
+void ScannerResultWidget::setSelectedStatus()
+{
+    mDelBtn->enable (true);
+    mMisBtn->enable (true);
+    mExpBtn->enable (true);
+
+    mDelBtn->show();
+    mMisBtn->show();
+    mExpBtn->show();
+
+
+    mStatusLabel->hide();
 }
 

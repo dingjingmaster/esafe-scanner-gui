@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=MD5
+Name[zh_CN]=MD5 值提取
+Icon=/usr/local/ultrasec/start/dsip.png
+X-DDE-FileManager-MenuTypes=SingleFile
+X-DDE-FileManager-SupportSchemas=file
+
+Exec=

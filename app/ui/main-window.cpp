@@ -119,13 +119,13 @@ MainWindow::MainWindow(QWidget *parent)
     mScanBtn = new PushButton;
     mScanBtn->setText(tr("扫描任务"));
     
-    mStatusLabel = new QLabel;
-    mStatusLabel->hide();
+//    mStatusLabel = new QLabel;
+//    mStatusLabel->hide();
 
     btnLayout->addWidget(mScanBtn);
     btnLayout->addStretch();
-    btnLayout->addWidget(mStatusLabel);
-    btnLayout->addSpacing(10);
+//    btnLayout->addWidget(mStatusLabel);
+//    btnLayout->addSpacing(10);
     mMainLayout->addItem(btnLayout);
 
     // content View
@@ -145,14 +145,14 @@ MainWindow::MainWindow(QWidget *parent)
         }
     });
 
-    connect (mScannerResultWidget, &ScannerResultWidget::statusString, this, &MainWindow::onShowStatusString);
+//    connect (mScannerResultWidget, &ScannerResultWidget::statusString, this, &MainWindow::onShowStatusString);
 
     // change content
     connect(mScannerTaskWidget, &ScannerTaskWidget::taskDetail, this, &MainWindow::onLoadTaskResult);
     
     connect (mScannerResultWidget, &ScannerResultWidget::returnTaskList, this, [=] () {
         mScanBtn->setText(tr("扫描任务"));
-        mStatusLabel->hide();
+//        mStatusLabel->hide();
         mScannerResultWidget->hide();
         mScannerTaskWidget->show();
         mScannerResultWidget->clearData();
@@ -185,8 +185,8 @@ void MainWindow::resizeEvent(QResizeEvent *)
 
 void MainWindow::onShowStatusString(const QString& status)
 {
-    mStatusLabel->resize(QApplication::fontMetrics().size(Qt::TextSingleLine, status));
-    mStatusLabel->setText(status);
+//    mStatusLabel->resize(QApplication::fontMetrics().size(Qt::TextSingleLine, status));
+//    mStatusLabel->setText(status);
 }
 
 void MainWindow::onLoadTaskResult(const ScannerTaskItem * const item)
@@ -212,7 +212,7 @@ void MainWindow::onLoadTaskResult(const ScannerTaskItem * const item)
 
     mScannerResultWidget->setTaskName (it->getName ());
 
-    mStatusLabel->show();
+//    mStatusLabel->show();
     mScannerResultWidget->show();
     mScannerTaskWidget->hide();
 
