@@ -84,7 +84,7 @@ void ScannerResultItem::setStatus(QString status)
 void ScannerResultItem::setFileCreateTime(QString time)
 {
     qInfo() << "result create time: " << time;
-    mFileCreateTime = QDateTime::fromString (time, "yyyy-MM-dd hh:mm:ss").toSecsSinceEpoch ();
+    mFileCreateTime = QDateTime::fromString (time, "yyyy-MM-dd_hh:mm:ss").toSecsSinceEpoch ();
 }
 
 void ScannerResultItem::setFileCreateTime(qint64 time)
@@ -159,12 +159,12 @@ int ScannerResultItem::getStatus(QString status)
 
 QString ScannerResultItem::getFileCreateTime()
 {
-    return mFileCreateTime <= 0 ? "" : QDateTime::fromSecsSinceEpoch(mFileCreateTime).toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
+    return mFileCreateTime <= 0 ? "" : QDateTime::fromSecsSinceEpoch(mFileCreateTime).toLocalTime().toString("yyyy-MM-dd_hh:mm:ss");
 }
 
 QString ScannerResultItem::getFileModifyTime()
 {
-    return mFileModifyTime <= 0 ? "" : QDateTime::fromSecsSinceEpoch(mFileModifyTime).toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
+    return mFileModifyTime <= 0 ? "" : QDateTime::fromSecsSinceEpoch(mFileModifyTime).toLocalTime().toString("yyyy-MM-dd_hh:mm:ss");
 }
 
 QString ScannerResultItem::getFilterName()

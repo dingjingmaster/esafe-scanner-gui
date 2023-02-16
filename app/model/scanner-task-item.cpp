@@ -180,7 +180,7 @@ qint64 ScannerTaskItem::getStartTime2()
 QString ScannerTaskItem::getStartTime()
 {
     qInfo() << "start time:" << mStopTime;
-    return mStartTime <= 0 ? "" : QDateTime::fromSecsSinceEpoch(mStartTime).toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
+    return mStartTime <= 0 ? "" : QDateTime::fromSecsSinceEpoch(mStartTime).toLocalTime().toString("yyyy-MM-dd_hh:mm:ss");
 }
 
 qint64 ScannerTaskItem::getStopTime2()
@@ -203,10 +203,10 @@ QString ScannerTaskItem::getStopTime()
     qInfo() << "stop time:" << mStopTime;
 
     if (mStopTime <= 0 && Stop == getStatus2() && getStartTime2() > 0) {
-        return QDateTime::fromSecsSinceEpoch(getStartTime2()).toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
+        return QDateTime::fromSecsSinceEpoch(getStartTime2()).toLocalTime().toString("yyyy-MM-dd_hh:mm:ss");
     }
 
-    return mStopTime <= 0 ? "" : QDateTime::fromSecsSinceEpoch(mStopTime).toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
+    return mStopTime <= 0 ? "" : QDateTime::fromSecsSinceEpoch(mStopTime).toLocalTime().toString("yyyy-MM-dd_hh:mm:ss");
 }
 
 QString ScannerTaskItem::getFilterName()
