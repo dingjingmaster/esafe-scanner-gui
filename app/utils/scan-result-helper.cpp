@@ -219,7 +219,7 @@ void ScanResultHelperPrivate::onDBChanged()
                 break;
             }
 
-            if (/*!QFile::exists(fileName) || */nullptr == id || id.isNull() || id.isEmpty() || "" == id
+            if (!QFile::exists(fileName) || nullptr == id || id.isNull() || id.isEmpty() || "" == id
                 || nullptr == fileName || fileName.isNull() || fileName.isEmpty() || "" == fileName) {
                 qWarning() << "file not exists or id、file name is empty";
                 continue;
