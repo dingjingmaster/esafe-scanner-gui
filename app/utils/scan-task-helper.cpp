@@ -239,12 +239,11 @@ void ScanTaskHelperPrivate::onDBChanged()
     QString sql = QString("SELECT `task_id`, `task_status`, `task_start_time`, `task_stop_time`,"
                           " `task_scan_finished_file_count`, `task_scan_file_count`, `task_file_count`,"
                           " `scan_task_filter_name`, `task_name`, `scan_task_dir`, `scan_task_self_check`, "
-                          " `scan_task_dir_filterout` FROM scan_task;");
-
+                          " `scan_task_dir_filterout` FROM scan_task WHERE scan_task_self_check=1;");
     qDebug() << "scan_task sql: '" << sql << "'";
 
     while (!sqlite_lock());
-    sqlite3_stmt* stmt = NULL;
+    sqlite3_stmt* stmt = nullptr;
     int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
     if (SQLITE_OK == ret) {
         while (SQLITE_DONE != sqlite3_step(stmt)) {

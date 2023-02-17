@@ -46,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent)
     if (nullptr != str && !str.isNull() && !str.isEmpty() && "" != str) {
         mCurStatus->setText("正在扫描：" + str);
     } else {
-        mCurStatus->setText("正在扫描：无");
+        mCurStatus->setText("");
     }
     mMainLayout = new QVBoxLayout;
     QHBoxLayout* btnLayout = new QHBoxLayout;
@@ -141,7 +141,7 @@ MainWindow::MainWindow(QWidget *parent)
         if (nullptr != str && !str.isNull() && !str.isEmpty() && "" != str) {
             mCurStatus->setText("正在扫描：" + str);
         } else {
-            mCurStatus->setText("正在扫描：无");
+            mCurStatus->setText("");
         }
     });
 
