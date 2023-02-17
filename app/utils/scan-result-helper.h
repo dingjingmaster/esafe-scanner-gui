@@ -23,12 +23,13 @@ private:
 
 
 public Q_SLOTS:
-    void clearData();
-    void refresResult();
+    void reset ();
+    void cancel ();
+    void refreshResult();
     void loadTaskResult (QString taskName, QString taskFilter, QStringList scanDir, QString filterOutDir);
 
-private Q_SLOTS:
-    void onItemDeleted (QString&);
+public Q_SLOTS:
+    void onItemDeleted (QString);
 
 private:
 
@@ -40,11 +41,19 @@ Q_SIGNALS:
     void detailOne();
     void allItemsUpdated ();
     void delOldFile (QString& it);
+
+    void cancelledFinished ();
+    void addNewFile (QList<ScannerResultItem*> it);
+    void updateFile (QList<ScannerResultItem*> it);
+    void delOldFile (QList<ScannerResultItem*> it);
+
     void addNewFile (ScannerResultItem* it);
     void updateFile (ScannerResultItem* it);
     void delOldFile (ScannerResultItem* it);
 
 private:
+    bool                        mIsRunning;         //
+
     ScanResultHelperPrivate*    d_ptr;
 
     Q_DISABLE_COPY(ScanResultHelper)

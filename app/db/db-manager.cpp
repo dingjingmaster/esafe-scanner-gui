@@ -2,10 +2,11 @@
 #include "../utils/scan-task-helper.h"
 #include "../utils/scan-result-helper.h"
 
+#include <QTimer>
 #include <QDebug>
 #include <QMutex>
 #include <QThread>
-#include <QTimer>
+#include <QDateTime>
 
 static QMutex locker;
 
@@ -49,24 +50,30 @@ DBManager::DBManager(QObject *parent)
     mWatcher->addPath(DB_PATH);
 
     mTimer = new QTimer(this);
-    mTimer->setSingleShot(true);
+//    mTimer->setSingleShot(true);
+    mTimer->setInterval(5 * 1000);
 
+    // 此处仅仅用于更新
     connect(mTimer, &QTimer::timeout, this, &DBManager::updateModel);
 
-    connect (mWatcher, &QFileSystemWatcher::fileChanged, this, [&] (const QString&) {
-        qDebug() << "file changed!";
-        // FIXME:// 定时器 5s 更新一次
-        if (mTimer->isActive ()) {
-            return;
-        }
-        mTimer->start (5 * 1000);
-    });
+//    connect (mWatcher, &QFileSystemWatcher::fileChanged, this, [&] (const QString&) {
+//        qDebug() << "file changed!";
+//        static unsigned int lastTime = 0;
+//        unsigned int curTim = QDateTime::currentDateTime().toSecsSinceEpoch();
+//        if (curTim >= )
+//        // FIXME:// 定时器 5s 更新一次
+//        if (mTimer->isActive ()) {
+//            return;
+//        }
+//        mTimer->start (5 * 1000);
+//    });
+    mTimer->start();
 
     // 扫描任务
     connect (this, &DBManager::refreshScanTask, mScanTask, &ScanTaskHelper::loadAllTask);
 
     // 扫描结果
-    connect (this, &DBManager::refreshScanResult2, mScanResult, &ScanResultHelper::refresResult);
+    connect (this, &DBManager::refreshScanResult2, mScanResult, &ScanResultHelper::refreshResult);
     connect (this, &DBManager::refreshScanResult, mScanResult, &ScanResultHelper::loadTaskResult);
 
 #if 0
@@ -96,5 +103,9 @@ void DBManager::updateModel()
 
 void DBManager::setCurPage(CurPage p)
 {
+    if (CUR_RESULT == mPage && CUR_RESULT != p) {
+        // 从扫描结果页切换到 任务列表页 需要取消
+        mScanResult->cancel();
+    }
     mPage = p;
 }

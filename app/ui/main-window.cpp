@@ -196,6 +196,7 @@ void MainWindow::onLoadTaskResult(const ScannerTaskItem * const item)
 
     if (!item || !it)      return;
 
+//    mScannerResultWidget->onLoadResultStart();
     //
     //qDebug() << "===> task name: " << it->getName() << "set filter name: " << it->getFilterName();
 
@@ -217,6 +218,7 @@ void MainWindow::onLoadTaskResult(const ScannerTaskItem * const item)
     mScannerTaskWidget->hide();
 
     DBManager::instance()->setCurPage(DBManager::CUR_RESULT);
+//    mScannerResultWidget->onLoadResultEnd();
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent* e)
@@ -295,3 +297,4 @@ void MainWindow::mouseReleaseEvent(QMouseEvent* e)
     //QMainWindow::mouseReleaseEvent(e);
     mDrag = false;
 }
+

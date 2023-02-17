@@ -55,6 +55,9 @@ Q_SIGNALS:
     void statusString (QString);        //"任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%5), 删除: (%5)");
 
 public Q_SLOTS:
+    void onLoadResultStart ();
+    void onLoadResultEnd ();
+
     void updateStatus ();
     void lazyUpdateView ();
     void onBackToTaskView ();
@@ -77,6 +80,7 @@ private:
     QHBoxLayout*                mRightLayout;
     
     PushButton*                 mMisBtn;
+    PushButton*                 mRetBtn;
     PushButton*                 mDelBtn;
     PushButton*                 mExpBtn;
 

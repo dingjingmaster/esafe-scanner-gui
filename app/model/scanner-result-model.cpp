@@ -12,9 +12,16 @@
 ScannerResultModel::ScannerResultModel(QObject* parent)
     : QAbstractTableModel{parent}, mScanResultHelper(DBManager::instance()->getResultHelper())
 {
+    qRegisterMetaType<QList<ScannerResultItem*>>("QList<ScannerResultItem*>");
+
     // 数据库与model连接
-    connect(mScanResultHelper, &ScanResultHelper::addNewFile, this, &ScannerResultModel::addItem);
-    connect(mScanResultHelper, qOverload<ScannerResultItem*>(&ScanResultHelper::delOldFile), this, &ScannerResultModel::delItem);
+    connect(mScanResultHelper, qOverload<ScannerResultItem*>(&ScanResultHelper::addNewFile), this, qOverload<ScannerResultItem*>(&ScannerResultModel::addItem));
+    connect(mScanResultHelper, qOverload<ScannerResultItem*>(&ScanResultHelper::delOldFile), this, qOverload<ScannerResultItem*>(&ScannerResultModel::delItem));
+
+    connect(mScanResultHelper, qOverload<QList<ScannerResultItem*>>(&ScanResultHelper::addNewFile), this, qOverload<QList<ScannerResultItem*>>(&ScannerResultModel::addItem));
+    connect(mScanResultHelper, qOverload<QList<ScannerResultItem*>>(&ScanResultHelper::delOldFile), this, qOverload<QList<ScannerResultItem*>>(&ScannerResultModel::delItem));
+
+    connect (this, qOverload<QString>(&ScannerResultModel::deleteItem), mScanResultHelper, &ScanResultHelper::onItemDeleted, Qt::UniqueConnection);
 
     connect(mScanResultHelper, &ScanResultHelper::detailOne, this, [=] () {
         int cur = (++mCur <= mTotal) ? mCur : mTotal;
@@ -35,7 +42,7 @@ ScannerResultModel::ScannerResultModel(QObject* parent)
         beginResetModel();
         mData.clear();
         mChangedItem.clear ();
-        mScanResultHelper->clearData();
+        mScanResultHelper->reset();
         endResetModel();
         mNoFix = 0;
         mDelete = 0;
@@ -95,7 +102,38 @@ void ScannerResultModel::addItem(ScannerResultItem* item)
         Q_EMIT dataChanged (idx, idx);
     }
 
+    Q_EMIT dataStatueChanged();
+}
 
+void ScannerResultModel::addItem(QList<ScannerResultItem*> item)
+{
+    mLocker.lock();
+    mData.append(item);
+    insertRows(mData.count() - 1, item.count());
+    mLocker.unlock();
+
+    qDebug() << "add item: " << item.count();
+
+    for (auto& i : item) {
+        if (nullptr == i) {
+            continue;
+        }
+        changeItemCount(i->getStatus2 ());
+    }
+
+    for (auto& i : item) {
+        QModelIndex idx = getIndexByItem(i);
+        if (!idx.isValid()) {
+            continue;
+        }
+//        qDebug() << "idx: " << idx;
+        if ((mCurIndex - 10 <= idx.row()) && (idx.row() <= mCurIndex + 30)) {
+            Q_EMIT dataChanged (idx, idx);
+        }
+        else {
+            break;
+        }
+    }
 
     Q_EMIT dataStatueChanged();
 }
@@ -122,6 +160,42 @@ void ScannerResultModel::delItem(ScannerResultItem *item)
     if (mCurIndex < 30 || rowCount() < mCurIndex + 30) {
         Q_EMIT dataChanged (idx, idx);
     }
+
+    Q_EMIT dataStatueChanged();
+}
+
+
+void ScannerResultModel::delItem(QList<ScannerResultItem*> item)
+{
+    qDebug() << "delete item: " << item.count();
+
+    mLocker.lock();
+
+    for (auto& i : item) {
+        QModelIndex idx = getIndexByItem(i);
+        if (!idx.isValid()) {
+            continue;
+        }
+        if (mData.contains (i))  mData.removeOne (i);
+        removeRow (idx.row());
+
+        if (mCurIndex < 30 || rowCount() < mCurIndex + 30) {
+            Q_EMIT dataChanged (idx, idx);
+        }
+        else {
+            break;
+        }
+    }
+
+    for (auto& i : item) {
+        if (nullptr == i) {
+            continue;
+        }
+        changeItemCount(i->getStatus2 (), false);
+        Q_EMIT deleteItem (i->getFileName());
+    }
+
+    mLocker.unlock();
 
     Q_EMIT dataStatueChanged();
 }

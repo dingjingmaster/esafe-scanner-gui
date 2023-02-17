@@ -26,6 +26,11 @@ public:
     void setCurPage (CurPage page);
 
 Q_SIGNALS:
+    void startLoadResult ();            // 信号暂未用到
+    void stopLoadResult ();             // 信号发到界面
+    void cancelLoadResult ();           // 信号由界面来
+
+
     void stopDBMonitor();
     void startDBMonitor();
     void refreshScanTask ();

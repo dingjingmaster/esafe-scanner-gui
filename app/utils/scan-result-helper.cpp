@@ -7,13 +7,14 @@
 #include <QSet>
 #include <QFile>
 #include <QDebug>
+#include <QMutex>
 #include <QFileInfo>
 #include <QDateTime>
 #include <QMessageBox>
 #include <QApplication>
 #include <QFileSystemWatcher>
-#include <QMutex>
 
+#include <gio/gio.h>
 #include <sqlite3.h>
 
 class ScanResultHelperPrivate
@@ -41,6 +42,8 @@ public:
     sqlite3*                            mDB;
     QFileSystemWatcher*                 mWatcher;
 
+    GCancellable*                       mCancel;                // 取消操作
+
     QMutex                              mLocker;
 
     // const
@@ -52,8 +55,6 @@ ScanResultHelper::ScanResultHelper(QString dbPath, QObject *parent)
     : QObject{parent}, d_ptr(new ScanResultHelperPrivate(dbPath, this))
 {
     Q_D(ScanResultHelper);
-
-    connect (this, qOverload<QString&>(&ScanResultHelper::delOldFile), this, &ScanResultHelper::onItemDeleted, Qt::UniqueConnection);
 }
 
 ScanResultHelper::~ScanResultHelper()
@@ -82,7 +83,7 @@ void ScanResultHelper::testInsertItem()
     }
 }
 
-void ScanResultHelper::clearData()
+void ScanResultHelper::reset ()
 {
     Q_D(ScanResultHelper);
 
@@ -96,10 +97,12 @@ void ScanResultHelper::clearData()
     }
     d->mData.clear();
 
+    g_cancellable_reset (d->mCancel);
+
     d->mLocker.unlock();
 }
 
-void ScanResultHelper::refresResult()
+void ScanResultHelper::refreshResult()
 {
     Q_D(ScanResultHelper);
 
@@ -111,19 +114,18 @@ void ScanResultHelper::refresResult()
     loadTaskResult (d->mTaskName, d->mTaskFilter, d->mScanDir, d->mFilterOutDir);
 }
 
-void ScanResultHelper::onItemDeleted(QString& id)
+void ScanResultHelper::onItemDeleted(QString id)
 {
     Q_D (ScanResultHelper);
 
-    //d->mLocker.lock();
+    d->mLocker.lock();
     if (d->mData.contains(id)) {
         auto item = d->mData[id];
         Q_EMIT delOldFile (item);
         // QMap 的 remove 里做了资源释放操作
         d->mData.remove(id);
-        //item ->deleteLater();
     }
-    //d->mLocker.unlock();
+    d->mLocker.unlock();
 }
 
 void ScanResultHelper::loadTaskResult(QString taskName, QString taskFilter, QStringList scanDir, QString filterOutDir)
@@ -145,7 +147,9 @@ ScanResultHelperPrivate::ScanResultHelperPrivate(QString db, ScanResultHelper *p
 {
     Q_Q(ScanResultHelper);
 
-    mDBPath = db;
+    mCancel = g_cancellable_new();
+
+    mDBPath = std::move(db);
 
     int rc = sqlite3_open (mDBPath.toUtf8().constData(), &mDB);
     if (SQLITE_OK != rc) {
@@ -159,6 +163,7 @@ ScanResultHelperPrivate::ScanResultHelperPrivate(QString db, ScanResultHelper *p
 
 ScanResultHelperPrivate::~ScanResultHelperPrivate()
 {
+    if (mCancel)        { g_object_unref (mCancel); mCancel = nullptr;}
     if (mDB)            { sqlite3_close(mDB); mDB = nullptr;}
     mLocker.lock();
     for (auto m = mData.begin(); m != mData.end(); ++m)    delete m.value();
@@ -166,9 +171,15 @@ ScanResultHelperPrivate::~ScanResultHelperPrivate()
     mLocker.unlock();
 }
 
+// DJ-
 void ScanResultHelperPrivate::onDBChanged()
 {
     Q_Q(ScanResultHelper);
+
+    QSet<QString> allItem;
+    QList <ScannerResultItem*>      addItem;
+    QList <ScannerResultItem*>      delItem;
+    QList <ScannerResultItem*>      updateItem;
 
     QStringList k = mTaskFilter.split("|");
     QStringList od = mFilterOutDir.split("|");
@@ -182,7 +193,6 @@ void ScanResultHelperPrivate::onDBChanged()
 
     QString policy = policyIDs.join(",");
 
-    QSet<QString> allItem;
     sqlite3_stmt* stmt = nullptr;
 
     if (policy.isNull() || policy.isEmpty() || "" == policy) {
@@ -203,7 +213,13 @@ void ScanResultHelperPrivate::onDBChanged()
             int status = sqlite3_column_int(stmt, 2);   // 状态不更新，只有客户端会改
             int finishedTime = sqlite3_column_int(stmt, 3);
 
-            if (!QFile::exists(fileName) || nullptr == id || id.isNull() || id.isEmpty() || "" == id
+            // 取消
+            if (g_cancellable_is_cancelled (mCancel)) {
+                qWarning () << "canceled";
+                break;
+            }
+
+            if (/*!QFile::exists(fileName) || */nullptr == id || id.isNull() || id.isEmpty() || "" == id
                 || nullptr == fileName || fileName.isNull() || fileName.isEmpty() || "" == fileName) {
                 qWarning() << "file not exists or id、file name is empty";
                 continue;
@@ -249,9 +265,11 @@ void ScanResultHelperPrivate::onDBChanged()
                         if (finishedTime != item->getFileCreateTime()) {
                             item->setFileCreateTime(finishedTime);
                             //item->setStatus(status);
-                            Q_EMIT q->updateFile(item);
+                            updateItem += item;
+//                            Q_EMIT q->updateFile(item);
                         }
-                    } else {
+                    }
+                    else {
                         auto item = new ScannerResultItem;
                         item->setTaskName(mTaskName);
 
@@ -259,7 +277,7 @@ void ScanResultHelperPrivate::onDBChanged()
                         item->setStatus(status);
                         item->setFileName(fileName);
                         item->setFileCreateTime(finishedTime);
-                        item->setCanUntreated((item->getStatus2() == ScannerResultItem::MisReport) ? true : false);
+                        item->setCanUntreated(item->getStatus2 () == ScannerResultItem::MisReport);
 
                         QFileInfo file(item->getFileName());
                         if (file.exists()) {
@@ -269,9 +287,10 @@ void ScanResultHelperPrivate::onDBChanged()
                         mLocker.lock();
                         mData[id] = item;
                         mLocker.unlock();
-                        Q_EMIT q->addNewFile(item);
+//                        Q_EMIT q->addNewFile(item);
+                        addItem += item;
                     }
-                    qInfo() << "task id:" << id;
+//                    qInfo() << "task id:" << id;
                     allItem += id;
                     QApplication::processEvents();
                     break;
@@ -279,26 +298,38 @@ void ScanResultHelperPrivate::onDBChanged()
             }
         }
         if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
-    } else {
+    }
+    else {
         qWarning() << "sql execute error: " << sqlite3_errmsg(mDB);
     }
 
     if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
     while (!sqlite_unlock());
 
-    mLocker.lock();
-    QSet<QString> nowItem = mData.keys().toSet();
-    mLocker.unlock();
+    // 是否是取消操作
+    if (!g_cancellable_is_cancelled (mCancel)) {
+        mLocker.lock();
+        auto delItemT = allItem - mData.keys().toSet();
+        mLocker.unlock();
 
-    auto delItem = allItem - nowItem;
+        for (auto& id : delItemT) {
+            if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
+            delItem += mData[id];
+        }
 
-    for (auto id : delItem) {
-        if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
-        // 线程安全的
-        Q_EMIT q->delOldFile(id);
+        Q_EMIT q->addNewFile (addItem);
+        Q_EMIT q->delOldFile (delItem);
+        Q_EMIT q->updateFile (updateItem);
+
+
+        Q_EMIT q->allItemsUpdated();
+    }
+    else {
+        qInfo () << "取消";
+        Q_EMIT q->cancelledFinished();
     }
 
-    Q_EMIT q->allItemsUpdated();
+    qDebug() << "query db ok!!";
 }
 
 bool ScanResultHelperPrivate::selectIDByFilterName()
@@ -427,4 +458,11 @@ void ScanResultHelper::deleteItemByIDs(const QStringList& ids)
         Q_EMIT detailOne();
         QApplication::processEvents();
     }
+}
+
+void ScanResultHelper::cancel()
+{
+    Q_D(ScanResultHelper);
+
+    g_cancellable_cancel (d->mCancel);
 }

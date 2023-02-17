@@ -21,9 +21,12 @@ public:
     bool hasChanged ();
     bool hasChecked ();
     bool isCheckAllItems ();
+
     void addItem (ScannerResultItem* item);
     void delItem (ScannerResultItem* item);
-    
+    void addItem (QList<ScannerResultItem*> item);
+    void delItem (QList<ScannerResultItem*> item);
+
     int getAllCount ();
     int getNoFixCount ();
     int getDeleteCount ();
@@ -56,6 +59,7 @@ Q_SIGNALS:
     void clearData ();
     void lazyUpdateView ();
     void dataStatueChanged ();
+    QString deleteItem (QString);
     void progress (int cur, int total);
     void showData (QString TaskName, QString filterName, QStringList scanDir, QString filterOutDir);
 
