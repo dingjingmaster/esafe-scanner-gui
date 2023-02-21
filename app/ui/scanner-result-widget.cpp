@@ -380,18 +380,17 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         Q_EMIT mModel->lazyUpdateView();
     });
 
-    connect (this, &ScannerResultWidget::statusString, this, &ScannerResultWidget::onShowStatusString);
+    connect (this, qOverload<QString>(&ScannerResultWidget::statusString), this, qOverload<QString>(&ScannerResultWidget::onShowStatusString));
+    connect (this, qOverload<QString, int, int, int>(&ScannerResultWidget::statusString), this, qOverload<QString, int, int, int>(&ScannerResultWidget::onShowStatusString));
 
     // 更新状态
     connect (mModel, &ScannerResultModel::dataChanged, this, [=] (const QModelIndex &topLeft,
              const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>()) {
-        Q_EMIT statusString (QString("任务名称: %1, 未处理数 %2 条, 例外文件数 %3 条, 共 %4 条结果")
-                                     .arg(mTaskName).arg(mModel->getNoFixCount()).arg (mModel->getMisReportCount()).arg (mModel->getAllCount())); //.arg (mModel->getDeleteCount ()));
+        Q_EMIT statusString (mTaskName, mModel->getNoFixCount(), mModel->getMisReportCount(), mModel->getAllCount()); //.arg (mModel->getDeleteCount ()));
     });
 
     connect (mModel, &ScannerResultModel::dataStatueChanged, this, [=] () {
-        Q_EMIT statusString (QString("任务名称: %1, 未处理数 %2 条, 例外文件数 %3 条, 共 %4 条结果")
-                .arg(mTaskName).arg(mModel->getNoFixCount()).arg (mModel->getMisReportCount()).arg (mModel->getAllCount())); //.arg (mModel->getDeleteCount ()));
+        Q_EMIT statusString (mTaskName, mModel->getNoFixCount(), mModel->getMisReportCount(), mModel->getAllCount()); //.arg (mModel->getDeleteCount ()));
     });
 
 //    connect (mModel, &ScannerResultModel::lazyUpdateView, this, [=] () {
@@ -697,10 +696,10 @@ void ScannerResultWidget::lazyUpdateView()
 
 void ScannerResultWidget::onShowStatusString(QString str)
 {
-    if (!mStatusLabel->isHidden()) {
-        mStatusLabel->resize(QApplication::fontMetrics().size(Qt::TextSingleLine, str));
-    }
     mStatusLabel->setText(str);
+//    if (!mStatusLabel->isHidden()) {
+//        mStatusLabel->resize(QApplication::fontMetrics().size(Qt::TextSingleLine, str));
+//    }
 }
 
 void ScannerResultWidget::setNoSelectedStatus()
@@ -735,5 +734,10 @@ void ScannerResultWidget::onLoadResultStart()
 void ScannerResultWidget::onLoadResultEnd()
 {
     mRetBtn -> enable(true);
+}
+
+void ScannerResultWidget::onShowStatusString(QString t, int a, int b, int c)
+{
+    Q_EMIT statusString (QString("任务名称: %1 未处理数 <span style='color:#00CCFF;'>%2</span> 条 例外文件数 <span style='color:blue;'>%3</span> 条 共 %4 条结果").arg(t).arg(a).arg (b).arg (c)); //.arg (mModel->getDeleteCount ()));
 }
 
