@@ -281,7 +281,7 @@ void ScanResultHelperPrivate::onDBChanged()
 
                         QFileInfo file(item->getFileName());
                         if (file.exists()) {
-                            item->setFileModifyTime(file.metadataChangeTime().toSecsSinceEpoch());
+                            item->setFileModifyTime(file.lastModified().toSecsSinceEpoch());
                         }
 
                         mLocker.lock();

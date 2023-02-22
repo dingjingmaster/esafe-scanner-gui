@@ -114,19 +114,16 @@ MainWindow::MainWindow(QWidget *parent)
     mStatusTimer->setInterval(2 * 1000);
 
     // button
+    auto widget = new QWidget;
     btnLayout->setContentsMargins(0, 0, 0, 0);
     btnLayout->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     mScanBtn = new PushButton;
     mScanBtn->setText(tr("扫描任务"));
-    
-//    mStatusLabel = new QLabel;
-//    mStatusLabel->hide();
-
     btnLayout->addWidget(mScanBtn);
     btnLayout->addStretch();
-//    btnLayout->addWidget(mStatusLabel);
-//    btnLayout->addSpacing(10);
-    mMainLayout->addItem(btnLayout);
+    widget->setLayout (btnLayout);
+    widget->setStyleSheet ("border-style: none none solid none; border-width:1px; border-color:#E3E3E3;");
+    mMainLayout->addWidget(widget);
 
     // content View
     mMainLayout->addWidget(mScannerTaskWidget);
