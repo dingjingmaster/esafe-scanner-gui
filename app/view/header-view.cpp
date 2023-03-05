@@ -13,7 +13,7 @@ HeaderView::HeaderView(Qt::Orientation orientation, QWidget *parent)
     setMouseTracking(true);
 
     QFont f = font();
-    f.setBold (true);
+    f.setBold (false);
     setFont (f);
 
     setSectionsClickable(true);
@@ -55,6 +55,9 @@ void HeaderView::paintSection(QPainter *p, const QRect &rect, int logicalIndex) 
         cbOp.state |= mChecked ? QStyle::State_On : QStyle::State_Off;
         cbOp.rect = rectCB;
         QApplication::style()->drawControl(QStyle::CE_CheckBox, &cbOp, p);
+    }
+    else {
+
     }
 
     p->restore();

@@ -1,8 +1,10 @@
 #include "scanner-task-model.h"
 
+#include <QFont>
 #include <QSize>
 #include <QDebug>
 #include <QColor>
+#include <QApplication>
 
 #include "../db/db-manager.h"
 #include "../utils/scan-task-helper.h"
@@ -186,6 +188,11 @@ QVariant ScannerTaskModel::headerData(int section, Qt::Orientation orentation, i
         return QColor::fromRgb(mBackgroundR, mBackgroundG, mBackgroundB);
     } else if (Qt::TextAlignmentRole == role) {
         return Qt::AlignCenter;
+    }
+    else if (Qt::FontRole == role) {
+        QFont f = qApp->font();
+        f.setBold (false);
+        return f;
     }
 
     return QVariant();

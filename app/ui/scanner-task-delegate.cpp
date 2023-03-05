@@ -41,6 +41,7 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
     case 3:
     case 4:
         align |= Qt::AlignHCenter;
+        if (nullptr != text && !text.isNull() && !text.isEmpty())  p->drawText(rect, align, text);
         break;
     case 5: {
 #if 0
@@ -64,21 +65,20 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
         return;
 #endif
         align |= Qt::AlignVCenter | Qt::AlignLeft;
+        if (nullptr != text && !text.isNull() && !text.isEmpty())  p->drawText(rect, align, text);
         break;
     }
-    case 6:
-//        if (item->getSelfCheck()) {
-//            p->setPen(Qt::blue);
-//        } else {
-//            p->setPen(Qt::red);
-//        }
-        QStyledItemDelegate::paint(p, option, index);
-        return;
-    default:
+    case 6: {
+        align |= Qt::AlignCenter;
+        p->setPen (Qt::blue);
+        if (nullptr != text && !text.isNull() && !text.isEmpty())  p->drawText(rect, align, text);
         break;
     }
-
-    if (nullptr != text && !text.isNull() && !text.isEmpty())  p->drawText(rect, align, text);
+    default: {
+        if (nullptr != text && !text.isNull() && !text.isEmpty())  p->drawText(rect, align, text);
+        break;
+    }
+    }
 
     p->restore();
 }

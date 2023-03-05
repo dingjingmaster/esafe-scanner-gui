@@ -34,6 +34,8 @@ ScannerTaskWidget::ScannerTaskWidget(QWidget *parent)
     mView->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Fixed);
     mView->horizontalHeader()->setSectionResizeMode(6, QHeaderView::Fixed);
 
+    mView->horizontalHeader()->setSectionsClickable (false);
+
     //mView->setSortingEnabled(false);
     mMainLayout->addWidget(mView);
 
