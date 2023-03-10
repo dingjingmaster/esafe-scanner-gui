@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
     mCurStatus->setWordWrap(true);
     QString str = ScanStatusHelper::getStatusString();
     if (nullptr != str && !str.isNull() && !str.isEmpty() && "" != str) {
-        mCurStatus->setText("正在扫描：" + str);
+        mCurStatus->setText(str);
     } else {
         mCurStatus->setText("");
     }
@@ -136,7 +136,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(mStatusTimer, &QTimer::timeout, this, [=] () {
         QString str = ScanStatusHelper::getStatusString();
         if (nullptr != str && !str.isNull() && !str.isEmpty() && "" != str) {
-            mCurStatus->setText("正在扫描：" + str);
+            mCurStatus->setText(str);
         } else {
             mCurStatus->setText("");
         }
