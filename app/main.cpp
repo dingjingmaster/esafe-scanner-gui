@@ -158,23 +158,23 @@ int main(int argc, char *argv[])
     palette.setColor (QPalette::Current, QPalette::Background,          QColor::fromRgbF(1, 1, 1, 1));                      // ok
 
     palette.setColor (QPalette::NColorGroups, QPalette::WindowText,         QColor::fromRgbF(0, 0, 0, 1));                  // ok
-//    palette.setColor (QPalette::NColorGroups, QPalette::Button,             QColor::fromRgbF(.254902, .301961, .407843, 1));
-//    palette.setColor (QPalette::NColorGroups, QPalette::Light,              QColor::fromRgbF(.254902, .301961, .407843, 1));
-//    palette.setColor (QPalette::NColorGroups, QPalette::Midlight,           QColor::fromRgbF(.254902, .301961, .407843, 1));
-//    palette.setColor (QPalette::NColorGroups, QPalette::Dark,               QColor::fromRgbF(.254902, .301961, .407843, 1));
-//    palette.setColor (QPalette::NColorGroups, QPalette::Mid,                QColor::fromRgbF(.254902, .301961, .407843, 1));
+    palette.setColor (QPalette::NColorGroups, QPalette::Button,             QColor::fromRgbF(1, 1, 1, 1));
+    palette.setColor (QPalette::NColorGroups, QPalette::Light,              QColor::fromRgbF(1, 1, 1, 1));
+    palette.setColor (QPalette::NColorGroups, QPalette::Midlight,           QColor::fromRgbF(1, 1, 1, 1));
+    palette.setColor (QPalette::NColorGroups, QPalette::Dark,               QColor::fromRgbF(1, 1, 1, 1));
+    palette.setColor (QPalette::NColorGroups, QPalette::Mid,                QColor::fromRgbF(1, 1, 1, 1));
     palette.setColor (QPalette::NColorGroups, QPalette::Text,               QColor::fromRgbF(0, 0, 0, 1));                  // ok
     palette.setColor (QPalette::NColorGroups, QPalette::BrightText,         QColor::fromRgbF(0, 0, 0, 1));                  // ok
     palette.setColor (QPalette::NColorGroups, QPalette::ButtonText,         QColor::fromRgbF(0, 0, 0, 1));                  // ok
     palette.setColor (QPalette::NColorGroups, QPalette::Base,               QColor::fromRgbF(1, 1, 1, 1));                  // ok
 //    palette.setColor (QPalette::NColorGroups, QPalette::Window,             QColor::fromRgbF(.254902, .301961, .407843, 1));
-//    palette.setColor (QPalette::NColorGroups, QPalette::Shadow,             QColor::fromRgbF(.254902, .301961, .407843, 1));
+    palette.setColor (QPalette::NColorGroups, QPalette::Shadow,             QColor::fromRgbF(1, 1, 1, 1));
     palette.setColor (QPalette::NColorGroups, QPalette::Highlight,          QColor::fromRgbF(1, 1, 1, 1));                  // ok
     palette.setColor (QPalette::NColorGroups, QPalette::HighlightedText,    QColor::fromRgbF(0, 0, 0, 1));                  // ok
 //    palette.setColor (QPalette::NColorGroups, QPalette::Link,               QColor::fromRgbF(.254902, .301961, .407843, 1));
 //    palette.setColor (QPalette::NColorGroups, QPalette::LinkVisited,        QColor::fromRgbF(.254902, .301961, .407843, 1));
 //    palette.setColor (QPalette::NColorGroups, QPalette::AlternateBase,      QColor::fromRgbF(.254902, .301961, .407843, 1));
-//    palette.setColor (QPalette::NColorGroups, QPalette::NoRole,             QColor::fromRgbF(.254902, .301961, .407843, 1));
+    palette.setColor (QPalette::NColorGroups, QPalette::NoRole,             QColor::fromRgbF(1, 1, 1, 1));
     palette.setColor (QPalette::NColorGroups, QPalette::ToolTipBase,        QColor::fromRgbF(1, 1, 1, 1));                  // ok
     palette.setColor (QPalette::NColorGroups, QPalette::ToolTipText,        QColor::fromRgbF(0, 0, 0, 1));                  // ok
     palette.setColor (QPalette::NColorGroups, QPalette::Foreground,         QColor::fromRgbF(0, 0, 0, 1));                  // ok
