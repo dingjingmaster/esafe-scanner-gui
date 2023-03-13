@@ -15,7 +15,7 @@ void notify_policy_filter (ScannerResultItem::Status status)
 
     QLocalSocket sock;
     Message msg = {
-        .messageType = 1039,
+        .messageType = 10039,
         .messageLength = (unsigned long)((status == ScannerResultItem::Deleted) ? 6 : 9),
     };
 
