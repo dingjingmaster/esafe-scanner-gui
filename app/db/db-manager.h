@@ -35,7 +35,7 @@ Q_SIGNALS:
     void startDBMonitor();
     void refreshScanTask ();
     void refreshScanResult2 ();
-    void refreshScanResult (const QString taskName="", const QString taskFilter="", const QStringList scanDir=QStringList(), const QString filterOut="");
+    void refreshScanResult (const QString taskName="", const QString taskFilter="", const QStringList scanDir=QStringList(), const QString filterOut="", const QString fileType="", const QString fileTypeOut="");
 
 private Q_SLOTS:
     void updateModel();

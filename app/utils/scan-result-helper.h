@@ -26,7 +26,7 @@ public Q_SLOTS:
     void reset ();
     void cancel ();
     void refreshResult();
-    void loadTaskResult (const QString& taskName, const QString& taskFilter, const QStringList& scanDir, const QString& filterOutDir);
+    void loadTaskResult (const QString& taskName, const QString& taskFilter, const QStringList& scanDir, const QString& filterOutDir, const QString& fileType, const QString& fileTypeOut);
 
 public Q_SLOTS:
     void onItemDeleted (const QString&);

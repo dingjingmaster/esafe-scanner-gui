@@ -597,7 +597,7 @@ void ScannerResultWidget::clearData()
     Q_EMIT mModel->clearData();
 }
 
-void ScannerResultWidget::loadTaskResult(QString taskName, QString taskFilter, QStringList scanDir, QString scanOutDir)
+void ScannerResultWidget::loadTaskResult (QString taskName, QString taskFilter, QStringList scanDir, QString scanOutDir, QString scanType, QString scanTypeOut)
 {
     if (!mModel)        return;
 
@@ -606,7 +606,7 @@ void ScannerResultWidget::loadTaskResult(QString taskName, QString taskFilter, Q
 
     mTaskName = taskName;
 
-    Q_EMIT mModel->showData(taskName, taskFilter, scanDir, scanOutDir);
+    Q_EMIT mModel->showData(taskName, taskFilter, scanDir, scanOutDir, scanType, scanTypeOut);
 }
 
 void ScannerResultWidget::updateStatus()

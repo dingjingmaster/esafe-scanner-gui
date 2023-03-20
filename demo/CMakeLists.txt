@@ -19,25 +19,25 @@ add_executable (demo-scanner-task-model
     ${CMAKE_SOURCE_DIR}/demo/demo-scanner-task-model.cpp
     ${MODEL_SRC} ${VIEW_SRC} ${UTILS_SRC} ${DB_SRC})
 target_include_directories(demo-scanner-task-model PUBLIC
-    ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${SQLITE3_INCLUDE_DIRS} ${PROTOBUF_INCLUDE_DIRS})
+    ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${SQLITE3_INCLUDE_DIRS} ${PROTOBUF_INCLUDE_DIRS} ${GIO_INCLUDE_DIRS})
 target_link_libraries (demo-scanner-task-model
-    Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets ${SQLITE3_LIBRARIES})
+    Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets ${SQLITE3_LIBRARIES} ${GIO_LIBRARIES})
 
 add_executable (demo-scan-task-bentch
     ${CMAKE_SOURCE_DIR}/demo/demo-scan-task-bentch.cpp
     ${MODEL_SRC} ${VIEW_SRC} ${UTILS_SRC} ${DB_SRC})
 target_include_directories(demo-scan-task-bentch PUBLIC
-    ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${SQLITE3_INCLUDE_DIRS})
+    ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${SQLITE3_INCLUDE_DIRS} ${GIO_INCLUDE_DIRS})
 target_link_libraries (demo-scan-task-bentch
-    Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets ${SQLITE3_LIBRARIES})
+    Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets ${SQLITE3_LIBRARIES} ${GIO_LIBRARIES})
 
 add_executable (demo-scan-result-bentch
     ${CMAKE_SOURCE_DIR}/demo/demo-scan-result-bentch.cpp
     ${MODEL_SRC} ${VIEW_SRC} ${UTILS_SRC} ${DB_SRC})
 target_include_directories(demo-scan-result-bentch PUBLIC
-    ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${SQLITE3_INCLUDE_DIRS})
+    ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${SQLITE3_INCLUDE_DIRS} ${GIO_INCLUDE_DIRS})
 target_link_libraries (demo-scan-result-bentch
-    Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets ${SQLITE3_LIBRARIES})
+    Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets ${SQLITE3_LIBRARIES} ${GIO_LIBRARIES})
 
 
 

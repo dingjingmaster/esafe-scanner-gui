@@ -31,6 +31,12 @@ public:
     bool selectIDByFilterName ();
     ScannerResultItem* selectFileByID (QString id);
 
+private:
+    bool isInScanDir(const QString& path);
+    bool isInScanOutDir(const QString& path) const;
+    bool isInScanFileType(const QString& fileType) const;
+    bool isInScanFileOutType(const QString& fileType) const;
+
 public:
     QString                                                 mDBPath;
 
@@ -38,6 +44,9 @@ public:
     QString                                                 mTaskName;
     QString                                                 mTaskFilter;
     QString                                                 mFilterOutDir;
+
+    QString                                                 mFileType;
+    QString                                                 mFileTypeOut;
 
     QMap<QString, QSharedPointer<ScannerResultItem>>        mData;                  // <FileMD5, ScannerResultItem*>
 
@@ -71,8 +80,8 @@ void ScanResultHelper::testInsertItem()
     char* errorMsg = nullptr;
 
     for (int i = 0; i < 1000000; ++i) {
-        QString sql = QString("INSERT INTO scan_result (scan_file_name, policy_id, action_id, status, scan_finished_time, detect_result, file_size, file_type)"
-                              "VALUES ('/tmp/最奥大苏打地区党伽倻过渡期一个肚脐眼过渡期一个对齐我有个对齐过渡期为过渡期蔓延到股权五斗柜趣味有多高趣味-%1', 'A', 'A', 0, 1658558157, '', '', '');").arg (i);
+        QString sql = QString("INSERT INTO scan_result (scan_file_name, policy_id, action_id, status, scan_finished_time, detect_result, file_size, file_type, scan_path, exec_path, scan_file_type, exec_type)"
+                              "VALUES ('/tmp/最奥大苏打地区党伽倻过渡期一个肚脐眼过渡期一个对齐我有个对齐过渡期为过渡期蔓延到股权五斗柜趣味有多高趣味-%1', 'A', 'A', 0, 1658558157, '', '', '', '', '', '', '');").arg (i);
 
         while (!sqlite_lock());
         int ret = sqlite3_exec(d->mDB, sql.toUtf8().constData(), nullptr, nullptr, &errorMsg);
@@ -114,7 +123,7 @@ void ScanResultHelper::refreshResult()
         return;
     }
 
-    loadTaskResult (d->mTaskName, d->mTaskFilter, d->mScanDir, d->mFilterOutDir);
+    loadTaskResult (d->mTaskName, d->mTaskFilter, d->mScanDir, d->mFilterOutDir, d->mFileType, d->mFileTypeOut);
 }
 
 void ScanResultHelper::onItemDeleted(const QString& id)
@@ -131,7 +140,7 @@ void ScanResultHelper::onItemDeleted(const QString& id)
     d->mLocker.unlock();
 }
 
-void ScanResultHelper::loadTaskResult(const QString& taskName, const QString& taskFilter, const QStringList& scanDir, const QString& filterOutDir)
+void ScanResultHelper::loadTaskResult (const QString& taskName, const QString& taskFilter, const QStringList& scanDir, const QString& filterOutDir, const QString& fileType, const QString& fileTypeOut)
 {
     Q_D(ScanResultHelper);
 
@@ -140,6 +149,8 @@ void ScanResultHelper::loadTaskResult(const QString& taskName, const QString& ta
     d->mTaskName = taskName;
     d->mTaskFilter = taskFilter;
     d->mFilterOutDir = filterOutDir;
+    d->mFileType = fileType;
+    d->mFileTypeOut = fileTypeOut;
 
     d->onDBChanged();
 }
@@ -205,7 +216,7 @@ void ScanResultHelperPrivate::onDBChanged()
         return;
     }
 
-    QString sql = QString("SELECT `ID`, `scan_file_name`, `status`, `scan_finished_time`"
+    QString sql = QString("SELECT `ID`, `scan_file_name`, `status`, `scan_finished_time`, `file_type`"
                           " FROM scan_result WHERE status!=5 AND policy_id IN (%1)").arg (policy);
     qInfo() << "sql ==> " << sql;
     while (!sqlite_lock()); // {if (++ev % 10) QApplication::processEvents(); usleep(1000);};
@@ -217,6 +228,7 @@ void ScanResultHelperPrivate::onDBChanged()
             QString fileName = QString(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
             int status = sqlite3_column_int(stmt, 2);   // 状态不更新，只有客户端会改
             int finishedTime = sqlite3_column_int(stmt, 3);
+            QString fileType (reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4)));
 
             // 取消
             if (g_cancellable_is_cancelled (mCancel)) {
@@ -230,15 +242,43 @@ void ScanResultHelperPrivate::onDBChanged()
                 continue;
             }
 
+            if (isInScanDir(fileName) && !isInScanOutDir(fileName) && isInScanFileType(fileType) && !isInScanFileOutType(fileType)) {
+                if (mData.contains (id)) {
+                    auto item = mData[id];
+                    if (finishedTime != item->getFileCreateTime()) {
+                        item->setFileCreateTime(finishedTime);
+                        updateItem += item;
+                    }
+                }
+                else {
+                    auto item = QSharedPointer<ScannerResultItem>(new ScannerResultItem, doDeleteLater);
+                    item->setTaskName(mTaskName);
+                    item->setID(id);
+                    item->setStatus(status);
+                    item->setFileName(fileName);
+                    item->setFileType(fileType);
+                    item->setFileCreateTime(finishedTime);
+                    item->setCanUntreated(item->getStatus2 () == ScannerResultItem::MisReport);
+
+                    QFileInfo file(item->getFileName());
+                    if (file.exists()) {
+                        item->setFileModifyTime(file.lastModified().toSecsSinceEpoch());
+                    }
+                    mLocker.lock();
+                    mData[id] = item;
+                    mLocker.unlock();
+                    addItem += item;
+                }
+                allItem += id;
+            }
+            QApplication::processEvents();
+#if 0
             // scan directory
             for (const auto& s : mScanDir) {
                 auto sdir = s;
                 if (!sdir.endsWith ("/")) sdir += "/";
-
                 if (fileName.startsWith(sdir)) {
-
                     bool filterOut = false;
-
                     // filter out dir
                     if (od.empty()) {
                         for (const auto& d : od) {
@@ -247,13 +287,13 @@ void ScanResultHelperPrivate::onDBChanged()
                             if (!d.endsWith("/")) {
                                 dt += "/";
                             }
-
                             if (dt.startsWith("/")) {
                                 if (fileName.startsWith(dt)) {
                                     filterOut = true;
                                     break;
                                 }
-                            } else {
+                            }
+                            else {
                                 if (fileName.contains(dt)) {
                                     filterOut = true;
                                     break;
@@ -262,45 +302,10 @@ void ScanResultHelperPrivate::onDBChanged()
                         }
                     }
                     if (filterOut) break;
-
-                    //mLocker.lock();
-                    auto item = (mData.contains(id)) ? mData[id] : nullptr;
-                    //mLocker.unlock();
-                    if (item) {
-                        if (finishedTime != item->getFileCreateTime()) {
-                            item->setFileCreateTime(finishedTime);
-                            //item->setStatus(status);
-                            updateItem += item;
-//                            Q_EMIT q->updateFile(item);
-                        }
-                    }
-                    else {
-                        auto item = QSharedPointer<ScannerResultItem>(new ScannerResultItem, doDeleteLater);
-                        item->setTaskName(mTaskName);
-
-                        item->setID(id);
-                        item->setStatus(status);
-                        item->setFileName(fileName);
-                        item->setFileCreateTime(finishedTime);
-                        item->setCanUntreated(item->getStatus2 () == ScannerResultItem::MisReport);
-
-                        QFileInfo file(item->getFileName());
-                        if (file.exists()) {
-                            item->setFileModifyTime(file.lastModified().toSecsSinceEpoch());
-                        }
-
-                        mLocker.lock();
-                        mData[id] = item;
-                        mLocker.unlock();
-//                        Q_EMIT q->addNewFile(item);
-                        addItem += item;
-                    }
-//                    qInfo() << "task id:" << id;
-                    allItem += id;
-                    QApplication::processEvents();
                     break;
                 }
             }
+#endif
         }
         if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
     }
@@ -419,6 +424,81 @@ noChanged:
 
     return nullptr;
 
+}
+
+bool ScanResultHelperPrivate::isInScanDir(const QString &path)
+{
+    if (mScanDir.isEmpty()) {
+        return true;
+    }
+
+    if (std::any_of (mScanDir.begin(), mScanDir.end(), [=] (const QString& s) -> bool {
+        if ("/" == s || "*" == s) {
+            return true;
+        }
+        auto& ss = (!s.endsWith ("/") ? (s + "/") : s);
+        if (path.startsWith (ss)) {
+            return true;
+        }
+        return false;
+    })) return true;
+
+    return false;
+}
+
+bool ScanResultHelperPrivate::isInScanOutDir(const QString &path) const
+{
+    QStringList od = mFilterOutDir.split("|").toSet().toList();
+    if (od.isEmpty()) {
+        return false;
+    }
+
+    if (std::any_of (od.begin(), od.end(), [=] (const QString& s) -> bool {
+        if ("/" == s || "*" == s) {
+            return true;
+        }
+        auto& ss = (!s.endsWith ("/") ? (s + "/") : s);
+        if (path.startsWith (ss)) {
+            return true;
+        }
+        return false;
+    })) return true;
+
+    return false;
+}
+
+bool ScanResultHelperPrivate::isInScanFileType(const QString& fileType) const
+{
+    QStringList ft = mFileType.split("|").toSet().toList();
+    if (ft.isEmpty()) {
+        return true;
+    }
+
+    if (std::any_of (ft.begin(), ft.end(), [=] (const QString& s) -> bool {
+        if ("" == s || "*" == s) {
+            return true;
+        }
+        return s == fileType;
+    })) return true;
+
+    return false;
+}
+
+bool ScanResultHelperPrivate::isInScanFileOutType(const QString &fileType) const
+{
+    QStringList ft = mFileTypeOut.split("|").toSet().toList();
+    if (ft.isEmpty()) {
+        return false;
+    }
+
+    if (std::any_of (ft.begin(), ft.end(), [=] (const QString& s) -> bool {
+        if ("" == s || "*" == s) {
+            return true;
+        }
+        return s == fileType;
+    })) return true;
+
+    return false;
 }
 
 void ScanResultHelper::misReportByIDs(const QStringList& ids)

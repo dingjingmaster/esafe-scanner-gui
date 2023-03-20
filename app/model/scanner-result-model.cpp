@@ -33,9 +33,9 @@ ScannerResultModel::ScannerResultModel(QObject* parent)
 
     // 清空数据 showData (QString TaskName, QString filterName);
     //connect(this, &ScannerResultModel::clearData, mScanResultHelper, &ScanResultHelper::clearData);
-    connect(this, qOverload<const QString&, const QString&, const QStringList&, const QString&>(&ScannerResultModel::showData), this,
-            [=] (const QString& taskName, const QString& filterName, const QStringList& scanDir, const QString& filterOutDir) {
-        mScanResultHelper->loadTaskResult(taskName, filterName, scanDir, filterOutDir);
+    connect(this, qOverload<const QString&, const QString&, const QStringList&, const QString&, const QString&, const QString&>(&ScannerResultModel::showData), this,
+            [=] (const QString& taskName, const QString& filterName, const QStringList& scanDir, const QString& filterOutDir, const QString& fileType, const QString& fileTypeOut) {
+        mScanResultHelper->loadTaskResult(taskName, filterName, scanDir, filterOutDir, fileType, fileTypeOut);
     });
 
     connect(this, &ScannerResultModel::clearData, this, [=] () {

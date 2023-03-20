@@ -75,6 +75,6 @@ else(IS_KYLIN)
 endif ()
 
 add_subdirectory(app)
-#add_subdirectory(demo)
+add_subdirectory(demo)
 #add_subdirectory(tools)
 

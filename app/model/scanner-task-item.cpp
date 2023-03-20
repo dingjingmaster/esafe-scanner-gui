@@ -253,3 +253,34 @@ QString ScannerTaskItem::getFilterOutDir()
 {
     return mFilterOutDir;
 }
+
+void ScannerTaskItem::setScanFileType(const QString &ft)
+{
+    mScanFileType = ft;
+}
+
+void ScannerTaskItem::setScanFileOutType(const QString &ft)
+{
+    mScanFileOutType = ft;
+}
+
+QString ScannerTaskItem::getScanFileOutTypeStr()
+{
+    return mScanFileOutType;
+}
+
+QString ScannerTaskItem::getScanFileTypeStr()
+{
+    return mScanFileType;
+}
+
+QString ScannerTaskItem::getScanFileType()
+{
+    return mScanFileType;
+}
+
+QString ScannerTaskItem::getScanFileOutType()
+{
+    return mScanFileOutType;
+}
+

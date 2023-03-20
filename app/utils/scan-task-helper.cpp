@@ -239,7 +239,8 @@ void ScanTaskHelperPrivate::onDBChanged()
     QString sql = QString("SELECT `task_id`, `task_status`, `task_start_time`, `task_stop_time`,"
                           " `task_scan_finished_file_count`, `task_scan_file_count`, `task_file_count`,"
                           " `scan_task_filter_name`, `task_name`, `scan_task_dir`, `scan_task_self_check`, "
-                          " `scan_task_dir_filterout` FROM scan_task WHERE scan_task_self_check=1;");
+                          " `scan_task_dir_filterout`, `scan_task_dir_filterout_fileext`, `exce_exte_file_type`"
+                          " FROM scan_task WHERE scan_task_self_check=1;");
     qDebug() << "scan_task sql: '" << sql << "'";
 
     while (!sqlite_lock());
@@ -259,6 +260,8 @@ void ScanTaskHelperPrivate::onDBChanged()
             QString scanDir(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 9)));
             int scanSelfCheck = sqlite3_column_int (stmt, 10);
             QString scanTaskFilterDir (reinterpret_cast<const char*>(sqlite3_column_text(stmt, 11)));
+            QString scanTaskFileType (reinterpret_cast<const char*>(sqlite3_column_text(stmt, 12)));
+            QString scanTaskFileOutType (reinterpret_cast<const char*>(sqlite3_column_text(stmt, 13)));
 
             if (nullptr == scanDir || scanDir.isNull () || scanDir.isEmpty () || "" == scanDir) {
                 scanDir = "/";
@@ -283,7 +286,9 @@ void ScanTaskHelperPrivate::onDBChanged()
                         || taskName != item->getName ()
                         || scanDir != item->getScanDir2 ()
                         || scanSelfCheck != item->getSelfCheck()
-                        || scanTaskFilterDir != item->getFilterOutDir()) {
+                        || scanTaskFilterDir != item->getFilterOutDir()
+                        || scanTaskFileType == item->getScanFileTypeStr()
+                        || scanTaskFileOutType == item->getScanFileOutTypeStr()) {
                     item->setName(taskName);
                     item->setScanDir (scanDir);
                     item->setStopTime(stopTime);
@@ -294,10 +299,13 @@ void ScanTaskHelperPrivate::onDBChanged()
                     item->setScanFileCount(taskScanFileCount);
                     item->setFilterOutDir(scanTaskFilterDir);
                     item->setScanFinishedFileCount(taskScanFinishedFileCount);
+                    item->setScanFileType (scanTaskFileType);
+                    item->setScanFileOutType (scanTaskFileOutType);
                     qInfo() << "update task id:" << id;
                     Q_EMIT q->updateTask (item);
                 }
-            } else {
+            }
+            else {
                 auto item = new ScannerTaskItem;
                 item->setID (id);
 
@@ -309,9 +317,12 @@ void ScanTaskHelperPrivate::onDBChanged()
                 item->setIsSelfCheck(scanSelfCheck);
                 item->setFilterName(taskFilterName);
                 item->setTaskFileCount(taskFileCount);
-                item->setScanFileCount(taskScanFileCount);
                 item->setFilterOutDir(scanTaskFilterDir);
+                item->setScanFileCount(taskScanFileCount);
                 item->setScanFinishedFileCount(taskScanFinishedFileCount);
+
+                item->setScanFileType (scanTaskFileType);
+                item->setScanFileOutType (scanTaskFileOutType);
 
                 mData[id] = item;
 
@@ -319,7 +330,8 @@ void ScanTaskHelperPrivate::onDBChanged()
                 Q_EMIT q->addNewTask (item);
             }
         }
-    } else {
+    }
+    else {
         qWarning() << "select: '" << sql << "' error";
     }
 
@@ -393,9 +405,9 @@ void ScanTaskHelper::testInsertItem()
         QString sql = QString("INSERT INTO scan_task (task_id, task_name, scan_interval, scan_task_filter_name,"
                               " scan_task_dir, scan_task_dir_filterout, scan_task_dir_filterout_fileext, "
                               " task_start_time, task_stop_time, task_file_count, task_scan_file_count, task_scan_finished_file_count,"
-                              " task_status, scan_result_reuse, scan_task_file_monitor, scan_task_self_check)"
+                              " task_status, scan_result_reuse, scan_task_file_monitor, scan_task_self_check, exec_exte_file_type)"
                               " VALUES ('TASK 0011%1', 'name111%1', 004, 'A|B|C|D', '/', '.local', '', 1658558157,"
-                              " 1658558157, 1000, 600, 100, 0, 0, 0, 1);").arg (i);
+                              " 1658558157, 1000, 600, 100, 0, 0, 0, 1, "");").arg (i);
 
         while (!sqlite_lock());
         int ret = sqlite3_exec(d->mDB, sql.toUtf8().constData(), NULL, NULL, &errorMsg);

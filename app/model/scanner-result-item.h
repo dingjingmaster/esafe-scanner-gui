@@ -24,6 +24,7 @@ public:
     void setFileCreateTime (QString time);
     void setFileCreateTime (qint64 time);
     void setFileModifyTime (qint64 time);
+    void setFileType(const QString& fileType);
 
     // 是否可以执行未处理操作？
     // 误报、删除不可执行未处理
@@ -33,6 +34,7 @@ public:
     qint64 getID();
 
     bool getChecked ();
+    QString getFileType();
     QString getTaskName ();
     QString getFileName ();
     QString getFilterName ();
@@ -48,11 +50,12 @@ public:
 private:
     bool                mChecked = false;
     bool                mCanUntreated = true;
-    
+
     qint64              mID;
     Status              mStatus;
     QString             mTaskName;
     QString             mFileName;
+    QString             mFileType;
     QString             mFilterName;
     qint64              mFileCreateTime;
     qint64              mFileModifyTime;

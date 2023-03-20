@@ -34,7 +34,7 @@ public:
 
     void clearData ();
     bool hasChecked ();                 // 是否有选中条目
-    void loadTaskResult (QString taskName, QString taskFilter, QStringList mScanDir, QString scanOutDir);
+    void loadTaskResult (QString taskName, QString taskFilter, QStringList scanDir, QString scanOutDir, QString scanType, QString scanTypeOut);
 
 protected:
     void resizeEvent (QResizeEvent* event) override;

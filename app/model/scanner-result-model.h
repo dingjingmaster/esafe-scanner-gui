@@ -61,7 +61,7 @@ Q_SIGNALS:
     void dataStatueChanged ();
     QString deleteItem (const QString&);
     void progress (int cur, int total);
-    void showData (const QString& TaskName, const QString& filterName, const QStringList& scanDir, const QString& filterOutDir);
+    void showData (const QString& TaskName, const QString& filterName, const QStringList& scanDir, const QString& filterOutDir, const QString& scanType, const QString& scanTypeOut);
 
 public:
     int rowCount (const QModelIndex& parent = QModelIndex()) const override;

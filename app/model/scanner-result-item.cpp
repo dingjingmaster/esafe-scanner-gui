@@ -176,3 +176,13 @@ qint64 ScannerResultItem::getFileCreateTime2()
 {
     return mFileCreateTime;
 }
+
+void ScannerResultItem::setFileType(const QString &fileType)
+{
+    mFileType = fileType;
+}
+
+QString ScannerResultItem::getFileType()
+{
+    return mFileType;
+}

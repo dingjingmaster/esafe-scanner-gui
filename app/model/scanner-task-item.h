@@ -34,6 +34,15 @@ public:
     void setFilterName (QString filterName);
     void setScanFinishedFileCount(qint64 count);
 
+    void setScanFileType(const QString& ft);
+    void setScanFileOutType(const QString& ft);
+
+    QString getScanFileTypeStr();
+    QString getScanFileOutTypeStr();
+
+    QString getScanFileType();
+    QString getScanFileOutType();
+
     QString getID ();
     QString getName ();
 
@@ -58,10 +67,14 @@ public:
 private:
     QString                 mID;
     QString                 mName;
-    QString                 mScanDir;
     QString                 mOperation;
     QString                 mFilterName;
+
+    QString                 mScanDir;
     QString                 mFilterOutDir;
+
+    QString                 mScanFileType;
+    QString                 mScanFileOutType;
 
     bool                    mSelfCheck;                     // 是否自查任务
 
