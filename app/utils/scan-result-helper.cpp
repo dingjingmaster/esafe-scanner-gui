@@ -17,10 +17,12 @@
 #include <gio/gio.h>
 #include <sqlite3.h>
 
+static void doDeleteLater(ScannerResultItem* obj);
+
 class ScanResultHelperPrivate
 {
 public:
-    explicit ScanResultHelperPrivate (QString db, ScanResultHelper* p);
+    explicit ScanResultHelperPrivate (QString& db, ScanResultHelper* p);
     ~ScanResultHelperPrivate();
 
 public:
@@ -30,24 +32,24 @@ public:
     ScannerResultItem* selectFileByID (QString id);
 
 public:
-    QString                             mDBPath;
+    QString                                                 mDBPath;
 
-    QStringList                         mScanDir;
-    QString                             mTaskName;
-    QString                             mTaskFilter;
-    QString                             mFilterOutDir;
+    QStringList                                             mScanDir;
+    QString                                                 mTaskName;
+    QString                                                 mTaskFilter;
+    QString                                                 mFilterOutDir;
 
-    QMap<QString, ScannerResultItem*>   mData;                  // <FileMD5, ScannerResultItem*>
+    QMap<QString, QSharedPointer<ScannerResultItem>>        mData;                  // <FileMD5, ScannerResultItem*>
 
-    sqlite3*                            mDB;
-    QFileSystemWatcher*                 mWatcher;
+    sqlite3*                                                mDB;
+    QFileSystemWatcher*                                     mWatcher;
 
-    GCancellable*                       mCancel;                // 取消操作
+    GCancellable*                                           mCancel;                // 取消操作
 
-    QMutex                              mLocker;
+    QMutex                                                  mLocker;
 
     // const
-    ScanResultHelper*                   q_ptr;
+    ScanResultHelper*                                       q_ptr;
     Q_DECLARE_PUBLIC(ScanResultHelper);
 };
 
@@ -92,8 +94,9 @@ void ScanResultHelper::reset ()
     d->mTaskName.clear();
     d->mTaskFilter.clear();
 
-    for (auto i = d->mData.begin(); i != d->mData.end(); ++i) {
-        delete i.value();
+    for (auto& i : d->mData) {
+        i.clear();
+//        delete i.value();
     }
     d->mData.clear();
 
@@ -114,7 +117,7 @@ void ScanResultHelper::refreshResult()
     loadTaskResult (d->mTaskName, d->mTaskFilter, d->mScanDir, d->mFilterOutDir);
 }
 
-void ScanResultHelper::onItemDeleted(QString id)
+void ScanResultHelper::onItemDeleted(const QString& id)
 {
     Q_D (ScanResultHelper);
 
@@ -128,12 +131,11 @@ void ScanResultHelper::onItemDeleted(QString id)
     d->mLocker.unlock();
 }
 
-void ScanResultHelper::loadTaskResult(QString taskName, QString taskFilter, QStringList scanDir, QString filterOutDir)
+void ScanResultHelper::loadTaskResult(const QString& taskName, const QString& taskFilter, const QStringList& scanDir, const QString& filterOutDir)
 {
     Q_D(ScanResultHelper);
 
     // 此处需要修改
-
     d->mScanDir = scanDir;
     d->mTaskName = taskName;
     d->mTaskFilter = taskFilter;
@@ -142,8 +144,8 @@ void ScanResultHelper::loadTaskResult(QString taskName, QString taskFilter, QStr
     d->onDBChanged();
 }
 
-ScanResultHelperPrivate::ScanResultHelperPrivate(QString db, ScanResultHelper *p)
-    : q_ptr(p)
+ScanResultHelperPrivate::ScanResultHelperPrivate(QString& db, ScanResultHelper *p)
+    : q_ptr(p), mDB(nullptr), mWatcher(nullptr)
 {
     Q_Q(ScanResultHelper);
 
@@ -166,7 +168,10 @@ ScanResultHelperPrivate::~ScanResultHelperPrivate()
     if (mCancel)        { g_object_unref (mCancel); mCancel = nullptr;}
     if (mDB)            { sqlite3_close(mDB); mDB = nullptr;}
     mLocker.lock();
-    for (auto m = mData.begin(); m != mData.end(); ++m)    delete m.value();
+    for (auto & m : mData) {
+        m.clear();
+//        delete m.value();
+    }
     mData.clear();
     mLocker.unlock();
 }
@@ -177,9 +182,9 @@ void ScanResultHelperPrivate::onDBChanged()
     Q_Q(ScanResultHelper);
 
     QSet<QString> allItem;
-    QList <ScannerResultItem*>      addItem;
-    QList <ScannerResultItem*>      delItem;
-    QList <ScannerResultItem*>      updateItem;
+    QList <QSharedPointer<ScannerResultItem>> addItem;
+    QList <QSharedPointer<ScannerResultItem>> delItem;
+    QList <QSharedPointer<ScannerResultItem>> updateItem;
 
     QStringList k = mTaskFilter.split("|");
     QStringList od = mFilterOutDir.split("|");
@@ -270,7 +275,7 @@ void ScanResultHelperPrivate::onDBChanged()
                         }
                     }
                     else {
-                        auto item = new ScannerResultItem;
+                        auto item = QSharedPointer<ScannerResultItem>(new ScannerResultItem, doDeleteLater);
                         item->setTaskName(mTaskName);
 
                         item->setID(id);
@@ -360,9 +365,9 @@ bool ScanResultHelperPrivate::selectIDByFilterName()
 
     return true;
 
-noChanged:
-
-    return false;
+//noChanged:
+//
+//    return false;
 }
 
 ScannerResultItem *ScanResultHelperPrivate::selectFileByID (QString id)
@@ -384,7 +389,7 @@ ScannerResultItem *ScanResultHelperPrivate::selectFileByID (QString id)
             item->setStatus(sqlite3_column_int(stmt, 2));
             item->setFileCreateTime (QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3))));
 
-            item->setCanUntreated((item->getStatus2() == ScannerResultItem::MisReport) ? true : false);
+            item->setCanUntreated((item->getStatus2 () == ScannerResultItem::MisReport));
             //item->setFileCreateTime(sqlite3_column_int(stmt, 3));
             // modify time
             QFileInfo file (item->getFileName ());
@@ -465,4 +470,11 @@ void ScanResultHelper::cancel()
     Q_D(ScanResultHelper);
 
     g_cancellable_cancel (d->mCancel);
+}
+
+static void doDeleteLater(ScannerResultItem* obj)
+{
+    if (obj) {
+        obj->deleteLater();
+    }
 }

@@ -22,24 +22,24 @@ public:
     bool hasChecked ();
     bool isCheckAllItems ();
 
-    void addItem (ScannerResultItem* item);
-    void delItem (ScannerResultItem* item);
-    void addItem (QList<ScannerResultItem*> item);
-    void delItem (QList<ScannerResultItem*> item);
+    void addItem (const QSharedPointer<ScannerResultItem>& item);
+    void delItem (const QSharedPointer<ScannerResultItem>& item);
+    void addItem (const QList<QSharedPointer<ScannerResultItem>>& item);
+    void delItem (const QList<QSharedPointer<ScannerResultItem>>& item);
 
     int getAllCount ();
     int getNoFixCount ();
     int getDeleteCount ();
     int getMisReportCount ();
 
-    QList<const ScannerResultItem*> getChangedItem ();
-    QList<ScannerResultItem*> getSelectedItem ();
-    QModelIndex getIndexByItem (const ScannerResultItem* it, int column=0);
+    QList<QSharedPointer<ScannerResultItem>> getChangedItem ();
+    QList<QSharedPointer<ScannerResultItem>> getSelectedItem ();
+    [[nodiscard]] QModelIndex getIndexByItem (const QSharedPointer<ScannerResultItem>& it, int column=0) const;
 
     //void saveResult();
     QPair<QStringList, QStringList> getSaveItems();
-    QPair<QList<ScannerResultItem*>, QList<ScannerResultItem*>> getSaveItemPoints();
-    QPair<QPair<QList<ScannerResultItem*>, QStringList>, QPair<QList<ScannerResultItem*>, QStringList>> getSaveItemPointAndIds();
+    QPair<QList<QSharedPointer<ScannerResultItem>>, QList<QSharedPointer<ScannerResultItem>>> getSaveItemPoints();
+    QPair<QPair<QList<QSharedPointer<ScannerResultItem>>, QStringList>, QPair<QList<QSharedPointer<ScannerResultItem>>, QStringList>> getSaveItemPointAndIds();
 
     void setSelectedItemStatus (ScannerResultItem::Status status);
 
@@ -59,9 +59,9 @@ Q_SIGNALS:
     void clearData ();
     void lazyUpdateView ();
     void dataStatueChanged ();
-    QString deleteItem (QString);
+    QString deleteItem (const QString&);
     void progress (int cur, int total);
-    void showData (QString TaskName, QString filterName, QStringList scanDir, QString filterOutDir);
+    void showData (const QString& TaskName, const QString& filterName, const QStringList& scanDir, const QString& filterOutDir);
 
 public:
     int rowCount (const QModelIndex& parent = QModelIndex()) const override;
@@ -81,39 +81,40 @@ public:
 
 private Q_SLOTS:
     void updateCount ();
-    void itemStatusChanged (ScannerResultItem* it, ScannerResultItem::Status s);
+    void itemStatusChanged (QSharedPointer<ScannerResultItem> it, ScannerResultItem::Status s);
 
 private:
-    const int                                           mBackgroundR = 235;
-    const int                                           mBackgroundG = 241;
-    const int                                           mBackgroundB = 248;
+    const int                                                   mBackgroundR = 235;
+    const int                                                   mBackgroundG = 241;
+    const int                                                   mBackgroundB = 248;
 
     // 当前界面显示的数据index
-    int                                                 mCurIndex = 0;
+    int                                                         mCurIndex = 0;
 
     // 数据状态记录
     //"任务名称: (%1), 总条数: (%2), 未处理: (%3), 误报: (%5), 删除: (%5)");
-    int                                                 mNoFix = 0;
-    int                                                 mDelete = 0;
-    int                                                 mMisReport = 0;
+    int                                                         mNoFix = 0;
+    int                                                         mDelete = 0;
+    int                                                         mMisReport = 0;
 
     // 进度条
-    int                                                 mCur = 0;
-    int                                                 mTotal = 0;
+    int                                                         mCur = 0;
+    int                                                         mTotal = 0;
 
-    ScanResultHelper*                                   mScanResultHelper;
+    ScanResultHelper*                                           mScanResultHelper;
     
     // FIXME:// 不应该释放Item内存，这块需要用 智能指针 优化
-    QList<ScannerResultItem*>                           mData;
-    QMap<const ScannerResultItem*, QPair<int, int>>     mChangedItem;
+    // FIXME:// 显示时候去 ScanResultHelper 中去获取数据 ...
+    QList<QSharedPointer<ScannerResultItem>>                    mData;
+    QMap<QSharedPointer<ScannerResultItem>, QPair<int, int>>    mChangedItem;
 
     // 数据库改变、加载数据线程
     // NOTE:// 暂时没有使用，把 model 放到线程里，图形界面更新会有问题
-    QThread*                                            mThread;
+//    QThread*                                                    mThread;
 
     // NOTE:// 暂时没有生效
     // 锁定 mData、mChangedItem、mNoFix、mDelete、mMisReport
-    QMutex                                              mLocker;
+    QMutex                                                      mLocker;
 };
 
 #endif // SCANNERRESULTMODEL_H

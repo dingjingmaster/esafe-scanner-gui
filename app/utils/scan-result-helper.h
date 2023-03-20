@@ -26,10 +26,10 @@ public Q_SLOTS:
     void reset ();
     void cancel ();
     void refreshResult();
-    void loadTaskResult (QString taskName, QString taskFilter, QStringList scanDir, QString filterOutDir);
+    void loadTaskResult (const QString& taskName, const QString& taskFilter, const QStringList& scanDir, const QString& filterOutDir);
 
 public Q_SLOTS:
-    void onItemDeleted (QString);
+    void onItemDeleted (const QString&);
 
 private:
 
@@ -43,17 +43,15 @@ Q_SIGNALS:
     void delOldFile (QString& it);
 
     void cancelledFinished ();
-    void addNewFile (QList<ScannerResultItem*> it);
-    void updateFile (QList<ScannerResultItem*> it);
-    void delOldFile (QList<ScannerResultItem*> it);
+    void addNewFile (const QList<QSharedPointer<ScannerResultItem>>& it);
+    void updateFile (const QList<QSharedPointer<ScannerResultItem>>& it);
+    void delOldFile (const QList<QSharedPointer<ScannerResultItem>>& it);
 
-    void addNewFile (ScannerResultItem* it);
-    void updateFile (ScannerResultItem* it);
-    void delOldFile (ScannerResultItem* it);
+    void addNewFile (const QSharedPointer<ScannerResultItem>& it);
+    void updateFile (const QSharedPointer<ScannerResultItem>& it);
+    void delOldFile (const QSharedPointer<ScannerResultItem>& it);
 
 private:
-    bool                        mIsRunning;         //
-
     ScanResultHelperPrivate*    d_ptr;
 
     Q_DISABLE_COPY(ScanResultHelper)

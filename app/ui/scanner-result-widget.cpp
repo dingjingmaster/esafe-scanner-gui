@@ -154,12 +154,12 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mView->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Interactive);
 
     connect (this, &ScannerResultWidget::applyData, this, [=] () {
-        QMessageBox* box = new QMessageBox(this);
+        auto box = new QMessageBox(this);
         box->setText ("确认提交您对数据的更改吗？");
         box->setWindowTitle("提示");
 
-        QPushButton* apply = new QPushButton(box);
-        QPushButton* cancel = new QPushButton(box);
+        auto apply = new QPushButton(box);
+        auto cancel = new QPushButton(box);
 
         apply->setText ("提交更改");
         cancel->setText ("取消");
@@ -226,18 +226,18 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     connect (mRetBtn, &PushButton::clicked, this, &ScannerResultWidget::onBackToTaskView, Qt::UniqueConnection);
 
     connect (mDelBtn, &PushButton::clicked, this, [=] () {
-        QList<ScannerResultItem*> ls = mModel->getSelectedItem();
+        QList<QSharedPointer<ScannerResultItem>> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
             QMessageBox::warning(this, "警告", "请选中需要删除的数据后，再执行删除操作！", QMessageBox::Ok);
             return;
         }
 
-        QMessageBox* box = new QMessageBox(this);
+        auto box = new QMessageBox(this);
         box->setText ("是否确定删除？");
         box->setWindowTitle("");
 
-        QPushButton* apply = new QPushButton(box);
-        QPushButton* cancel = new QPushButton(box);
+        auto apply = new QPushButton(box);
+        auto cancel = new QPushButton(box);
 
         apply->setText ("确定");
         cancel->setText ("取消");
@@ -269,18 +269,18 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     });
 
     connect (mMisBtn, &PushButton::clicked, this, [=] () {
-        QList<ScannerResultItem*> ls = mModel->getSelectedItem();
+        QList<QSharedPointer<ScannerResultItem>> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
             QMessageBox::warning(this, "警告", "请选中例外的数据后，再执行操作！", QMessageBox::Ok);
             return;
         }
 
-        QMessageBox* box = new QMessageBox(this);
+        auto box = new QMessageBox(this);
         box->setText ("是否确定为例外文件？");
         box->setWindowTitle("");
 
-        QPushButton* apply = new QPushButton(box);
-        QPushButton* cancel = new QPushButton(box);
+        auto apply = new QPushButton(box);
+        auto cancel = new QPushButton(box);
 
         apply->setText ("确定");
         cancel->setText ("取消");
@@ -289,7 +289,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         box->addButton (cancel, QMessageBox::RejectRole);
 
         box->connect (apply, &QPushButton::clicked, this, [=] () {
-            for (auto l : ls) {
+            for (const auto& l : ls) {
                 mModel->setData (*l, "例外文件");
             }
             Q_EMIT mModel->lazyUpdateView();
@@ -311,7 +311,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     });
 
     connect (mExpBtn, &PushButton::clicked, this, [=] () {
-        QList<ScannerResultItem*> ls = mModel->getSelectedItem();
+        QList<QSharedPointer<ScannerResultItem>> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
             QMessageBox::warning(this, "警告", "请选中需要导出的数据后，再执行导出操作！", QMessageBox::Ok);
             return;
@@ -336,7 +336,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         QString name = QString ("%1/%2")
                             .arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation))
                             .arg(QString("%1_%2_%3.csv")
-                                .arg(const_cast<ScannerResultItem*>(ls.first())->getTaskName())
+                                .arg((ls.first())->getTaskName())
                                 .arg(QDate::currentDate().toString("yyyyMMdd"))
                                 .arg(QDateTime::currentDateTime().toString("hhmmss")));
                             
@@ -350,9 +350,9 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             qDebug() << "path: " << path;
 
             ExportScanResult exp(path, this);
-            for (auto l : ls) {
-                exp.write(*const_cast<ScannerResultItem*>(l));
-                const_cast<ScannerResultItem*>(l)->setChecked(false);
+            for (auto& l : ls) {
+                exp.write(*l);
+                l->setChecked(false);
             }
 
             QMessageBox information (QMessageBox::NoIcon, nullptr, "文件导出成功！", QMessageBox::Ok, this);
@@ -363,7 +363,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
                                        " QPushButton{padding:3px;margin:3px;}"
                                        " QDialogButtonBox {align:center; qproperty-centerButtons:true;}");
             if (auto textField = information.findChild<QWidget*>("qt_msgbox_label")) {
-                if (QLabel* label = dynamic_cast<QLabel*> (textField)) {
+                if (auto label = dynamic_cast<QLabel*> (textField)) {
                     label->setFixedSize (180, 60);
                     label->setContentsMargins (0, 0, 0, 0);
                     label->setAlignment (Qt::AlignCenter);
@@ -518,7 +518,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
 
     connect (mView->verticalScrollBar(), &QScrollBar::valueChanged, this, [=] (int val) {
         auto s = mView->verticalScrollBar();
-        mModel->onScrollbarMoved(float(s->value()) / (s->maximum() - s->minimum()));
+        mModel->onScrollbarMoved(float(s->value()) / float (s->maximum() - s->minimum()));
     });
 
 //    test();
@@ -545,21 +545,21 @@ ScannerResultWidget::~ScannerResultWidget()
 
 void ScannerResultWidget::test()
 {
-    auto sm1 = new ScannerResultItem("任务1", "/tmp/", ScannerResultItem::Untreated, 0, 0);
-    auto sm2 = new ScannerResultItem("任务2", "/tmp/", ScannerResultItem::Untreated, 0, 0);
-    auto sm3 = new ScannerResultItem("任务3", "/tmp/", ScannerResultItem::Untreated, 0, 0);
-    auto sm4 = new ScannerResultItem("任务4", "/tmp/", ScannerResultItem::Untreated, 0, 0);
-    auto sm5 = new ScannerResultItem("任务5", "/tmp/", ScannerResultItem::Untreated, 0, 0);
-    auto sm6 = new ScannerResultItem("任务6", "/tmp/", ScannerResultItem::Untreated, 0, 0);
-    auto sm7 = new ScannerResultItem("任务7", "/tmp/", ScannerResultItem::Untreated, 0, 0);
-    auto sm8 = new ScannerResultItem("任务8", "/tmp/", ScannerResultItem::Untreated, 0, 0);
-    auto sm9 = new ScannerResultItem("任务9", "/tmp/", ScannerResultItem::Untreated, 0, 0);
-    auto sm10 = new ScannerResultItem("任务10", "/tmp/", ScannerResultItem::Untreated, 0, 0);
-    auto sm11 = new ScannerResultItem("任务11", "/tmp/", ScannerResultItem::Untreated, 0, 0);
-    auto sm12 = new ScannerResultItem("任务12", "/tmp/", ScannerResultItem::Untreated, 0, 0);
-    auto sm13 = new ScannerResultItem("任务13", "/tmp/", ScannerResultItem::Untreated, 0, 0);
-    auto sm14 = new ScannerResultItem("任务14", "/tmp/", ScannerResultItem::Untreated, 0, 0);
-    auto sm15 = new ScannerResultItem("任务15", "/tmp/", ScannerResultItem::Untreated, 0, 0);
+    auto sm1 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务1", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm2 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务2", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm3 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务3", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm4 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务4", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm5 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务5", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm6 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务6", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm7 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务7", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm8 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务8", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm9 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务9", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm10 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务10", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm11 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务11", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm12 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务12", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm13 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务13", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm14 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务14", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm15 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务15", "/tmp/", ScannerResultItem::Untreated, 0, 0));
 
     mModel->addItem(sm1);
     mModel->addItem(sm2);
