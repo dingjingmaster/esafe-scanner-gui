@@ -216,7 +216,7 @@ void ScanResultHelperPrivate::onDBChanged()
         return;
     }
 
-    QString sql = QString("SELECT `ID`, `scan_file_name`, `status`, `scan_finished_time`, `file_type`"
+    QString sql = QString("SELECT `ID`, `scan_file_name`, `status`, `scan_finished_time`, `file_type`, `change_time`"
                           " FROM scan_result WHERE status!=5 AND policy_id IN (%1)").arg (policy);
     qInfo() << "sql ==> " << sql;
     while (!sqlite_lock()); // {if (++ev % 10) QApplication::processEvents(); usleep(1000);};
@@ -229,6 +229,7 @@ void ScanResultHelperPrivate::onDBChanged()
             int status = sqlite3_column_int(stmt, 2);   // 状态不更新，只有客户端会改
             int finishedTime = sqlite3_column_int(stmt, 3);
             QString fileType (reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4)));
+            gint64 modifyTime = sqlite3_column_int(stmt, 5);
 
             // 取消
             if (g_cancellable_is_cancelled (mCancel)) {
@@ -236,7 +237,7 @@ void ScanResultHelperPrivate::onDBChanged()
                 break;
             }
 
-            if (/*!QFile::exists(fileName) ||*/ nullptr == id || id.isNull() || id.isEmpty() || "" == id
+            if (!QFile::exists(fileName) || nullptr == id || id.isNull() || id.isEmpty() || "" == id
                 || nullptr == fileName || fileName.isNull() || fileName.isEmpty() || "" == fileName) {
                 qWarning() << "file not exists or id、file name is empty";
                 continue;
@@ -251,6 +252,7 @@ void ScanResultHelperPrivate::onDBChanged()
                 if (mData.contains (id)) {
                     auto item = mData[id];
                     if (finishedTime != item->getFileCreateTime()) {
+                        item->setFileModifyTime(modifyTime);
                         item->setFileCreateTime(finishedTime);
                         updateItem += item;
                     }
@@ -262,6 +264,7 @@ void ScanResultHelperPrivate::onDBChanged()
                     item->setStatus(status);
                     item->setFileName(fileName);
                     item->setFileType(fileType);
+                    item->setFileModifyTime(modifyTime);
                     item->setFileCreateTime(finishedTime);
                     item->setCanUntreated(item->getStatus2 () == ScannerResultItem::MisReport);
 
