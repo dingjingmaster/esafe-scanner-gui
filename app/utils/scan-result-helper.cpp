@@ -236,12 +236,17 @@ void ScanResultHelperPrivate::onDBChanged()
                 break;
             }
 
-            if (!QFile::exists(fileName) || nullptr == id || id.isNull() || id.isEmpty() || "" == id
+            if (/*!QFile::exists(fileName) ||*/ nullptr == id || id.isNull() || id.isEmpty() || "" == id
                 || nullptr == fileName || fileName.isNull() || fileName.isEmpty() || "" == fileName) {
                 qWarning() << "file not exists or id、file name is empty";
                 continue;
             }
 
+            qDebug() << isInScanDir(fileName);
+            qDebug() << isInScanOutDir(fileName);
+            qDebug() << isInScanFileType(fileType);
+            qDebug() << isInScanFileOutType(fileType);
+            qDebug() << fileType;
             if (isInScanDir(fileName) && !isInScanOutDir(fileName) && isInScanFileType(fileType) && !isInScanFileOutType(fileType)) {
                 if (mData.contains (id)) {
                     auto item = mData[id];
@@ -272,40 +277,6 @@ void ScanResultHelperPrivate::onDBChanged()
                 allItem += id;
             }
             QApplication::processEvents();
-#if 0
-            // scan directory
-            for (const auto& s : mScanDir) {
-                auto sdir = s;
-                if (!sdir.endsWith ("/")) sdir += "/";
-                if (fileName.startsWith(sdir)) {
-                    bool filterOut = false;
-                    // filter out dir
-                    if (od.empty()) {
-                        for (const auto& d : od) {
-                            if (nullptr == d || "" == d || d.isEmpty()) continue;
-                            QString dt = d;
-                            if (!d.endsWith("/")) {
-                                dt += "/";
-                            }
-                            if (dt.startsWith("/")) {
-                                if (fileName.startsWith(dt)) {
-                                    filterOut = true;
-                                    break;
-                                }
-                            }
-                            else {
-                                if (fileName.contains(dt)) {
-                                    filterOut = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (filterOut) break;
-                    break;
-                }
-            }
-#endif
         }
         if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
     }
@@ -452,10 +423,14 @@ bool ScanResultHelperPrivate::isInScanOutDir(const QString &path) const
     if (od.isEmpty()) {
         return false;
     }
+    qDebug() << "out dir: " << od;
 
     if (std::any_of (od.begin(), od.end(), [=] (const QString& s) -> bool {
         if ("/" == s || "*" == s) {
             return true;
+        }
+        else if ("" == s) {
+            return false;
         }
         auto& ss = (!s.endsWith ("/") ? (s + "/") : s);
         if (path.startsWith (ss)) {
@@ -491,9 +466,14 @@ bool ScanResultHelperPrivate::isInScanFileOutType(const QString &fileType) const
         return false;
     }
 
+    qDebug() << "out file type: " << ft;
+
     if (std::any_of (ft.begin(), ft.end(), [=] (const QString& s) -> bool {
-        if ("" == s || "*" == s) {
+        if ("*" == s) {
             return true;
+        }
+        else if ("" == s) {
+            return false;
         }
         return s == fileType;
     })) return true;

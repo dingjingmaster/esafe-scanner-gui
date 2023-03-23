@@ -1,20 +1,25 @@
 #include "scanner-result-item.h"
 
 #include <QDebug>
+#include <QFileInfo>
 #include <QDateTime>
 #include <QItemSelectionModel>
 
 ScannerResultItem::ScannerResultItem(QObject *parent)
     : QObject{parent}
 {
-
+    mTaskName = "";
+    mFileName = "";
+    mStatus = Untreated;
+    mFileCreateTime = 0;
+    mFileModifyTime = 0;
 }
 
 ScannerResultItem::ScannerResultItem(QString taskName, QString fileName, Status status, qint64 createTime, qint64 modifyTime, QObject *parent)
     : QObject{parent}
 {
-    mTaskName = taskName;
-    mFileName = fileName;
+    mTaskName = std::move(taskName);
+    mFileName = std::move(fileName);
     mStatus = status;
     mFileCreateTime = createTime;
     mFileModifyTime = modifyTime;
@@ -164,7 +169,13 @@ QString ScannerResultItem::getFileCreateTime()
 
 QString ScannerResultItem::getFileModifyTime()
 {
-    return mFileModifyTime <= 0 ? "" : QDateTime::fromSecsSinceEpoch(mFileModifyTime).toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
+    qint64 tim = mFileModifyTime;
+    if (!tim && QFileInfo::exists(mFileName)) {
+        QFileInfo fi(mFileName);
+        tim = fi.lastModified().toSecsSinceEpoch();
+    }
+
+    return tim <= 0 ? "" : QDateTime::fromSecsSinceEpoch(tim).toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
 }
 
 QString ScannerResultItem::getFilterName()
