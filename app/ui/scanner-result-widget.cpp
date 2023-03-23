@@ -434,7 +434,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
                 QDBusMessage msg = QDBusMessage::createMethodCall(FREEDESKTOP_FM_DBUS, FREEDESKTOP_FM_DBUS_PATH, FREEDESKTOP_FM_DBUS, "ShowItems");
                 QString file = static_cast<ScannerResultItem*>(index.internalPointer())->getFileName();
                 if (!QFile::exists(file)) {
-                    QMessageBox::warning(this, "文件打开失败", QString("文件 '%1' 不存在!").arg(file), QMessageBox::Ok);
+                    QMessageBox::warning(this, "文件打开失败", QString("文件 '%1' 不存在, 或者当前用户没有查看权限!").arg(file), QMessageBox::Ok);
                     return;
                 }
                 msg.setArguments(QList<QVariant>() << (QStringList() << "file://" + file) << "");
