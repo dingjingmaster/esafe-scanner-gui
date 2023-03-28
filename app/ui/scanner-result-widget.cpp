@@ -257,11 +257,11 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             mModel->applyData();
             mProgress->hide();
             Q_EMIT stopApplyData();
-            updateStatus();
 
             mHeaderView->setChecked(false);
             Q_EMIT mHeaderView->checkBoxClicked (false);
             Q_EMIT mModel->lazyUpdateView();
+            updateStatus();
             notify_policy_filter (ScannerResultItem::Deleted);
         });
         box->exec();
@@ -300,6 +300,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             mModel->applyData();
             mProgress->hide();
             Q_EMIT stopApplyData();
+
             mHeaderView->setChecked(false);
             Q_EMIT mHeaderView->checkBoxClicked (false);
             Q_EMIT mModel->lazyUpdateView();
@@ -510,7 +511,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
                 QFontMetrics fm(font());
                 int w = fm.horizontalAdvance(text);
                 int h = fm.height();
-                // void showText(const QPoint &pos, const QString &text, QWidget *w, const QRect &rect, int msecDisplayTime)
                 QToolTip::showText(p, text, this, QRect(+100, -100, w, h), 3000000);
             }
         }
@@ -521,8 +521,6 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         mModel->onScrollbarMoved(float(s->value()) / float (s->maximum() - s->minimum()));
     });
 
-//    test();
-    
     connect (this, &ScannerResultWidget::updateView, mView, &ScannerView::updateView);
 
     setLayout(mMainLayout);

@@ -579,8 +579,9 @@ void ScannerResultModel::onScrollbarMoved(float ratio)
 
 void ScannerResultModel::applyData()
 {
-    //auto items = getSaveItems();
     auto items = getSaveItemPointAndIds();
+
+    qDebug() << "apply data";
 
     mCur = 0;
     mTotal =  items.first.second.size() + items.second.second.size();
@@ -620,11 +621,11 @@ void ScannerResultModel::applyDelData(const QModelIndex& idx)
     mLocker.lock();
     auto item = static_cast<ScannerResultItem*>(idx.internalPointer());
     if (!item) {
-        mLocker.lock();
+        mLocker.unlock();
         return;
     }
     mScanResultHelper->deleteItemByIDs ((QStringList() << QString("%1").arg(item->getID())));
-    mLocker.lock();
+    mLocker.unlock();
     delItem (item);
     updateCount();
     notify_policy_filter (ScannerResultItem::Deleted);
