@@ -26,6 +26,12 @@ public:
     ~ScanResultHelperPrivate();
 
 public:
+    bool isCancel();
+    bool isRunning();
+    void setRunning(bool r);
+
+public:
+    bool checkRunning();
     void onDBChanged ();
 
     bool selectIDByFilterName ();
@@ -49,13 +55,14 @@ public:
     QString                                                 mFileTypeOut;
 
     QMap<QString, QSharedPointer<ScannerResultItem>>        mData;                  // <FileMD5, ScannerResultItem*>
+    QMutex                                                  mLocker;
 
     sqlite3*                                                mDB;
     QFileSystemWatcher*                                     mWatcher;
 
     GCancellable*                                           mCancel;                // 取消操作
-
-    QMutex                                                  mLocker;
+    bool                                                    mIsRunning{};
+    QMutex                                                  mIsRunningLocker;
 
     // const
     ScanResultHelper*                                       q_ptr;
@@ -98,14 +105,11 @@ void ScanResultHelper::reset ()
 {
     Q_D(ScanResultHelper);
 
+    g_cancellable_cancel (d->mCancel);
+
     d->mLocker.lock();
-
-    d->mTaskName.clear();
-    d->mTaskFilter.clear();
-
     for (auto& i : d->mData) {
         i.clear();
-//        delete i.value();
     }
     d->mData.clear();
 
@@ -178,6 +182,7 @@ ScanResultHelperPrivate::~ScanResultHelperPrivate()
 {
     if (mCancel)        { g_object_unref (mCancel); mCancel = nullptr;}
     if (mDB)            { sqlite3_close(mDB); mDB = nullptr;}
+
     mLocker.lock();
     for (auto & m : mData) {
         m.clear();
@@ -187,10 +192,13 @@ ScanResultHelperPrivate::~ScanResultHelperPrivate()
     mLocker.unlock();
 }
 
-// DJ-
 void ScanResultHelperPrivate::onDBChanged()
 {
     Q_Q(ScanResultHelper);
+
+    g_return_if_fail(!isCancel());
+
+    setRunning (true);
 
     QSet<QString> allItem;
     QList <QSharedPointer<ScannerResultItem>> addItem;
@@ -224,6 +232,7 @@ void ScanResultHelperPrivate::onDBChanged()
     if (SQLITE_OK == ret) {
         while (SQLITE_DONE != sqlite3_step(stmt)) {
             QApplication::processEvents();
+            if (isCancel()) break;
             QString id = QString("%1").arg(sqlite3_column_int(stmt, 0));
             QString fileName = QString(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
             int status = sqlite3_column_int(stmt, 2);   // 状态不更新，只有客户端会改
@@ -243,11 +252,11 @@ void ScanResultHelperPrivate::onDBChanged()
                 continue;
             }
 
-            qDebug() << isInScanDir(fileName);
-            qDebug() << isInScanOutDir(fileName);
-            qDebug() << isInScanFileType(fileType);
-            qDebug() << isInScanFileOutType(fileType);
-            qDebug() << fileType;
+            qDebug() << "==>" << isInScanDir(fileName);
+            qDebug() << "==>" << isInScanOutDir(fileName);
+            qDebug() << "==>" << isInScanFileType(fileType);
+            qDebug() << "==>" << isInScanFileOutType(fileType);
+            qDebug() << "==>" << fileType;
             if (isInScanDir(fileName) && !isInScanOutDir(fileName) && isInScanFileType(fileType) && !isInScanFileOutType(fileType)) {
                 if (mData.contains (id)) {
                     auto item = mData[id];
@@ -291,7 +300,7 @@ void ScanResultHelperPrivate::onDBChanged()
     while (!sqlite_unlock());
 
     // 是否是取消操作
-    if (!g_cancellable_is_cancelled (mCancel)) {
+    if (isRunning()) {
         mLocker.lock();
         auto delItemT = allItem - mData.keys().toSet();
         mLocker.unlock();
@@ -305,13 +314,15 @@ void ScanResultHelperPrivate::onDBChanged()
         Q_EMIT q->delOldFile (delItem);
         Q_EMIT q->updateFile (updateItem);
 
-
         Q_EMIT q->allItemsUpdated();
     }
     else {
         qInfo () << "取消";
-        Q_EMIT q->cancelledFinished();
     }
+
+    Q_EMIT q_ptr->loadFinished();
+
+    setRunning (false);
 
     qDebug() << "query db ok!!";
 }
@@ -451,6 +462,7 @@ bool ScanResultHelperPrivate::isInScanFileType(const QString& fileType) const
     if (ft.isEmpty()) {
         return true;
     }
+    qDebug() << "file type: " << fileType << "all file type:" << ft;
 
     if (std::any_of (ft.begin(), ft.end(), [=] (const QString& s) -> bool {
         if ("" == s || "*" == s) {
@@ -482,6 +494,32 @@ bool ScanResultHelperPrivate::isInScanFileOutType(const QString &fileType) const
     })) return true;
 
     return false;
+}
+
+bool ScanResultHelperPrivate::checkRunning()
+{
+    return !g_cancellable_is_cancelled (mCancel);
+}
+
+bool ScanResultHelperPrivate::isRunning()
+{
+    mIsRunningLocker.lock();
+    bool r = mIsRunning;
+    mIsRunningLocker.unlock();
+
+    return r;
+}
+
+bool ScanResultHelperPrivate::isCancel()
+{
+    return g_cancellable_is_cancelled (mCancel);
+}
+
+void ScanResultHelperPrivate::setRunning(bool r)
+{
+    mIsRunningLocker.lock();
+    mIsRunning = r;
+    mIsRunningLocker.unlock();
 }
 
 void ScanResultHelper::misReportByIDs(const QStringList& ids)
@@ -533,6 +571,13 @@ void ScanResultHelper::cancel()
     Q_D(ScanResultHelper);
 
     g_cancellable_cancel (d->mCancel);
+}
+
+bool ScanResultHelper::isRunning()
+{
+    Q_D(ScanResultHelper);
+
+    return d->isRunning();
 }
 
 static void doDeleteLater(ScannerResultItem* obj)

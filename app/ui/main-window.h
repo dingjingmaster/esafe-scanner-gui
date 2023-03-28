@@ -31,6 +31,9 @@ private Q_SLOTS:
     void onShowStatusString (const QString&);
     void onLoadTaskResult (const ScannerTaskItem* const item);
 
+    void onShowTaskWidget();
+    void onShowTaskResultWidget();
+
 Q_SIGNALS:
     void activePrimaryWindow();
 

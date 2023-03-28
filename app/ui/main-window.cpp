@@ -128,7 +128,7 @@ MainWindow::MainWindow(QWidget *parent)
     // content View
     mMainLayout->addWidget(mScannerTaskWidget);
     mMainLayout->addWidget(mScannerResultWidget);
-    mScannerResultWidget->hide();
+    onShowTaskWidget();
 
     // 当前状态
     mMainLayout->addWidget(mCurStatus);
@@ -142,14 +142,9 @@ MainWindow::MainWindow(QWidget *parent)
         }
     });
 
-//    connect (mScannerResultWidget, &ScannerResultWidget::statusString, this, &MainWindow::onShowStatusString);
-
-    // change content
-//    connect(mScannerTaskWidget, &ScannerTaskWidget::taskDetail, this, &MainWindow::onLoadTaskResult);
-
     connect(mScannerTaskWidget, &ScannerTaskWidget::taskDetail, this, [=] (const ScannerTaskItem* const item) {
         // FIXME:// 此处可能会低概率崩溃，当进入扫描结果页的瞬间删除此条任务(任务删除在另一个线程里)
-        ScannerTaskItem* it = const_cast<ScannerTaskItem*> (item);
+        auto* it = const_cast<ScannerTaskItem*> (item);
 
         if (!item || !it)      return;
 
@@ -161,27 +156,19 @@ MainWindow::MainWindow(QWidget *parent)
         Q_EMIT mScannerResultWidget->statusString (QString("任务名称: %1, 未处理数 %2 条, 例外文件数 %3 条, 共 %4 条结果")
                                                        .arg (it->getName()).arg (0).arg (0).arg (0));
 
-        Q_EMIT DBManager::instance ()->refreshScanResult (it->getName (), it->getFilterName (), it->getScanDir (), it->getFilterOutDir());
+        Q_EMIT DBManager::instance ()->refreshScanResult (it->getName (), it->getFilterName (), it->getScanDir (), it->getFilterOutDir(), it->getScanFileTypeStr(), it->getScanFileOutTypeStr());
 
         mScanBtn->setText(QString("扫描结果"));
 
         mScannerResultWidget->setTaskName (it->getName ());
 
-//    mStatusLabel->show();
-        mScannerTaskWidget->hide();
-        mScannerResultWidget->show();
-
-        DBManager::instance()->setCurPage(DBManager::CUR_RESULT);
-
+        onShowTaskResultWidget();
     });
 
     connect (mScannerResultWidget, &ScannerResultWidget::returnTaskList, this, [=] () {
         mScanBtn->setText(tr("扫描任务"));
-//        mStatusLabel->hide();
         mCurStatus->show();
-        mScannerResultWidget->hide();
-        mScannerTaskWidget->show();
-        mScannerResultWidget->clearData();
+        onShowTaskWidget();
     });
 
     connect (this, &MainWindow::activePrimaryWindow, this, [=] () {
@@ -197,6 +184,12 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     setLayout(mMainLayout);
+
+    // cursor
+    connect (DBManager::instance(), &DBManager::loadTaskStart,      this, [=] {setCursor (Qt::BusyCursor);});
+    connect (DBManager::instance(), &DBManager::loadTaskResultStart,this, [=] {setCursor (Qt::BusyCursor);});
+    connect (DBManager::instance(), &DBManager::loadTaskStop,       this, [=] {if (Qt::BusyCursor == cursor()) setCursor (Qt::ArrowCursor);});
+    connect (DBManager::instance(), &DBManager::loadTaskResultStop, this, [=] {if (Qt::BusyCursor == cursor()) setCursor (Qt::ArrowCursor);});
 
     mStatusTimer->start();
 }
@@ -222,10 +215,6 @@ void MainWindow::onLoadTaskResult(const ScannerTaskItem * const item)
 
     if (!item || !it)      return;
 
-//    mScannerResultWidget->onLoadResultStart();
-    //
-    //qDebug() << "===> task name: " << it->getName() << "set filter name: " << it->getFilterName();
-
     // 此处释放 model 内数据
     mScannerResultWidget->clearData();
 
@@ -233,26 +222,20 @@ void MainWindow::onLoadTaskResult(const ScannerTaskItem * const item)
                                                 .arg (it->getName()).arg (0).arg (0).arg (0));
 
     Q_EMIT DBManager::instance ()->refreshScanResult (it->getName (), it->getFilterName (), it->getScanDir (), it->getFilterOutDir());
-    //mScannerResultWidget->loadTaskResult (it->getName (), it->getFilterName (), it->getScanDir ());
 
     mScanBtn->setText(QString("扫描结果"));
 
     mScannerResultWidget->setTaskName (it->getName ());
 
-//    mStatusLabel->show();
-    mScannerResultWidget->show();
-    mScannerTaskWidget->hide();
-
-    DBManager::instance()->setCurPage(DBManager::CUR_RESULT);
-//    mScannerResultWidget->onLoadResultEnd();
+    onShowTaskResultWidget();
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent* e)
 {
     QWidget::mouseMoveEvent(e);
-    //QMainWindow::mouseMoveEvent(e);
-    if (!mDrag)
+    if (!mDrag) {
         return;
+    }
 
     qreal  dpiRatio = qApp->devicePixelRatio();
     if (QX11Info::isPlatformX11()) {
@@ -323,4 +306,32 @@ void MainWindow::mouseReleaseEvent(QMouseEvent* e)
     //QMainWindow::mouseReleaseEvent(e);
     mDrag = false;
 }
+
+void MainWindow::onShowTaskWidget()
+{
+    mCurStatus->hide();
+    mScannerResultWidget->hide();
+
+    DBManager::instance()->setCurPage(DBManager::CUR_STOP);
+    mScannerTaskWidget->clearData();
+    DBManager::instance()->setCurPage(DBManager::CUR_TASK);
+    Q_EMIT DBManager::instance()->loadTaskStart();
+    DBManager::instance()->refreshScanTask();
+
+    mScannerTaskWidget->show();
+    mCurStatus->show();
+}
+
+void MainWindow::onShowTaskResultWidget()
+{
+    mScannerTaskWidget->hide();
+
+    DBManager::instance()->setCurPage(DBManager::CUR_STOP);
+    mScannerResultWidget->clearData();
+    DBManager::instance()->setCurPage(DBManager::CUR_RESULT);
+    Q_EMIT DBManager::instance()->loadTaskResultStart();
+
+    mScannerResultWidget->show();
+}
+
 

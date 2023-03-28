@@ -14,6 +14,10 @@ class ScanResultHelper : public QObject
 public:
     void testInsertItem();
 
+    void cancel ();
+
+    bool isRunning();
+
     void misReportByIDs(const QStringList&);
     void deleteItemByIDs(const QStringList&);
 
@@ -24,7 +28,6 @@ private:
 
 public Q_SLOTS:
     void reset ();
-    void cancel ();
     void refreshResult();
     void loadTaskResult (const QString& taskName, const QString& taskFilter, const QStringList& scanDir, const QString& filterOutDir, const QString& fileType, const QString& fileTypeOut);
 
@@ -50,6 +53,8 @@ Q_SIGNALS:
     void addNewFile (const QSharedPointer<ScannerResultItem>& it);
     void updateFile (const QSharedPointer<ScannerResultItem>& it);
     void delOldFile (const QSharedPointer<ScannerResultItem>& it);
+
+    void loadFinished ();
 
 private:
     ScanResultHelperPrivate*    d_ptr;

@@ -595,6 +595,9 @@ void ScannerResultWidget::clearData()
     if (!mModel)        return;
 
     Q_EMIT mModel->clearData();
+    Q_EMIT mModel->dataStatueChanged();
+
+    updateView();
 }
 
 void ScannerResultWidget::loadTaskResult (QString taskName, QString taskFilter, QStringList scanDir, QString scanOutDir, QString scanType, QString scanTypeOut)

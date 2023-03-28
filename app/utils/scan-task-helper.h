@@ -19,7 +19,10 @@ class ScanTaskHelper : public QObject
     Q_OBJECT
     friend class DBManager;
 public:
-    void resetTask ();
+    void reset();
+    void cancel();
+    bool isRunning();
+
     void loadAllTask ();
 
     void testInsertItem ();
@@ -33,6 +36,8 @@ Q_SIGNALS:
     void updateTask (ScannerTaskItem* it);
     void addNewTask (ScannerTaskItem* it);
     void delOldTask (ScannerTaskItem* it);
+
+    void loadFinished();
 
 private:
     ScanTaskHelperPrivate*  d_ptr;

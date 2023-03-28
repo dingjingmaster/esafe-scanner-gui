@@ -19,6 +19,9 @@ public:
     // 测试函数
     void test ();
 
+public Q_SLOTS:
+    void clearData();
+
 Q_SIGNALS:
     void clicked ();
     void taskDetail (const ScannerTaskItem* const item);

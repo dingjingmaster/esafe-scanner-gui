@@ -38,18 +38,6 @@ ScannerResultModel::ScannerResultModel(QObject* parent)
         mScanResultHelper->loadTaskResult(taskName, filterName, scanDir, filterOutDir, fileType, fileTypeOut);
     });
 
-    connect(this, &ScannerResultModel::clearData, this, [=] () {
-        beginResetModel();
-        mData.clear();
-        mChangedItem.clear ();
-        mScanResultHelper->reset();
-        endResetModel();
-        mNoFix = 0;
-        mDelete = 0;
-        mMisReport = 0;
-    });
-    
-
     //mThread = new QThread(this);
     //connect(this, &ScannerResultModel::showData, mScanResultHelper, &ScanResultHelper::loadTaskResult);
     //moveToThread(mThread);
@@ -682,6 +670,19 @@ ScannerResultModel::getSaveItemPointAndIds()
     mLocker.unlock();
 
     return {{del, delIds}, {misReport, misReportIds}};// QPair<QStringList, QStringList>;
+}
+
+void ScannerResultModel::clearData()
+{
+    beginResetModel();
+    mData.clear();
+    mChangedItem.clear ();
+    endResetModel();
+    mScanResultHelper->reset();
+
+    mNoFix = 0;
+    mDelete = 0;
+    mMisReport = 0;
 }
 
 

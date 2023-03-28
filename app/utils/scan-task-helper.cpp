@@ -2,9 +2,13 @@
 
 #include <QMap>
 #include <QDebug>
+#include <QMutex>
+#include <QEventLoop>
 #include <QMessageBox>
 #include <QApplication>
-#include <QMutex>
+
+#include <unistd.h>
+#include <gio/gio.h>
 
 #include "tools.h"
 
@@ -19,9 +23,13 @@ public:
 public:
     void onDBChanged ();
 
+    void setRunning(bool r);
+
+    bool isRunning();
+    bool isCanceled ();
+
     bool selectAllTaskID ();
     ScannerTaskItem* selectTaskByID (QString taskID);
-
     ScannerTaskItem* selectTaskByIDV2 (QString taskID);
 
 private:
@@ -32,10 +40,14 @@ public:
     QString                         mDBPath;
 
     QMap<QString, ScannerTaskItem*> mData;                  // <TaskID, ScannerTaskItem*>
+    QMutex                          mLocker;
 
     sqlite3*                        mDB;
 
-    QMutex                          mLocker;
+    GCancellable*                   mCancel;                // 取消操作
+
+    bool                            mIsRunning = false;
+    QMutex                          mIsRunningLocker;
 
     // const
     ScanTaskHelper*                 q_ptr;
@@ -47,7 +59,8 @@ ScanTaskHelperPrivate::ScanTaskHelperPrivate(QString db, ScanTaskHelper *p)
 {
     Q_Q(ScanTaskHelper);
 
-    mDBPath = db;
+    mDBPath = std::move(db);
+    mCancel = g_cancellable_new();
 
     int rc = sqlite3_open (mDBPath.toUtf8().constData(), &mDB);
     if (SQLITE_OK != rc) {
@@ -61,9 +74,13 @@ ScanTaskHelperPrivate::ScanTaskHelperPrivate(QString db, ScanTaskHelper *p)
 
 ScanTaskHelperPrivate::~ScanTaskHelperPrivate()
 {
+    if (mCancel)        { g_object_unref (mCancel); mCancel = nullptr;}
     if (mDB)            { sqlite3_close(mDB); mDB = nullptr;}
+
+    mLocker.lock();
     for (auto m = mData.begin(); m != mData.end(); ++m)    delete m.value();
     mData.clear();
+    mLocker.unlock();
 }
 
 bool ScanTaskHelperPrivate::selectAllTaskID()
@@ -234,6 +251,9 @@ void ScanTaskHelperPrivate::onDBChanged()
 {
     Q_Q(ScanTaskHelper);
 
+    g_return_if_fail(!isCanceled());
+    setRunning (true);
+
     QSet<QString> allT;
 
     QString sql = QString("SELECT `task_id`, `task_status`, `task_start_time`, `task_stop_time`,"
@@ -248,6 +268,7 @@ void ScanTaskHelperPrivate::onDBChanged()
     int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
     if (SQLITE_OK == ret) {
         while (SQLITE_DONE != sqlite3_step(stmt)) {
+            if (isCanceled()) break;
             QString id(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
             int taskStatus = sqlite3_column_int(stmt, 1);
             qint64 startTime = sqlite3_column_int64 (stmt, 2);
@@ -342,12 +363,38 @@ void ScanTaskHelperPrivate::onDBChanged()
     QSet<QString> delT = mData.keys().toSet () - allT;
     mLocker.unlock();
 
-    for (auto id : delT) {
-        if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
-        Q_EMIT q->delOldTask(id);
+    if (isRunning()) {
+        for (auto id : delT) {
+            if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
+            Q_EMIT q->delOldTask(id);
+        }
     }
+
+    Q_EMIT q_ptr->loadFinished();
+
+    setRunning (false);
 }
 
+bool ScanTaskHelperPrivate::isRunning()
+{
+    mIsRunningLocker.lock();
+    bool l = mIsRunning;
+    mIsRunningLocker.unlock();
+
+    return l;
+}
+
+bool ScanTaskHelperPrivate::isCanceled()
+{
+    return g_cancellable_is_cancelled (mCancel);
+}
+
+void ScanTaskHelperPrivate::setRunning(bool r)
+{
+    mIsRunningLocker.lock();
+    mIsRunning = r;
+    mIsRunningLocker.unlock();
+}
 
 ScanTaskHelper::ScanTaskHelper(QString dbPath, QObject* parent)
     : QObject(parent), d_ptr(new ScanTaskHelperPrivate(dbPath, this))
@@ -374,23 +421,14 @@ ScanTaskHelper::ScanTaskHelper(QString dbPath, QObject* parent)
 
 ScanTaskHelper::~ScanTaskHelper()
 {
-    if (d_ptr)          delete d_ptr;
-}
-
-void ScanTaskHelper::resetTask()
-{
-    Q_D(ScanTaskHelper);
-
-    auto val = d->mData.values ();
-
-    for (auto ik : val) {
-        Q_EMIT addNewTask (ik);
-    }
+    delete d_ptr;
 }
 
 void ScanTaskHelper::loadAllTask()
 {
     Q_D(ScanTaskHelper);
+
+    g_cancellable_reset (d->mCancel);
 
     d->onDBChanged();
 }
@@ -418,6 +456,36 @@ void ScanTaskHelper::testInsertItem()
         while (!sqlite_unlock());
         usleep(300);
     }
+}
+
+void ScanTaskHelper::reset()
+{
+    Q_D(ScanTaskHelper);
+
+    g_cancellable_cancel (d->mCancel);
+
+    d->mLocker.lock();
+    for (auto& i : d->mData) {
+        delete i;
+    }
+    d->mData.clear();
+    d->mLocker.unlock();
+
+    g_cancellable_reset (d->mCancel);
+}
+
+void ScanTaskHelper::cancel()
+{
+    Q_D(ScanTaskHelper);
+
+    g_cancellable_cancel (d->mCancel);
+}
+
+bool ScanTaskHelper::isRunning()
+{
+    Q_D(ScanTaskHelper);
+
+    return d->isRunning();
 }
 
 

@@ -1,7 +1,8 @@
 #ifndef DBMANAGER_H
 #define DBMANAGER_H
 
-#include <QObject>
+#include <QMutex>
+#include <QEventLoop>
 #include "../utils/scan-result-helper.h"
 
 
@@ -15,7 +16,7 @@ class DBManager : public QObject
 {
     Q_OBJECT
 public:
-    enum CurPage { CUR_TASK, CUR_RESULT }; Q_ENUM(CurPage)
+    enum CurPage { CUR_STOP, CUR_TASK, CUR_RESULT }; Q_ENUM(CurPage)
 
 public:
     static DBManager* instance();
@@ -23,12 +24,19 @@ public:
     ScanTaskHelper* getTaskHelper();
     ScanResultHelper* getResultHelper();
 
+    CurPage getCurPage ();
     void setCurPage (CurPage page);
 
 Q_SIGNALS:
     void startLoadResult ();            // 信号暂未用到
     void stopLoadResult ();             // 信号发到界面
     void cancelLoadResult ();           // 信号由界面来
+
+    void loadTaskStart();
+    void loadTaskStop();
+
+    void loadTaskResultStart();
+    void loadTaskResultStop();
 
 
     void stopDBMonitor();
@@ -47,6 +55,9 @@ private:
 
 private:
     CurPage                 mPage;
+    QMutex                  mPageLock;
+    QEventLoop              mPageChangeExec;
+
 
     QTimer*                 mTimer;
 

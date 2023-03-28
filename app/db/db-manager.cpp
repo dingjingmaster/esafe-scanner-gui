@@ -50,8 +50,7 @@ DBManager::DBManager(QObject *parent)
     mWatcher->addPath(DB_PATH);
 
     mTimer = new QTimer(this);
-//    mTimer->setSingleShot(true);
-    mTimer->setInterval(5 * 1000);
+    mTimer->setInterval(1000);
 
     // 此处仅仅用于更新
     connect(mTimer, &QTimer::timeout, this, &DBManager::updateModel);
@@ -85,6 +84,9 @@ DBManager::DBManager(QObject *parent)
     });
 #endif
 
+    connect (mScanTask, &ScanTaskHelper::loadFinished, this, &DBManager::loadTaskStop);
+    connect (mScanResult, &ScanResultHelper::loadFinished, this, &DBManager::loadTaskResultStop);
+
     mScanTaskThread->start ();
     mScanResultThread->start ();
 }
@@ -92,20 +94,44 @@ DBManager::DBManager(QObject *parent)
 void DBManager::updateModel()
 {
     qInfo() << "db file changed!";
-    if (CUR_RESULT == mPage) {
+    if (CUR_RESULT == getCurPage()) {
         qDebug() << "scan result db changed";
-        Q_EMIT refreshScanResult2 ();
-    } else {
+        if (!mScanResult->isRunning()) {
+            Q_EMIT refreshScanResult2 ();
+        }
+    } else if (CUR_TASK == getCurPage()){
         qDebug() << "scan task db changed";
-        Q_EMIT refreshScanTask ();
+        if (!mScanTask->isRunning()) {
+            Q_EMIT refreshScanTask ();
+        }
+    }
+    else if (CUR_STOP == getCurPage()) {
+        mPageChangeExec.quit();
     }
 }
 
 void DBManager::setCurPage(CurPage p)
 {
-    if (CUR_RESULT == mPage && CUR_RESULT != p) {
-        // 从扫描结果页切换到 任务列表页 需要取消
-        mScanResult->cancel();
-    }
+    mPageLock.lock();
     mPage = p;
+    mPageLock.unlock();
+
+    if (CUR_STOP == mPage) {
+        mScanTask->cancel();
+        mScanResult->cancel();
+        mTimer->setInterval (1000);
+        mPageChangeExec.exec ();
+        mTimer->setInterval (5 * 1000);
+    }
+}
+
+DBManager::CurPage DBManager::getCurPage()
+{
+    mPageLock.lock();
+
+    auto page = mPage;
+
+    mPageLock.unlock();
+
+    return page;
 }

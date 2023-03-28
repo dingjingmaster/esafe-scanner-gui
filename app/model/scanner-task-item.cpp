@@ -101,6 +101,9 @@ void ScannerTaskItem::setScanDir(QString scanDir)
     } else {
         mScanDir = scanDir;
     }
+    if (mScanDir.endsWith ("|")) {
+        mScanDir.chop (1);
+    }
 }
 
 void ScannerTaskItem::setTaskFileCount(qint64 count)
@@ -247,6 +250,9 @@ QString ScannerTaskItem::getOperation()
 void ScannerTaskItem::setFilterOutDir(QString& dir)
 {
     mFilterOutDir = dir;
+    if (mFilterOutDir.endsWith ("|")) {
+        mFilterOutDir.chop (1);
+    }
 }
 
 QString ScannerTaskItem::getFilterOutDir()
@@ -257,11 +263,17 @@ QString ScannerTaskItem::getFilterOutDir()
 void ScannerTaskItem::setScanFileType(const QString &ft)
 {
     mScanFileType = ft;
+    if (mScanFileType.endsWith ("|")) {
+        mScanFileType.chop (1);
+    }
 }
 
 void ScannerTaskItem::setScanFileOutType(const QString &ft)
 {
     mScanFileOutType = ft;
+    if (mScanFileOutType.endsWith ("|")) {
+        mScanFileOutType.chop (1);
+    }
 }
 
 QString ScannerTaskItem::getScanFileOutTypeStr()

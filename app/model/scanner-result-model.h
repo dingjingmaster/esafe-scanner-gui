@@ -18,6 +18,7 @@ public:
 public:
     explicit ScannerResultModel(QObject *parent = nullptr);
 
+    void clearData ();
     bool hasChanged ();
     bool hasChecked ();
     bool isCheckAllItems ();
@@ -56,7 +57,6 @@ public Q_SLOTS:
     void applyMisReportData(const QModelIndex& idx);
 
 Q_SIGNALS:
-    void clearData ();
     void lazyUpdateView ();
     void dataStatueChanged ();
     QString deleteItem (const QString&);

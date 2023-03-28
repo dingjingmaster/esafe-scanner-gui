@@ -171,3 +171,9 @@ void ScannerTaskWidget::setBigSize()
     mView->horizontalHeader()->resizeSection (5, 240);
     mView->horizontalHeader()->resizeSection (6, 100);
 }
+
+void ScannerTaskWidget::clearData()
+{
+    if (!mModel)        return;
+    mModel->clearData();
+}

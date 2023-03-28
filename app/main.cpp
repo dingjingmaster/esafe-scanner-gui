@@ -10,7 +10,16 @@
 
 #include <QFile>
 
+#include <errno.h>
+#include <signal.h>
+
 void messageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg);
+
+void signal_handler (int sig, siginfo_t* siginfo, void* context)
+{
+    signal(sig, SIG_DFL);
+    raise(sig);
+}
 
 int main(int argc, char *argv[])
 {
@@ -23,6 +32,15 @@ int main(int argc, char *argv[])
 #endif
 
     qInfo() << "\n\n\n\n\n\nstart...";
+
+    static struct sigaction sigAction;
+    sigAction.sa_sigaction = signal_handler;
+    sigAction.sa_flags |= SA_SIGINFO;
+
+    if (sigaction(SIGSEGV, &sigAction, nullptr)) {
+        qDebug() << "sigaction error: " << strerror (errno);
+        return errno;
+    }
 
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("utf-8"));
 
@@ -210,6 +228,8 @@ int main(int argc, char *argv[])
         SingletonApp::exit (0);
         exit (0);
     }
+
+
 
     return SingletonApp::exec();
 }

@@ -23,45 +23,45 @@ ScannerTaskModel::ScannerTaskModel(QObject *parent)
 
 ScannerTaskModel::~ScannerTaskModel()
 {
+    mDataLocker.lock();
     mData.clear();
+    mDataLocker.unlock();
 }
 
 QModelIndex ScannerTaskModel::getIndexByItem(const ScannerTaskItem* item, int column)
 {
     if (!item) {
         qDebug() << "item is null";
-        return QModelIndex();
+        return {};
     }
 
-    mLocker.lock();
+    mDataLocker.lock();
 
     int rows = rowCount();
     for (auto i = 0; i < rows; ++i) {
         QModelIndex ii = index(i, column);
         auto it = static_cast <const ScannerTaskItem*> (ii.internalPointer());
         if (it == item) {
-            mLocker.unlock();
+            mDataLocker.unlock();
             return ii;
         }
     }
 
     qDebug() << "item not found!";
-    mLocker.unlock();
+    mDataLocker.unlock();
 
-    return QModelIndex();
+    return {};
 }
 
 void ScannerTaskModel::resetModel()
 {
     beginResetModel ();
-
-    mLocker.lock();
+    mDataLocker.lock();
     mData.clear ();
-    mLocker.unlock();
-
+    mDataLocker.unlock();
     endResetModel ();
 
-    mScanTaskHelper->resetTask ();
+    mScanTaskHelper->reset();
 }
 
 void ScannerTaskModel::addItem(ScannerTaskItem* item)
@@ -70,9 +70,9 @@ void ScannerTaskModel::addItem(ScannerTaskItem* item)
 
     qDebug() << "add task item: " << item->getName();
 
-    mLocker.lock();
+    mDataLocker.lock();
     mData.append(item);
-    mLocker.unlock();
+    mDataLocker.unlock();
 
     insertRows(mData.count() - 1, 1);
 }
@@ -84,12 +84,12 @@ void ScannerTaskModel::delItem(ScannerTaskItem *item)
     qInfo() << "delete task: " << item->getName();
     QModelIndex idx = getIndexByItem (item);
 
-    mLocker.lock();
+    mDataLocker.lock();
     if (idx.isValid()) {
         removeRow (idx.row ());
     }
     if (mData.contains(item)) mData.removeOne (item);
-    mLocker.unlock();
+    mDataLocker.unlock();
 }
 
 void ScannerTaskModel::updateItem(ScannerTaskItem *item)
@@ -117,11 +117,11 @@ int ScannerTaskModel::columnCount(const QModelIndex &parent) const
 
 QVariant ScannerTaskModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid())       return QVariant();
+    if (!index.isValid())       return {};
 
     auto item = static_cast<ScannerTaskItem*>(index.internalPointer());
 
-    if (!item)      return QVariant();
+    if (!item)      return {};
 
     if (Qt::DisplayRole == role) {
         if (0 == index.column()) {
@@ -159,7 +159,7 @@ QVariant ScannerTaskModel::data(const QModelIndex &index, int role) const
         }
     }
 
-    return QVariant();
+    return {};
 }
 
 QVariant ScannerTaskModel::headerData(int section, Qt::Orientation orentation, int role) const
@@ -195,19 +195,19 @@ QVariant ScannerTaskModel::headerData(int section, Qt::Orientation orentation, i
         return f;
     }
 
-    return QVariant();
+    return {};
 }
 
 QModelIndex ScannerTaskModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!parent.isValid()) {
         if (row < 0 || row > mData.count() - 1) {
-            return QModelIndex();
+            return {};
         }
         return createIndex(row, column, mData.at(row));
     }
 
-    return QModelIndex();
+    return {};
 }
 
 Qt::ItemFlags ScannerTaskModel::flags(const QModelIndex &index) const
@@ -238,4 +238,15 @@ bool ScannerTaskModel::removeRows(int row, int count, const QModelIndex &parent)
 void ScannerTaskModel::onScrollbarMoved(float ratio)
 {
     mCurIndex = ratio * rowCount() + 1;
+}
+
+void ScannerTaskModel::clearData()
+{
+    beginResetModel ();
+    mDataLocker.lock();
+    mData.clear ();
+    mDataLocker.unlock();
+    endResetModel ();
+
+    mScanTaskHelper->reset();
 }
