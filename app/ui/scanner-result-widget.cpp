@@ -226,7 +226,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     connect (mRetBtn, &PushButton::clicked, this, &ScannerResultWidget::onBackToTaskView, Qt::UniqueConnection);
 
     connect (mDelBtn, &PushButton::clicked, this, [=] () {
-        QList<QSharedPointer<ScannerResultItem>> ls = mModel->getSelectedItem();
+        QList<ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
             QMessageBox::warning(this, "警告", "请选中需要删除的数据后，再执行删除操作！", QMessageBox::Ok);
             return;
@@ -269,7 +269,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     });
 
     connect (mMisBtn, &PushButton::clicked, this, [=] () {
-        QList<QSharedPointer<ScannerResultItem>> ls = mModel->getSelectedItem();
+        QList<ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
             QMessageBox::warning(this, "警告", "请选中例外的数据后，再执行操作！", QMessageBox::Ok);
             return;
@@ -311,7 +311,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     });
 
     connect (mExpBtn, &PushButton::clicked, this, [=] () {
-        QList<QSharedPointer<ScannerResultItem>> ls = mModel->getSelectedItem();
+        QList<ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
             QMessageBox::warning(this, "警告", "请选中需要导出的数据后，再执行导出操作！", QMessageBox::Ok);
             return;
@@ -545,21 +545,21 @@ ScannerResultWidget::~ScannerResultWidget()
 
 void ScannerResultWidget::test()
 {
-    auto sm1 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务1", "/tmp/", ScannerResultItem::Untreated, 0, 0));
-    auto sm2 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务2", "/tmp/", ScannerResultItem::Untreated, 0, 0));
-    auto sm3 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务3", "/tmp/", ScannerResultItem::Untreated, 0, 0));
-    auto sm4 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务4", "/tmp/", ScannerResultItem::Untreated, 0, 0));
-    auto sm5 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务5", "/tmp/", ScannerResultItem::Untreated, 0, 0));
-    auto sm6 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务6", "/tmp/", ScannerResultItem::Untreated, 0, 0));
-    auto sm7 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务7", "/tmp/", ScannerResultItem::Untreated, 0, 0));
-    auto sm8 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务8", "/tmp/", ScannerResultItem::Untreated, 0, 0));
-    auto sm9 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务9", "/tmp/", ScannerResultItem::Untreated, 0, 0));
-    auto sm10 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务10", "/tmp/", ScannerResultItem::Untreated, 0, 0));
-    auto sm11 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务11", "/tmp/", ScannerResultItem::Untreated, 0, 0));
-    auto sm12 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务12", "/tmp/", ScannerResultItem::Untreated, 0, 0));
-    auto sm13 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务13", "/tmp/", ScannerResultItem::Untreated, 0, 0));
-    auto sm14 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务14", "/tmp/", ScannerResultItem::Untreated, 0, 0));
-    auto sm15 = QSharedPointer<ScannerResultItem>(new ScannerResultItem("任务15", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm1 = (new ScannerResultItem("任务1", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm2 = (new ScannerResultItem("任务2", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm3 = (new ScannerResultItem("任务3", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm4 = (new ScannerResultItem("任务4", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm5 = (new ScannerResultItem("任务5", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm6 = (new ScannerResultItem("任务6", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm7 = (new ScannerResultItem("任务7", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm8 = (new ScannerResultItem("任务8", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm9 = (new ScannerResultItem("任务9", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm10 = (new ScannerResultItem("任务10", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm11 = (new ScannerResultItem("任务11", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm12 = (new ScannerResultItem("任务12", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm13 = (new ScannerResultItem("任务13", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm14 = (new ScannerResultItem("任务14", "/tmp/", ScannerResultItem::Untreated, 0, 0));
+    auto sm15 = (new ScannerResultItem("任务15", "/tmp/", ScannerResultItem::Untreated, 0, 0));
 
     mModel->addItem(sm1);
     mModel->addItem(sm2);

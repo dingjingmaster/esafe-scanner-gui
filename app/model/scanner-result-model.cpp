@@ -12,14 +12,15 @@
 ScannerResultModel::ScannerResultModel(QObject* parent)
     : QAbstractTableModel{parent}, mScanResultHelper(DBManager::instance()->getResultHelper())
 {
-    qRegisterMetaType<QList<QSharedPointer<ScannerResultItem>>>("QList<QSharedPointer<ScannerResultItem>>");
+    qRegisterMetaType<QList<ScannerResultItem*>>("QList<ScannerResultItem*>");
+    qRegisterMetaType<QList<ScannerResultItem*>>("QList<ScannerResultItem*>&");
 
     // 数据库与model连接
-    connect(mScanResultHelper, qOverload<const QSharedPointer<ScannerResultItem>&>(&ScanResultHelper::addNewFile), this, qOverload<const QSharedPointer<ScannerResultItem>&>(&ScannerResultModel::addItem));
-    connect(mScanResultHelper, qOverload<const QSharedPointer<ScannerResultItem>&>(&ScanResultHelper::delOldFile), this, qOverload<const QSharedPointer<ScannerResultItem>&>(&ScannerResultModel::delItem));
+    connect(mScanResultHelper, qOverload<ScannerResultItem*>(&ScanResultHelper::addNewFile), this, qOverload<ScannerResultItem*>(&ScannerResultModel::addItem));
+    connect(mScanResultHelper, qOverload<ScannerResultItem*>(&ScanResultHelper::delOldFile), this, qOverload<ScannerResultItem*>(&ScannerResultModel::delItem));
 
-    connect(mScanResultHelper, qOverload<const QList<QSharedPointer<ScannerResultItem>>&>(&ScanResultHelper::addNewFile), this, qOverload<const QList<QSharedPointer<ScannerResultItem>>&>(&ScannerResultModel::addItem));
-    connect(mScanResultHelper, qOverload<const QList<QSharedPointer<ScannerResultItem>>&>(&ScanResultHelper::delOldFile), this, qOverload<const QList<QSharedPointer<ScannerResultItem>>&>(&ScannerResultModel::delItem));
+    connect(mScanResultHelper, qOverload<QList<ScannerResultItem*>&>(&ScanResultHelper::addNewFile), this, qOverload<QList<ScannerResultItem*>&>(&ScannerResultModel::addItem));
+    connect(mScanResultHelper, qOverload<QList<ScannerResultItem*>&>(&ScanResultHelper::delOldFile), this, qOverload<QList<ScannerResultItem*>&>(&ScannerResultModel::delItem));
 
     connect (this, qOverload<const QString&>(&ScannerResultModel::deleteItem), mScanResultHelper, &ScanResultHelper::onItemDeleted, Qt::UniqueConnection);
 
@@ -74,7 +75,7 @@ bool ScannerResultModel::isCheckAllItems()
     return true;
 }
 
-void ScannerResultModel::addItem(const QSharedPointer<ScannerResultItem>& item)
+void ScannerResultModel::addItem(ScannerResultItem* item)
 {
     if (!item)      return;
 
@@ -93,7 +94,7 @@ void ScannerResultModel::addItem(const QSharedPointer<ScannerResultItem>& item)
     Q_EMIT dataStatueChanged();
 }
 
-void ScannerResultModel::addItem(const QList<QSharedPointer<ScannerResultItem>>& item)
+void ScannerResultModel::addItem(QList<ScannerResultItem*>& item)
 {
     mLocker.lock();
     mData.append(item);
@@ -114,8 +115,8 @@ void ScannerResultModel::addItem(const QList<QSharedPointer<ScannerResultItem>>&
         if (!idx.isValid()) {
             continue;
         }
-//        qDebug() << "idx: " << idx;
-        if ((mCurIndex - 10 <= idx.row()) && (idx.row() <= mCurIndex + 30)) {
+        qDebug() << "idx: " << idx;
+        if ((mCurIndex - 30 <= idx.row()) && (idx.row() <= mCurIndex + 30)) {
             Q_EMIT dataChanged (idx, idx);
         }
         else {
@@ -126,7 +127,7 @@ void ScannerResultModel::addItem(const QList<QSharedPointer<ScannerResultItem>>&
     Q_EMIT dataStatueChanged();
 }
 
-void ScannerResultModel::delItem(const QSharedPointer<ScannerResultItem>& item)
+void ScannerResultModel::delItem(ScannerResultItem* item)
 {
     if (!item)      return;
 
@@ -153,7 +154,7 @@ void ScannerResultModel::delItem(const QSharedPointer<ScannerResultItem>& item)
 }
 
 
-void ScannerResultModel::delItem(const QList<QSharedPointer<ScannerResultItem>>& item)
+void ScannerResultModel::delItem(QList<ScannerResultItem*>& item)
 {
     qDebug() << "delete item: " << item.count();
 
@@ -208,12 +209,12 @@ int ScannerResultModel::getAllCount()
     return rowCount();
 }
 
-QList<QSharedPointer<ScannerResultItem>> ScannerResultModel::getChangedItem()
+QList<ScannerResultItem*> ScannerResultModel::getChangedItem()
 {
     return mChangedItem.keys ();
 }
 
-QModelIndex ScannerResultModel::getIndexByItem(const QSharedPointer<ScannerResultItem>& item, int column) const
+QModelIndex ScannerResultModel::getIndexByItem(const ScannerResultItem* item, int column) const
 {
     if (!item) {
         qDebug() << "item is null";
@@ -296,10 +297,10 @@ QPair<QStringList, QStringList> ScannerResultModel::getSaveItems()
     return {del, misReport};// QPair<QStringList, QStringList>;
 }
 
-QList<QSharedPointer<ScannerResultItem>> ScannerResultModel::getSelectedItem()
+QList<ScannerResultItem*> ScannerResultModel::getSelectedItem()
 {
     mLocker.lock();
-    QList<QSharedPointer<ScannerResultItem>> ls;
+    QList<ScannerResultItem*> ls;
 
     for (auto i = mData.constBegin(); i != mData.constEnd(); ++i) {
         if (i.i->t()->getChecked()) {
@@ -425,7 +426,7 @@ bool ScannerResultModel::setData(const QModelIndex &index, const QVariant &value
     switch (index.column ()) {
     case 2: {
         //ScannerResultItem
-        itemStatusChanged(QSharedPointer<ScannerResultItem>(item), static_cast<ScannerResultItem::Status>(toChange));
+        itemStatusChanged(item, static_cast<ScannerResultItem::Status>(toChange));
 
         // 更新当前 model 里 status 状态
         item->setStatus (value.toString ());
@@ -440,12 +441,12 @@ bool ScannerResultModel::setData(const QModelIndex &index, const QVariant &value
     return false;
 }
 
-bool ScannerResultModel::setData(ScannerResultItem &index, const QVariant &value, int role)
+bool ScannerResultModel::setData(ScannerResultItem& index, const QVariant &value, int role)
 {
     auto toChange = ScannerResultItem::getStatus(value.toString());
 
     //ScannerResultItem
-    itemStatusChanged(QSharedPointer<ScannerResultItem>(&index), static_cast<ScannerResultItem::Status>(toChange));
+    itemStatusChanged(&index, static_cast<ScannerResultItem::Status>(toChange));
 
     // 更新当前 model 里 status 状态
     index.setStatus (value.toString ());
@@ -460,7 +461,7 @@ QModelIndex ScannerResultModel::index(int row, int column, const QModelIndex &pa
             return {};
         }
 
-        return createIndex(row, column, mData.at(row).data());
+        return createIndex(row, column, mData.at(row));
     }
 
     return {};
@@ -543,8 +544,10 @@ void ScannerResultModel::setSelectedItemStatus(ScannerResultItem::Status status)
     }
 }
 
-void ScannerResultModel::itemStatusChanged(QSharedPointer<ScannerResultItem> item, ScannerResultItem::Status toChange)
+void ScannerResultModel::itemStatusChanged(ScannerResultItem* item, ScannerResultItem::Status toChange)
 {
+    if (!item) return;
+
     if (mChangedItem.contains(item)) {
         auto kv = mChangedItem[item];
         auto savedStatus = kv.first;
@@ -597,10 +600,15 @@ void ScannerResultModel::applyMisReportData(const QModelIndex &idx)
 {
     if (!idx.isValid()) { return; }
 
+    mLocker.lock();
     auto item = static_cast<ScannerResultItem*>(idx.internalPointer());
-    if (!item) { return;}
+    if (!item) {
+        mLocker.unlock();
+        return;
+    }
     item->setStatus (ScannerResultItem::MisReport);
     mScanResultHelper->misReportByIDs ((QStringList() << QString("%1").arg(item->getID())));
+    mLocker.unlock();
     updateCount();
     notify_policy_filter (ScannerResultItem::MisReport);
 }
@@ -609,20 +617,25 @@ void ScannerResultModel::applyDelData(const QModelIndex& idx)
 {
     if (!idx.isValid()) { return; }
 
-    auto item = QSharedPointer<ScannerResultItem>(static_cast<ScannerResultItem*>(idx.internalPointer()));
-    if (!item) { return;}
+    mLocker.lock();
+    auto item = static_cast<ScannerResultItem*>(idx.internalPointer());
+    if (!item) {
+        mLocker.lock();
+        return;
+    }
     mScanResultHelper->deleteItemByIDs ((QStringList() << QString("%1").arg(item->getID())));
+    mLocker.lock();
     delItem (item);
     updateCount();
     notify_policy_filter (ScannerResultItem::Deleted);
 }
 
-QPair<QList<QSharedPointer<ScannerResultItem>>, QList<QSharedPointer<ScannerResultItem>>> ScannerResultModel::getSaveItemPoints()
+QPair<QList<ScannerResultItem*>, QList<ScannerResultItem*>> ScannerResultModel::getSaveItemPoints()
 {
     mLocker.lock();
 
-    QList<QSharedPointer<ScannerResultItem>> del;
-    QList<QSharedPointer<ScannerResultItem>> misReport;
+    QList<ScannerResultItem*> del;
+    QList<ScannerResultItem*> misReport;
     auto ls = getChangedItem ();
 
     for (auto& item : ls) {
@@ -641,14 +654,14 @@ QPair<QList<QSharedPointer<ScannerResultItem>>, QList<QSharedPointer<ScannerResu
     return {del, misReport};// QPair<QStringList, QStringList>;
 }
 
-QPair<QPair<QList<QSharedPointer<ScannerResultItem>>, QStringList>, QPair<QList<QSharedPointer<ScannerResultItem>>, QStringList>>
+QPair<QPair<QList<ScannerResultItem*>, QStringList>, QPair<QList<ScannerResultItem*>, QStringList>>
 ScannerResultModel::getSaveItemPointAndIds()
 {
     mLocker.lock();
 
     QStringList delIds;
-    QList<QSharedPointer<ScannerResultItem>> del;
-    QList<QSharedPointer<ScannerResultItem>> misReport;
+    QList<ScannerResultItem*> del;
+    QList<ScannerResultItem*> misReport;
     QStringList misReportIds;
 
     auto ls = getChangedItem ();

@@ -114,6 +114,7 @@ void ScannerResultDelegate::paint(QPainter *p, const QStyleOptionViewItem &optio
         p->setBrush(pal.windowText());
         QFont f = option.font;
         QFontMetrics fm(f);
+        qDebug() << "text: " << text;
         QString text1 = fm.elidedText (text, Qt::ElideRight, rect.width() * 2 - 10);
         p->setFont (f);
         p->drawText(rect, align | Qt::TextWordWrap | Qt::ElideRight, text1);
@@ -151,7 +152,7 @@ QWidget *ScannerResultDelegate::createEditor(QWidget *parent, const QStyleOption
     if (!index.isValid ())      return nullptr;
 
     QString text = index.model()->data(index).toString();
-    auto iitem = static_cast <ScannerResultItem*>(index.internalPointer ());
+    auto item = (static_cast<ScannerResultItem*>(index.internalPointer()));
 
     switch (index.column()) {
     case 2: {
@@ -161,7 +162,7 @@ QWidget *ScannerResultDelegate::createEditor(QWidget *parent, const QStyleOption
                 QComboBox* cb = new QComboBox(parent);
                 QStringList ls;
                 ls << "例外文件" << "删除";
-                if (!iitem->canUntreated ()) {
+                if (!item->canUntreated ()) {
                     ls << "未处理";
                 }
 

@@ -23,24 +23,24 @@ public:
     bool hasChecked ();
     bool isCheckAllItems ();
 
-    void addItem (const QSharedPointer<ScannerResultItem>& item);
-    void delItem (const QSharedPointer<ScannerResultItem>& item);
-    void addItem (const QList<QSharedPointer<ScannerResultItem>>& item);
-    void delItem (const QList<QSharedPointer<ScannerResultItem>>& item);
+    void addItem (ScannerResultItem* item);
+    void delItem (ScannerResultItem* item);
+    void addItem (QList<ScannerResultItem*>& item);
+    void delItem (QList<ScannerResultItem*>& item);
 
     int getAllCount ();
     int getNoFixCount ();
     int getDeleteCount ();
     int getMisReportCount ();
 
-    QList<QSharedPointer<ScannerResultItem>> getChangedItem ();
-    QList<QSharedPointer<ScannerResultItem>> getSelectedItem ();
-    [[nodiscard]] QModelIndex getIndexByItem (const QSharedPointer<ScannerResultItem>& it, int column=0) const;
+    QList<ScannerResultItem*> getChangedItem ();
+    QList<ScannerResultItem*> getSelectedItem ();
+    [[nodiscard]] QModelIndex getIndexByItem (const ScannerResultItem* it, int column=0) const;
 
     //void saveResult();
     QPair<QStringList, QStringList> getSaveItems();
-    QPair<QList<QSharedPointer<ScannerResultItem>>, QList<QSharedPointer<ScannerResultItem>>> getSaveItemPoints();
-    QPair<QPair<QList<QSharedPointer<ScannerResultItem>>, QStringList>, QPair<QList<QSharedPointer<ScannerResultItem>>, QStringList>> getSaveItemPointAndIds();
+    QPair<QList<ScannerResultItem*>, QList<ScannerResultItem*>> getSaveItemPoints();
+    QPair<QPair<QList<ScannerResultItem*>, QStringList>, QPair<QList<ScannerResultItem*>, QStringList>> getSaveItemPointAndIds();
 
     void setSelectedItemStatus (ScannerResultItem::Status status);
 
@@ -70,7 +70,7 @@ public:
     QVariant data (const QModelIndex& index, int role=Qt::DisplayRole) const override;
     QVariant headerData (int section, Qt::Orientation orentation, int role) const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
-    bool setData(ScannerResultItem &index, const QVariant &value, int role = Qt::EditRole);
+    bool setData(ScannerResultItem& index, const QVariant &value, int role = Qt::EditRole);
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
 
@@ -81,7 +81,7 @@ public:
 
 private Q_SLOTS:
     void updateCount ();
-    void itemStatusChanged (QSharedPointer<ScannerResultItem> it, ScannerResultItem::Status s);
+    void itemStatusChanged (ScannerResultItem* it, ScannerResultItem::Status s);
 
 private:
     const int                                                   mBackgroundR = 235;
@@ -105,8 +105,8 @@ private:
     
     // FIXME:// 不应该释放Item内存，这块需要用 智能指针 优化
     // FIXME:// 显示时候去 ScanResultHelper 中去获取数据 ...
-    QList<QSharedPointer<ScannerResultItem>>                    mData;
-    QMap<QSharedPointer<ScannerResultItem>, QPair<int, int>>    mChangedItem;
+    QList<ScannerResultItem*>                                   mData;
+    QMap<ScannerResultItem*, QPair<int, int>>                   mChangedItem;
 
     // 数据库改变、加载数据线程
     // NOTE:// 暂时没有使用，把 model 放到线程里，图形界面更新会有问题

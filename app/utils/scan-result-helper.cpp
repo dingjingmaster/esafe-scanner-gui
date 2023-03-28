@@ -44,28 +44,28 @@ private:
     bool isInScanFileOutType(const QString& fileType) const;
 
 public:
-    QString                                                 mDBPath;
+    QString                                     mDBPath;
 
-    QStringList                                             mScanDir;
-    QString                                                 mTaskName;
-    QString                                                 mTaskFilter;
-    QString                                                 mFilterOutDir;
+    QStringList                                 mScanDir;
+    QString                                     mTaskName;
+    QString                                     mTaskFilter;
+    QString                                     mFilterOutDir;
 
-    QString                                                 mFileType;
-    QString                                                 mFileTypeOut;
+    QString                                     mFileType;
+    QString                                     mFileTypeOut;
 
-    QMap<QString, QSharedPointer<ScannerResultItem>>        mData;                  // <FileMD5, ScannerResultItem*>
-    QMutex                                                  mLocker;
+    QMap<QString, ScannerResultItem*>           mData;                  // <FileMD5, ScannerResultItem*>
+    QMutex                                      mLocker;
 
-    sqlite3*                                                mDB;
-    QFileSystemWatcher*                                     mWatcher;
+    sqlite3*                                    mDB;
+    QFileSystemWatcher*                         mWatcher;
 
-    GCancellable*                                           mCancel;                // 取消操作
-    bool                                                    mIsRunning{};
-    QMutex                                                  mIsRunningLocker;
+    GCancellable*                               mCancel;                // 取消操作
+    bool                                        mIsRunning{};
+    QMutex                                      mIsRunningLocker;
 
     // const
-    ScanResultHelper*                                       q_ptr;
+    ScanResultHelper*                           q_ptr;
     Q_DECLARE_PUBLIC(ScanResultHelper);
 };
 
@@ -109,7 +109,7 @@ void ScanResultHelper::reset ()
 
     d->mLocker.lock();
     for (auto& i : d->mData) {
-        i.clear();
+        delete i;
     }
     d->mData.clear();
 
@@ -185,8 +185,7 @@ ScanResultHelperPrivate::~ScanResultHelperPrivate()
 
     mLocker.lock();
     for (auto & m : mData) {
-        m.clear();
-//        delete m.value();
+        delete m;
     }
     mData.clear();
     mLocker.unlock();
@@ -201,9 +200,9 @@ void ScanResultHelperPrivate::onDBChanged()
     setRunning (true);
 
     QSet<QString> allItem;
-    QList <QSharedPointer<ScannerResultItem>> addItem;
-    QList <QSharedPointer<ScannerResultItem>> delItem;
-    QList <QSharedPointer<ScannerResultItem>> updateItem;
+    QList <ScannerResultItem*> addItem;
+    QList <ScannerResultItem*> delItem;
+    QList <ScannerResultItem*> updateItem;
 
     QStringList k = mTaskFilter.split("|");
     QStringList od = mFilterOutDir.split("|");
@@ -267,7 +266,7 @@ void ScanResultHelperPrivate::onDBChanged()
                     }
                 }
                 else {
-                    auto item = QSharedPointer<ScannerResultItem>(new ScannerResultItem, doDeleteLater);
+                    auto item = new ScannerResultItem;
                     item->setTaskName(mTaskName);
                     item->setID(id);
                     item->setStatus(status);
@@ -360,7 +359,7 @@ bool ScanResultHelperPrivate::selectIDByFilterName()
 //    return false;
 }
 
-ScannerResultItem *ScanResultHelperPrivate::selectFileByID (QString id)
+ScannerResultItem* ScanResultHelperPrivate::selectFileByID (QString id)
 {
     auto* item = new ScannerResultItem;
     item->setTaskName(mTaskName);
