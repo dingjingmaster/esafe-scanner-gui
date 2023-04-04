@@ -6,6 +6,7 @@
 #include <QEventLoop>
 #include <QMessageBox>
 #include <QApplication>
+#include <utility>
 
 #include <unistd.h>
 #include <gio/gio.h>
@@ -26,7 +27,7 @@ public:
     void setRunning(bool r);
 
     bool isRunning();
-    bool isCanceled ();
+    bool isCanceled () const;
 
     bool selectAllTaskID ();
     ScannerTaskItem* selectTaskByID (QString taskID);
@@ -42,7 +43,7 @@ public:
     QMap<QString, ScannerTaskItem*> mData;                  // <TaskID, ScannerTaskItem*>
     QMutex                          mLocker;
 
-    sqlite3*                        mDB;
+    sqlite3*                        mDB{};
 
     GCancellable*                   mCancel;                // 取消操作
 
@@ -252,6 +253,7 @@ void ScanTaskHelperPrivate::onDBChanged()
     Q_Q(ScanTaskHelper);
 
     g_return_if_fail(!isCanceled());
+
     setRunning (true);
 
     QSet<QString> allT;
@@ -268,7 +270,8 @@ void ScanTaskHelperPrivate::onDBChanged()
     int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
     if (SQLITE_OK == ret) {
         while (SQLITE_DONE != sqlite3_step(stmt)) {
-            if (isCanceled()) break;
+            if (isCanceled()) { qDebug() << "canceled"; break;}
+            QApplication::processEvents();
             QString id(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
             int taskStatus = sqlite3_column_int(stmt, 1);
             qint64 startTime = sqlite3_column_int64 (stmt, 2);
@@ -292,7 +295,7 @@ void ScanTaskHelperPrivate::onDBChanged()
 
             allT.insert (id);
 
-            qInfo() << id;
+//            qInfo() << id;
 
             if (mData.contains(id)) {
                 ScannerTaskItem* item = mData[id];
@@ -322,7 +325,7 @@ void ScanTaskHelperPrivate::onDBChanged()
                     item->setScanFinishedFileCount(taskScanFinishedFileCount);
                     item->setScanFileType (scanTaskFileType);
                     item->setScanFileOutType (scanTaskFileOutType);
-                    qInfo() << "update task id:" << id;
+//                    qInfo() << "update task id:" << id;
                     Q_EMIT q->updateTask (item);
                 }
             }
@@ -347,7 +350,7 @@ void ScanTaskHelperPrivate::onDBChanged()
 
                 mData[id] = item;
 
-                qInfo() << "new task id:" << id;
+//                qInfo() << "new task id:" << id;
                 Q_EMIT q->addNewTask (item);
             }
         }
@@ -359,11 +362,11 @@ void ScanTaskHelperPrivate::onDBChanged()
     if (stmt)       sqlite3_finalize(stmt);
     while (!sqlite_unlock());
 
-    mLocker.lock();
-    QSet<QString> delT = mData.keys().toSet () - allT;
-    mLocker.unlock();
-
     if (isRunning()) {
+        mLocker.lock();
+        QSet<QString> delT = mData.keys().toSet () - allT;
+        mLocker.unlock();
+
         for (auto id : delT) {
             if (nullptr == id || id.isNull() || id.isEmpty() || "" == id)   continue;
             Q_EMIT q->delOldTask(id);
@@ -384,7 +387,7 @@ bool ScanTaskHelperPrivate::isRunning()
     return l;
 }
 
-bool ScanTaskHelperPrivate::isCanceled()
+bool ScanTaskHelperPrivate::isCanceled() const
 {
     return g_cancellable_is_cancelled (mCancel);
 }
@@ -397,7 +400,7 @@ void ScanTaskHelperPrivate::setRunning(bool r)
 }
 
 ScanTaskHelper::ScanTaskHelper(QString dbPath, QObject* parent)
-    : QObject(parent), d_ptr(new ScanTaskHelperPrivate(dbPath, this))
+    : QObject(parent), d_ptr(new ScanTaskHelperPrivate(std::move(dbPath), this))
 {
     connect (this, qOverload<QString&>(&ScanTaskHelper::delOldTask), this, [=] (QString& id) {
         Q_D (ScanTaskHelper);

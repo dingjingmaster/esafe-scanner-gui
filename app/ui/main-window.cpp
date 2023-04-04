@@ -330,6 +330,7 @@ void MainWindow::onShowTaskResultWidget()
     mScannerResultWidget->clearData();
     DBManager::instance()->setCurPage(DBManager::CUR_RESULT);
     Q_EMIT DBManager::instance()->loadTaskResultStart();
+    DBManager::instance()->refreshScanResult2();
 
     mScannerResultWidget->show();
 }

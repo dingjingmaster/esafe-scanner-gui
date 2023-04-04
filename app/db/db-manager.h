@@ -38,7 +38,6 @@ Q_SIGNALS:
     void loadTaskResultStart();
     void loadTaskResultStop();
 
-
     void stopDBMonitor();
     void startDBMonitor();
     void refreshScanTask ();
@@ -48,8 +47,8 @@ Q_SIGNALS:
 private Q_SLOTS:
     void updateModel();
 
-
 private:
+    void restartTimer(int32_t sec=0);
     explicit DBManager(QObject *parent = nullptr);
     //~DBManager();
 

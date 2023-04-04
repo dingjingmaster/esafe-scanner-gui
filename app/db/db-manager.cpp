@@ -50,23 +50,22 @@ DBManager::DBManager(QObject *parent)
     mWatcher->addPath(DB_PATH);
 
     mTimer = new QTimer(this);
-    mTimer->setInterval(1000);
+//    mTimer->setSingleShot (true);
 
     // 此处仅仅用于更新
     connect(mTimer, &QTimer::timeout, this, &DBManager::updateModel);
 
 //    connect (mWatcher, &QFileSystemWatcher::fileChanged, this, [&] (const QString&) {
 //        qDebug() << "file changed!";
-//        static unsigned int lastTime = 0;
-//        unsigned int curTim = QDateTime::currentDateTime().toSecsSinceEpoch();
-//        if (curTim >= )
+////        static unsigned int lastTime = 0;
+////        unsigned int curTim = QDateTime::currentDateTime().toSecsSinceEpoch();
 //        // FIXME:// 定时器 5s 更新一次
 //        if (mTimer->isActive ()) {
 //            return;
 //        }
-//        mTimer->start (5 * 1000);
+//        mTimer->start(5 * 1000);
 //    });
-    mTimer->start();
+    restartTimer (1);
 
     // 扫描任务
     connect (this, &DBManager::refreshScanTask, mScanTask, &ScanTaskHelper::loadAllTask);
@@ -93,15 +92,16 @@ DBManager::DBManager(QObject *parent)
 
 void DBManager::updateModel()
 {
-    qInfo() << "db file changed!";
     if (CUR_RESULT == getCurPage()) {
         qDebug() << "scan result db changed";
         if (!mScanResult->isRunning()) {
+            qDebug() << "result start ...";
             Q_EMIT refreshScanResult2 ();
         }
     } else if (CUR_TASK == getCurPage()){
         qDebug() << "scan task db changed";
         if (!mScanTask->isRunning()) {
+            qDebug() << "task start ...";
             Q_EMIT refreshScanTask ();
         }
     }
@@ -119,9 +119,7 @@ void DBManager::setCurPage(CurPage p)
     if (CUR_STOP == mPage) {
         mScanTask->cancel();
         mScanResult->cancel();
-        mTimer->setInterval (1000);
         mPageChangeExec.exec ();
-        mTimer->setInterval (5 * 1000);
     }
 }
 
@@ -134,4 +132,11 @@ DBManager::CurPage DBManager::getCurPage()
     mPageLock.unlock();
 
     return page;
+}
+
+void DBManager::restartTimer(int32_t sec)
+{
+    mTimer->stop();
+    mTimer->setInterval(sec * 1000);
+    mTimer->start();
 }

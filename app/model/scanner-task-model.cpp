@@ -68,7 +68,7 @@ void ScannerTaskModel::addItem(ScannerTaskItem* item)
 {
     if (!item)      return;
 
-    qDebug() << "add task item: " << item->getName();
+//    qDebug() << "add task item: " << item->getName();
 
     mDataLocker.lock();
     mData.append(item);
@@ -96,7 +96,7 @@ void ScannerTaskModel::updateItem(ScannerTaskItem *item)
 {
     if (!item)      return;
 
-    qInfo() << "update task: " << item->getName();
+//    qInfo() << "update task: " << item->getName();
 
     QModelIndex idx = getIndexByItem (item);
     if (idx.isValid () && (mCurIndex - 10 < idx.row()) && (mCurIndex + 30 > idx.row())) {

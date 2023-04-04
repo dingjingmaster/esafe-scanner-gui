@@ -26,7 +26,7 @@ public:
     ~ScanResultHelperPrivate();
 
 public:
-    bool isCancel();
+    bool isCanceled() const;
     bool isRunning();
     void setRunning(bool r);
 
@@ -61,7 +61,7 @@ public:
     QFileSystemWatcher*                         mWatcher;
 
     GCancellable*                               mCancel;                // 取消操作
-    bool                                        mIsRunning{};
+    bool                                        mIsRunning = false;
     QMutex                                      mIsRunningLocker;
 
     // const
@@ -112,10 +112,9 @@ void ScanResultHelper::reset ()
         delete i;
     }
     d->mData.clear();
+    d->mLocker.unlock();
 
     g_cancellable_reset (d->mCancel);
-
-    d->mLocker.unlock();
 }
 
 void ScanResultHelper::refreshResult()
@@ -195,7 +194,7 @@ void ScanResultHelperPrivate::onDBChanged()
 {
     Q_Q(ScanResultHelper);
 
-    g_return_if_fail(!isCancel());
+    g_return_if_fail(!isCanceled());
 
     setRunning (true);
 
@@ -230,8 +229,8 @@ void ScanResultHelperPrivate::onDBChanged()
     int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
     if (SQLITE_OK == ret) {
         while (SQLITE_DONE != sqlite3_step(stmt)) {
+            if (isCanceled()) { qDebug() << "canceled!"; break;}
             QApplication::processEvents();
-            if (isCancel()) break;
             QString id = QString("%1").arg(sqlite3_column_int(stmt, 0));
             QString fileName = QString(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
             int status = sqlite3_column_int(stmt, 2);   // 状态不更新，只有客户端会改
@@ -251,11 +250,11 @@ void ScanResultHelperPrivate::onDBChanged()
                 continue;
             }
 
-            qDebug() << "==>" << isInScanDir(fileName);
-            qDebug() << "==>" << isInScanOutDir(fileName);
-            qDebug() << "==>" << isInScanFileType(fileType);
-            qDebug() << "==>" << isInScanFileOutType(fileType);
-            qDebug() << "==>" << fileType;
+//            qDebug() << "==>" << isInScanDir(fileName);
+//            qDebug() << "==>" << isInScanOutDir(fileName);
+//            qDebug() << "==>" << isInScanFileType(fileType);
+//            qDebug() << "==>" << isInScanFileOutType(fileType);
+//            qDebug() << "==>" << fileType;
             if (isInScanDir(fileName) && !isInScanOutDir(fileName) && isInScanFileType(fileType) && !isInScanFileOutType(fileType)) {
                 if (mData.contains (id)) {
                     auto item = mData[id];
@@ -287,7 +286,7 @@ void ScanResultHelperPrivate::onDBChanged()
                 }
                 allItem += id;
             }
-            QApplication::processEvents();
+//            QApplication::processEvents();
         }
         if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
     }
@@ -301,7 +300,7 @@ void ScanResultHelperPrivate::onDBChanged()
     // 是否是取消操作
     if (isRunning()) {
         mLocker.lock();
-        auto delItemT = allItem - mData.keys().toSet();
+        auto delItemT = mData.keys().toSet() - allItem;
         mLocker.unlock();
 
         for (auto& id : delItemT) {
@@ -436,7 +435,7 @@ bool ScanResultHelperPrivate::isInScanOutDir(const QString &path) const
     if (od.isEmpty()) {
         return false;
     }
-    qDebug() << "out dir: " << od;
+//    qDebug() << "out dir: " << od;
 
     if (std::any_of (od.begin(), od.end(), [=] (const QString& s) -> bool {
         if ("/" == s || "*" == s) {
@@ -461,7 +460,7 @@ bool ScanResultHelperPrivate::isInScanFileType(const QString& fileType) const
     if (ft.isEmpty()) {
         return true;
     }
-    qDebug() << "file type: " << fileType << "all file type:" << ft;
+//    qDebug() << "file type: " << fileType << "all file type:" << ft;
 
     if (std::any_of (ft.begin(), ft.end(), [=] (const QString& s) -> bool {
         if ("" == s || "*" == s) {
@@ -480,7 +479,7 @@ bool ScanResultHelperPrivate::isInScanFileOutType(const QString &fileType) const
         return false;
     }
 
-    qDebug() << "out file type: " << ft;
+//    qDebug() << "out file type: " << ft;
 
     if (std::any_of (ft.begin(), ft.end(), [=] (const QString& s) -> bool {
         if ("*" == s) {
@@ -509,7 +508,7 @@ bool ScanResultHelperPrivate::isRunning()
     return r;
 }
 
-bool ScanResultHelperPrivate::isCancel()
+bool ScanResultHelperPrivate::isCanceled() const
 {
     return g_cancellable_is_cancelled (mCancel);
 }

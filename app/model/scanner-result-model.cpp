@@ -101,7 +101,7 @@ void ScannerResultModel::addItem(QList<ScannerResultItem*>& item)
     insertRows(mData.count() - 1, item.count());
     mLocker.unlock();
 
-    qDebug() << "add item: " << item.count();
+//    qDebug() << "add item: " << item.count();
 
     for (auto& i : item) {
         if (nullptr == i) {
@@ -115,7 +115,7 @@ void ScannerResultModel::addItem(QList<ScannerResultItem*>& item)
         if (!idx.isValid()) {
             continue;
         }
-        qDebug() << "idx: " << idx;
+//        qDebug() << "idx: " << idx;
         if ((mCurIndex - 30 <= idx.row()) && (idx.row() <= mCurIndex + 30)) {
             Q_EMIT dataChanged (idx, idx);
         }
@@ -156,7 +156,7 @@ void ScannerResultModel::delItem(ScannerResultItem* item)
 
 void ScannerResultModel::delItem(QList<ScannerResultItem*>& item)
 {
-    qDebug() << "delete item: " << item.count();
+//    qDebug() << "delete item: " << item.count();
 
     mLocker.lock();
 
@@ -416,7 +416,7 @@ QVariant ScannerResultModel::headerData(int section, Qt::Orientation orentation,
 
 bool ScannerResultModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    qDebug() << index;
+//    qDebug() << index;
     
     if (!index.isValid ())          return false;
     
@@ -581,7 +581,7 @@ void ScannerResultModel::applyData()
 {
     auto items = getSaveItemPointAndIds();
 
-    qDebug() << "apply data";
+//    qDebug() << "apply data";
 
     mCur = 0;
     mTotal =  items.first.second.size() + items.second.second.size();
