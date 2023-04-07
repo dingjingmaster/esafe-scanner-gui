@@ -3,7 +3,6 @@
 
 #include <fcntl.h>
 #include <unistd.h>
-#include <stdbool.h>
 #include <sys/file.h>
 
 bool sqlite_lock();

@@ -2,16 +2,19 @@
 #include <stdio.h>
 
 #include <QDebug>
+#include <QLockFile>
 #include <QtWidgets/QApplication>
 
 #define LOCK_FILE1      "/dev/shm/.est.db.lock"
 #define LOCK_FILE2      "/usr/local/ultrasec/dat/.est.db.lock"
-static FILE* fl = NULL;
+static QLockFile* f1 = nullptr;
+//static FILE* fl = NULL;
 const char* lockFile1 = NULL;
 
 #define LOCK_FILE3      "/dev/shm/.est.runingTask.lock"
 #define LOCK_FILE4      "/usr/local/ultrasec/dat/.est.runingTask.lock"
-static FILE* f2 = NULL;
+//static FILE* f2 = NULL;
+static QLockFile* f2 = nullptr;
 const char* lockFile2 = NULL;
 
 void init_lock_file ();
@@ -21,39 +24,31 @@ bool sqlite_lock()
 {
     init_lock_file ();
 
-    if (!fl) {
+    if (!f1) {
         if (lockFile1) {
-            fl = fopen (lockFile1, "a+");
-            if (!fl) {
+            f1 = new QLockFile(lockFile1);
+            if (!f1) {
                 qDebug() << "fopen error!";
                 exit(-1);
             }
         }
     }
 
-    if (fl) {
-        if (flock (fl->_fileno, LOCK_EX | LOCK_NB) == 0) {
-//            qDebug() << "locked";
-            return true;
-        }
+    if (f1 && f1->lock()) {
+        return true;
     }
 
     return false;
 }
 
-
-
-
 bool sqlite_unlock()
 {
     init_lock_file ();
 
-    if (fl) {
-        if (flock (fl->_fileno, LOCK_UN) == 0) {
-//            qDebug() << "unlocked\n";
-            return true;
-        }
-    } else {
+    if (!f1) return true;
+
+    if (f1 && f1->isLocked()) {
+        f1->unlock();
         return true;
     }
 
@@ -70,18 +65,15 @@ bool file_lock()
     }
 
     if (!f2) {
-        f2 = fopen (lockFile2, "a+");
+        f2 = new QLockFile(lockFile2);
         if (!f2) {
             qDebug() << "fopen error!";
             exit(-1);
         }
     }
 
-    if (f2) {
-        if (flock (f2->_fileno, LOCK_EX | LOCK_NB) == 0) {
-//            qDebug() << "locked";
-            return true;
-        }
+    if (f2->lock()) {
+        return true;
     }
 
     return false;
@@ -91,12 +83,10 @@ bool file_unlock()
 {
     init_lock_file2 ();
 
-    if (f2) {
-        if (flock (f2->_fileno, LOCK_UN) == 0) {
-//            qDebug() << "unlocked\n";
-            return true;
-        }
-    } else {
+    if (!f2) return true;
+
+    if (f2->isLocked()) {
+        f2->unlock();
         return true;
     }
 
