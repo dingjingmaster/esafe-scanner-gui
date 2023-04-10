@@ -120,7 +120,6 @@ QVariant ScannerTaskModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())       return {};
 
     auto item = static_cast<ScannerTaskItem*>(index.internalPointer());
-
     if (!item)      return {};
 
     if (Qt::DisplayRole == role) {

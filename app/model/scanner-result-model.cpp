@@ -2,6 +2,8 @@
 #include "scanner-result-item.h"
 #include "scanner-result-model.h"
 
+#include <glib.h>
+
 #include <QList>
 #include <QDebug>
 #include <QColor>
@@ -355,6 +357,7 @@ QVariant ScannerResultModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())       return {};
 
     auto item = static_cast<ScannerResultItem*>(index.internalPointer());
+    g_return_val_if_fail(item, "");
 
     if (Qt::DisplayRole == role) {
         if (0 == index.column()) {
