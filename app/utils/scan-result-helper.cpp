@@ -25,6 +25,8 @@ public:
     explicit ScanResultHelperPrivate (QString& db, ScanResultHelper* p);
     ~ScanResultHelperPrivate();
 
+    void open ();
+    void close ();
 public:
     bool isCanceled() const;
     bool isRunning();
@@ -167,13 +169,6 @@ ScanResultHelperPrivate::ScanResultHelperPrivate(QString& db, ScanResultHelper *
 
     mDBPath = std::move(db);
 
-    int rc = sqlite3_open (mDBPath.toUtf8().constData(), &mDB);
-    if (SQLITE_OK != rc) {
-        qCritical() << "connect to database: " << mDBPath << " failed!";
-        QMessageBox::warning(nullptr, "数据库错误", "连接数据库出错", QMessageBox::Ok);
-        qApp->exit(-1);
-    }
-
     qDebug() << "connect to database: " << mDBPath << " successful!";
 }
 
@@ -226,6 +221,7 @@ void ScanResultHelperPrivate::onDBChanged()
                           " FROM scan_result WHERE status!=5 AND policy_id IN (%1)").arg (policy);
     qInfo() << "sql ==> " << sql;
     while (!sqlite_lock()); // {if (++ev % 10) QApplication::processEvents(); usleep(1000);};
+    open();
     int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
     if (SQLITE_OK == ret) {
         while (SQLITE_DONE != sqlite3_step(stmt)) {
@@ -295,6 +291,7 @@ void ScanResultHelperPrivate::onDBChanged()
     }
 
     if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
+    close();
     while (!sqlite_unlock());
 
     // 是否是取消操作
@@ -518,6 +515,24 @@ void ScanResultHelperPrivate::setRunning(bool r)
     mIsRunningLocker.lock();
     mIsRunning = r;
     mIsRunningLocker.unlock();
+}
+
+void ScanResultHelperPrivate::open()
+{
+    int rc = sqlite3_open (mDBPath.toUtf8().constData(), &mDB);
+    if (SQLITE_OK != rc) {
+        qCritical() << "connect to database: " << mDBPath << " failed!";
+        QMessageBox::warning(nullptr, "数据库错误", "连接数据库出错", QMessageBox::Ok);
+        qApp->exit(-1);
+    }
+}
+
+void ScanResultHelperPrivate::close()
+{
+    if (mDB) {
+        sqlite3_close (mDB);
+        mDB = nullptr;
+    }
 }
 
 void ScanResultHelper::misReportByIDs(const QStringList& ids)

@@ -21,6 +21,9 @@ public:
     explicit ScanTaskHelperPrivate (QString db, ScanTaskHelper* p);
     ~ScanTaskHelperPrivate();
 
+    void open ();
+    void close ();
+
 public:
     void onDBChanged ();
 
@@ -62,13 +65,6 @@ ScanTaskHelperPrivate::ScanTaskHelperPrivate(QString db, ScanTaskHelper *p)
 
     mDBPath = std::move(db);
     mCancel = g_cancellable_new();
-
-    int rc = sqlite3_open (mDBPath.toUtf8().constData(), &mDB);
-    if (SQLITE_OK != rc) {
-        qCritical() << "connect to database: " << mDBPath << " failed!";
-        QMessageBox::warning(nullptr, "数据库错误", "连接数据库出错", QMessageBox::Ok);
-        qApp->exit(-1);
-    }
 
     qInfo() << "connect to database: " << mDBPath << " successful!";
 }
@@ -266,6 +262,7 @@ void ScanTaskHelperPrivate::onDBChanged()
     qDebug() << "scan_task sql: '" << sql << "'";
 
     while (!sqlite_lock());
+    open();
     sqlite3_stmt* stmt = nullptr;
     int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
     if (SQLITE_OK == ret) {
@@ -360,6 +357,7 @@ void ScanTaskHelperPrivate::onDBChanged()
     }
 
     if (stmt)       sqlite3_finalize(stmt);
+    close();
     while (!sqlite_unlock());
 
     if (isRunning()) {
@@ -397,6 +395,24 @@ void ScanTaskHelperPrivate::setRunning(bool r)
     mIsRunningLocker.lock();
     mIsRunning = r;
     mIsRunningLocker.unlock();
+}
+
+void ScanTaskHelperPrivate::open()
+{
+    int rc = sqlite3_open (mDBPath.toUtf8().constData(), &mDB);
+    if (SQLITE_OK != rc) {
+        qCritical() << "connect to database: " << mDBPath << " failed!";
+        QMessageBox::warning(nullptr, "数据库错误", "连接数据库出错", QMessageBox::Ok);
+        qApp->exit(-1);
+    }
+}
+
+void ScanTaskHelperPrivate::close()
+{
+    if (mDB) {
+        sqlite3_close (mDB);
+        mDB = nullptr;
+    }
 }
 
 ScanTaskHelper::ScanTaskHelper(QString dbPath, QObject* parent)
