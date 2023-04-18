@@ -93,11 +93,13 @@ void ScanResultHelper::testInsertItem()
                               "VALUES ('/tmp/最奥大苏打地区党伽倻过渡期一个肚脐眼过渡期一个对齐我有个对齐过渡期为过渡期蔓延到股权五斗柜趣味有多高趣味-%1', 'A', 'A', 0, 1658558157, '', '', '', '', '', '', '');").arg (i);
 
         while (!sqlite_lock());
+        d->open ();
         int ret = sqlite3_exec(d->mDB, sql.toUtf8().constData(), nullptr, nullptr, &errorMsg);
         if (SQLITE_OK != ret) {
             qDebug() << "error: " << errorMsg;
             sqlite3_free(errorMsg);
         }
+        d->close();
         while (!sqlite_unlock());
         usleep(300);
     }
@@ -330,6 +332,7 @@ bool ScanResultHelperPrivate::selectIDByFilterName()
     sqlite3_stmt* stmt = nullptr;
 
     while (!sqlite_lock());
+    open();
     for (const auto& ik : k) {
         qInfo() << "filter name --> " << ik;
         if (nullptr == ik || ik.isNull() || ik.isEmpty() || "" == ik)   continue;
@@ -346,13 +349,10 @@ bool ScanResultHelperPrivate::selectIDByFilterName()
         if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
     }
     if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
+    close();
     while (!sqlite_unlock());
 
     return true;
-
-//noChanged:
-//
-//    return false;
 }
 
 ScannerResultItem* ScanResultHelperPrivate::selectFileByID (QString id)
@@ -365,6 +365,7 @@ ScannerResultItem* ScanResultHelperPrivate::selectFileByID (QString id)
                       " WHERE ID='%1'").arg(id);
 
     while (!sqlite_lock());
+    open();
     sqlite3_stmt* stmt = nullptr;
     int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
     if (SQLITE_OK == ret) {
@@ -391,6 +392,7 @@ ScannerResultItem* ScanResultHelperPrivate::selectFileByID (QString id)
     } else {
         goto noChanged;
     }
+    close();
     while (!sqlite_unlock());
 
     if (stmt)       sqlite3_finalize(stmt);
@@ -398,6 +400,7 @@ ScannerResultItem* ScanResultHelperPrivate::selectFileByID (QString id)
     return item;
 
 noChanged:
+    close();
     while (!sqlite_unlock());
 
     if (stmt)       sqlite3_finalize(stmt);
@@ -545,7 +548,9 @@ void ScanResultHelper::misReportByIDs(const QStringList& ids)
 
         char *errMsg = nullptr;
         while (!sqlite_lock());
+        d->open ();
         sqlite3_exec(d->mDB, sql.toUtf8().constData(), nullptr, nullptr, &errMsg);
+        d->close();
         while (!sqlite_unlock());
         if (errMsg) {
             qWarning() << "report error: " << errMsg;
@@ -566,7 +571,9 @@ void ScanResultHelper::deleteItemByIDs(const QStringList& ids)
 
         char* errMsg = nullptr;
         while (!sqlite_lock());
+        d->open();
         sqlite3_exec (d->mDB, sql.toUtf8().constData(), nullptr, nullptr, &errMsg);
+        d->close();
         while (!sqlite_unlock());
         if (errMsg) {
             qWarning() << "report error: " << errMsg << " DB FILE: " DB_PATH;

@@ -87,6 +87,7 @@ bool ScanTaskHelperPrivate::selectAllTaskID()
                       " task_file_count, task_scan_file_count,"
                       " task_scan_finished_file_count, task_status FROM scan_task WHERE scan_task_self_check=1";
     while (!sqlite_lock());
+    open();
     int ret = sqlite3_exec (mDB, sql, select_taskid, this, &errorMsg);
     if (SQLITE_OK != ret) {
         qInfo() << "task data select error: " << errorMsg;
@@ -94,7 +95,7 @@ bool ScanTaskHelperPrivate::selectAllTaskID()
         sqlite3_free(errorMsg);
         goto error;
     }
-
+    close();
     while (!sqlite_unlock());
 
     return true;
@@ -120,6 +121,7 @@ ScannerTaskItem* ScanTaskHelperPrivate::selectTaskByID(QString taskID)
                       " WHERE task_id='%1'").arg(taskID);
 
     while (!sqlite_lock());
+    open();
     int ret = sqlite3_exec(mDB, sql.toUtf8().constData(), select_task_by_id, item, &errorMsg);
     if (SQLITE_OK != ret) {
         QMessageBox::warning(nullptr, "数据查询出错", errorMsg, QMessageBox::Ok);
@@ -127,7 +129,7 @@ ScannerTaskItem* ScanTaskHelperPrivate::selectTaskByID(QString taskID)
         delete item;
         goto error;
     }
-
+    close();
     while (!sqlite_unlock());
 
     return item;
@@ -152,6 +154,7 @@ ScannerTaskItem *ScanTaskHelperPrivate::selectTaskByIDV2(QString taskID)
 
     sqlite3_stmt* stmt = NULL;
     while (!sqlite_lock());
+    open();
     int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
     if (SQLITE_OK == ret) {
         while (SQLITE_DONE != sqlite3_step(stmt)) {
@@ -177,12 +180,13 @@ ScannerTaskItem *ScanTaskHelperPrivate::selectTaskByIDV2(QString taskID)
     }
 
     if (stmt)       sqlite3_finalize(stmt);
+    close();
     while (!sqlite_unlock());
 
     return item;
 
 noChanged:
-
+    close();
     while (!sqlite_unlock());
     if (stmt)       sqlite3_finalize(stmt);
 
@@ -467,11 +471,13 @@ void ScanTaskHelper::testInsertItem()
                               " 1658558157, 1000, 600, 100, 0, 0, 0, 1, "");").arg (i);
 
         while (!sqlite_lock());
+        d->open ();
         int ret = sqlite3_exec(d->mDB, sql.toUtf8().constData(), NULL, NULL, &errorMsg);
         if (SQLITE_OK != ret) {
             qDebug() << "error: " << errorMsg;
             sqlite3_free(errorMsg);
         }
+        d->close();
         while (!sqlite_unlock());
         usleep(300);
     }
