@@ -30,6 +30,17 @@ MainWindow::MainWindow(QWidget *parent)
     setMinimumSize(mMinWidth, mMinHeight);
     setWindowFlags(Qt::FramelessWindowHint);
 
+    if (QX11Info::isPlatformX11()) {
+        XatomHelper::getInstance()->setUKUIDecoraiontHint(this->winId(), false);
+        MotifWmHints hints;
+        hints.flags = MWM_HINTS_FUNCTIONS|MWM_HINTS_DECORATIONS;
+        hints.functions = MWM_FUNC_ALL;
+        hints.decorations = MWM_DECOR_BORDER;
+        XatomHelper::getInstance()->setWindowMotifHint(this->winId(), hints);
+    }
+
+
+
     mCurStatus = new QLabel;
     mCurStatus->setWordWrap(true);
     QString str = ScanStatusHelper::getStatusString();
@@ -234,7 +245,6 @@ void MainWindow::mouseMoveEvent(QMouseEvent* e)
     QPoint rb = mapToGlobal (rect.bottomRight());
 
     qreal dpiRatio = qApp->devicePixelRatio ();
-    qDebug() << "pressed: " << (mIsPress ? "true" : "false");
     if (!mIsPress) {
         region (globalPos);
     }
@@ -317,7 +327,53 @@ void MainWindow::mouseMoveEvent(QMouseEvent* e)
     }
 
     if (mDrag) {
-        move ((QCursor::pos () - mOffset) * dpiRatio);
+        if (QX11Info::isPlatformX11 ()) {
+            Display *display = QX11Info::display ();
+            Atom netMoveResize = XInternAtom (display, "_NET_WM_MOVERESIZE", False);
+            XEvent xEvent;
+            const auto pos = QCursor::pos ();
+            memset (&xEvent, 0, sizeof (XEvent));
+            xEvent.xclient.type = ClientMessage;
+            xEvent.xclient.message_type = netMoveResize;
+            xEvent.xclient.display = display;
+            xEvent.xclient.window = this->winId ();
+            xEvent.xclient.format = 32;
+            xEvent.xclient.data.l[0] = pos.x () * dpiRatio;
+            xEvent.xclient.data.l[1] = pos.y () * dpiRatio;
+            xEvent.xclient.data.l[2] = 8;
+            xEvent.xclient.data.l[3] = Button1;
+            xEvent.xclient.data.l[4] = 0;
+
+            XUngrabPointer (display, CurrentTime);
+            XSendEvent (display, QX11Info::appRootWindow (QX11Info::appScreen ()), False,
+                        SubstructureNotifyMask | SubstructureRedirectMask, &xEvent);
+            //XFlush(display);
+            XEvent xevent;
+            memset (&xevent, 0, sizeof (XEvent));
+
+            xevent.type = ButtonRelease;
+            xevent.xbutton.button = Button1;
+            xevent.xbutton.window = this->winId ();
+            xevent.xbutton.x = e->pos ().x () * dpiRatio;
+            xevent.xbutton.y = e->pos ().y () * dpiRatio;
+            xevent.xbutton.x_root = pos.x () * dpiRatio;
+            xevent.xbutton.y_root = pos.y () * dpiRatio;
+            xevent.xbutton.display = display;
+
+            XSendEvent (display, this->effectiveWinId (), False, ButtonReleaseMask, &xevent);
+            XFlush (display);
+
+            if (e->source () == Qt::MouseEventSynthesizedByQt) {
+                if (!MainWindow::mouseGrabber ()) {
+                    this->grabMouse ();
+                     this->releaseMouse ();
+                 }
+            }
+            mDrag = false;
+        }
+        else {
+            move ((QCursor::pos () - mOffset) * dpiRatio);
+        }
     }
 }
 
@@ -437,6 +493,18 @@ void MainWindow::region(const QPoint &cursorGlobalPoint)
         mDirection = NONE;
         this->setCursor(QCursor(Qt::ArrowCursor));
     }
+}
+
+void MainWindow::leaveEvent(QEvent* e)
+{
+    mDrag = false;
+    mIsPress = false;
+    if (NONE != mDirection) {
+        releaseMouse();
+        setCursor (QCursor(Qt::ArrowCursor));
+    }
+
+    QWidget::leaveEvent (e);
 }
 
 

@@ -23,6 +23,7 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
 
 protected:
+    void leaveEvent (QEvent*) override;
     void resizeEvent (QResizeEvent*) override;
     void mouseMoveEvent(QMouseEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
