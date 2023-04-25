@@ -26,20 +26,9 @@ MainWindow::MainWindow(QWidget *parent)
     setObjectName("main");
     setMouseTracking (true);
     setContentsMargins(0, 0, 0, 0);
-    setMinimumSize(mMinWidth, mMinHeight);
-
     setWindowTitle ("终端数据防泄漏系统");
-
-    //installEventFilter(this);
+    setMinimumSize(mMinWidth, mMinHeight);
     setWindowFlags(Qt::FramelessWindowHint);
-    if (QX11Info::isPlatformX11()) {
-        XatomHelper::getInstance()->setUKUIDecoraiontHint(this->winId(), false);
-        MotifWmHints hints;
-        hints.flags = MWM_HINTS_FUNCTIONS|MWM_HINTS_DECORATIONS;
-        hints.functions = MWM_FUNC_ALL;
-        hints.decorations = MWM_DECOR_BORDER;
-        XatomHelper::getInstance()->setWindowMotifHint(this->winId(), hints);
-    }
 
     mCurStatus = new QLabel;
     mCurStatus->setWordWrap(true);
@@ -50,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
         mCurStatus->setText("");
     }
     mMainLayout = new QVBoxLayout;
+    QVBoxLayout* contentLayout = new QVBoxLayout;
     QHBoxLayout* btnLayout = new QHBoxLayout;
 
     MainHeader* header = new MainHeader(this);
@@ -60,11 +50,15 @@ MainWindow::MainWindow(QWidget *parent)
     mScannerTaskWidget = new ScannerTaskWidget(this);
     mScannerResultWidget = new ScannerResultWidget(this);
 
-    mCurStatus->setContentsMargins(8, 0, 6, 3);
+    mCurStatus->setContentsMargins(8, 0, 6, 0);
 
     mMainLayout->setSpacing(0);
     mMainLayout->setContentsMargins(0, 0, 0, 0);
     mMainLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+
+    contentLayout->setSpacing(0);
+    contentLayout->setContentsMargins(3, 0, 3, 6);
+    contentLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
     header->setAutoFillBackground(true);
     header->setContentsMargins(0, 0, 0, 0);
@@ -124,15 +118,15 @@ MainWindow::MainWindow(QWidget *parent)
     btnLayout->addStretch();
     widget->setLayout (btnLayout);
     widget->setStyleSheet ("border-style: none none solid none; border-width:1px; border-color:#E3E3E3;");
-    mMainLayout->addWidget(widget);
+    contentLayout->addWidget(widget);
 
     // content View
-    mMainLayout->addWidget(mScannerTaskWidget);
-    mMainLayout->addWidget(mScannerResultWidget);
+    contentLayout->addWidget(mScannerTaskWidget);
+    contentLayout->addWidget(mScannerResultWidget);
     onShowTaskWidget();
 
     // 当前状态
-    mMainLayout->addWidget(mCurStatus);
+    contentLayout->addWidget(mCurStatus);
 
     connect(mStatusTimer, &QTimer::timeout, this, [=] () {
         QString str = ScanStatusHelper::getStatusString();
@@ -184,6 +178,8 @@ MainWindow::MainWindow(QWidget *parent)
         qInfo() << "active window";
     });
 
+    mMainLayout->addItem(contentLayout);
+
     setLayout(mMainLayout);
 
     // cursor
@@ -195,10 +191,9 @@ MainWindow::MainWindow(QWidget *parent)
     mStatusTimer->start();
 }
 
-void MainWindow::resizeEvent(QResizeEvent *)
+void MainWindow::resizeEvent(QResizeEvent* e)
 {
-    mScannerResultWidget->setFixedWidth(width());
-    mScannerTaskWidget->setFixedWidth(width());
+    QWidget::resizeEvent (e);
 
     qDebug() << "resize";
 }
@@ -239,7 +234,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent* e)
     QPoint rb = mapToGlobal (rect.bottomRight());
 
     qreal dpiRatio = qApp->devicePixelRatio ();
-//    qDebug() << "pressed: " << (mIsPress ? "true" : "false");
+    qDebug() << "pressed: " << (mIsPress ? "true" : "false");
     if (!mIsPress) {
         region (globalPos);
     }
@@ -254,7 +249,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent* e)
                     else {
                         rMove.setX (globalPos.x ());
                     }
-//                    qDebug() << "pressed: " << (mIsPress ? "true" : "false") << " left";
+                    qDebug() << "pressed: " << (mIsPress ? "true" : "false") << " left";
                     break;
                 }
                 case RIGHT: {
@@ -322,55 +317,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent* e)
     }
 
     if (mDrag) {
-//#ifdef __unix
-        if (QX11Info::isPlatformX11 ()) {
-            Display *display = QX11Info::display ();
-            Atom netMoveResize = XInternAtom (display, "_NET_WM_MOVERESIZE", False);
-            XEvent xEvent;
-            const auto pos = QCursor::pos ();
-
-            memset (&xEvent, 0, sizeof (XEvent));
-            xEvent.xclient.type = ClientMessage;
-            xEvent.xclient.message_type = netMoveResize;
-            xEvent.xclient.display = display;
-            xEvent.xclient.window = this->winId ();
-            xEvent.xclient.format = 32;
-            xEvent.xclient.data.l[0] = pos.x () * dpiRatio;
-            xEvent.xclient.data.l[1] = pos.y () * dpiRatio;
-            xEvent.xclient.data.l[2] = 8;
-            xEvent.xclient.data.l[3] = Button1;
-            xEvent.xclient.data.l[4] = 0;
-
-            XUngrabPointer (display, CurrentTime);
-            XSendEvent (display, QX11Info::appRootWindow (QX11Info::appScreen ()), False,
-                        SubstructureNotifyMask | SubstructureRedirectMask, &xEvent);
-            //XFlush(display);
-            XEvent xevent;
-            memset (&xevent, 0, sizeof (XEvent));
-
-            xevent.type = ButtonRelease;
-            xevent.xbutton.button = Button1;
-            xevent.xbutton.window = this->winId ();
-            xevent.xbutton.x = e->pos ().x () * dpiRatio;
-            xevent.xbutton.y = e->pos ().y () * dpiRatio;
-            xevent.xbutton.x_root = pos.x () * dpiRatio;
-            xevent.xbutton.y_root = pos.y () * dpiRatio;
-            xevent.xbutton.display = display;
-
-            XSendEvent (display, this->effectiveWinId (), False, ButtonReleaseMask, &xevent);
-            XFlush (display);
-
-            if (e->source () == Qt::MouseEventSynthesizedByQt) {
-                if (!MainWindow::mouseGrabber ()) {
-                    this->grabMouse ();
-                    this->releaseMouse ();
-                }
-            }
-            mDrag = false;
-        }
-        else {
-            move ((QCursor::pos () - mOffset) * dpiRatio);
-        }
+        move ((QCursor::pos () - mOffset) * dpiRatio);
     }
 }
 
