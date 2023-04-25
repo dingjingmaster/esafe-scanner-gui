@@ -43,7 +43,7 @@ private:
     bool isInScanDir(const QString& path);
     bool isInScanOutDir(const QString& path) const;
     bool isInScanFileType(const QString& fileType) const;
-    bool isInScanFileOutType(const QString& fileType) const;
+    bool isInScanFileOutType(const QString& fileName, const QString& fileType) const;
 
 public:
     QString                                     mDBPath;
@@ -213,7 +213,6 @@ void ScanResultHelperPrivate::onDBChanged()
     QString policy = policyIDs.join(",");
 
     sqlite3_stmt* stmt = nullptr;
-
     if (policy.isNull() || policy.isEmpty() || "" == policy) {
         qDebug() << "filter is null";
         return;
@@ -222,12 +221,13 @@ void ScanResultHelperPrivate::onDBChanged()
     QString sql = QString("SELECT `ID`, `scan_file_name`, `status`, `scan_finished_time`, `file_type`, `change_time`"
                           " FROM scan_result WHERE status!=5 AND policy_id IN (%1)").arg (policy);
     qInfo() << "sql ==> " << sql;
+    g_return_if_fail(!isCanceled());
     while (!sqlite_lock()); // {if (++ev % 10) QApplication::processEvents(); usleep(1000);};
     open();
     int ret = sqlite3_prepare_v2(mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
     if (SQLITE_OK == ret) {
         while (SQLITE_DONE != sqlite3_step(stmt)) {
-            if (isCanceled()) { qDebug() << "canceled!"; break;}
+            if (isCanceled()) { qDebug() << "canceled!"; QApplication::processEvents(); break;}
             QApplication::processEvents();
             QString id = QString("%1").arg(sqlite3_column_int(stmt, 0));
             QString fileName = QString(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
@@ -253,7 +253,7 @@ void ScanResultHelperPrivate::onDBChanged()
 //            qDebug() << "==>" << isInScanFileType(fileType);
 //            qDebug() << "==>" << isInScanFileOutType(fileType);
 //            qDebug() << "==>" << fileType;
-            if (isInScanDir(fileName) && !isInScanOutDir(fileName) && isInScanFileType(fileType) && !isInScanFileOutType(fileType)) {
+            if (isInScanDir(fileName) && !isInScanOutDir(fileName) && isInScanFileType(fileType) && !isInScanFileOutType(fileName, fileType)) {
                 if (mData.contains (id)) {
                     auto item = mData[id];
                     if (finishedTime != item->getFileCreateTime()) {
@@ -472,12 +472,23 @@ bool ScanResultHelperPrivate::isInScanFileType(const QString& fileType) const
     return false;
 }
 
-bool ScanResultHelperPrivate::isInScanFileOutType(const QString &fileType) const
+bool ScanResultHelperPrivate::isInScanFileOutType(const QString& fileName, const QString &fileType) const
 {
-    QStringList ft = mFileTypeOut.split("|").toSet().toList();
+    QStringList ft = mFileTypeOut.split("#").toSet().toList();
     if (ft.isEmpty()) {
         return false;
     }
+
+    QStringList fileExtT = fileName.split(".");
+    fileExtT.pop_front();
+    QString fileExt = fileExtT.join (".");
+
+//    qDebug()
+//        << "\nfile name: " << fileName
+//        << "\nfile type: " << fileType
+//        << "\nfile extend name: " << fileExt
+//        << "\nscan file out type: " << mFileTypeOut
+//        ;
 
 //    qDebug() << "out file type: " << ft;
 
@@ -488,7 +499,36 @@ bool ScanResultHelperPrivate::isInScanFileOutType(const QString &fileType) const
         else if ("" == s) {
             return false;
         }
-        return s == fileType;
+
+        QStringList ls = s.split (":");
+
+        g_return_val_if_fail(ls.length() == 2, false);
+
+        auto filterOutType = ls.takeFirst().split ("|").toSet();
+        auto filterExtName = ls.takeFirst().split ("&").toSet();
+
+//        qDebug()
+//            << "\nfilter out type: " << filterOutType
+//            << "\nfilter out extend name: " << filterExtName
+//            ;
+
+        if (!filterOutType.contains (fileType)) { return false; }
+
+        if (filterExtName.isEmpty()) { return true; }
+
+        for (auto& n : filterExtName) {
+            if (n == fileExt) {
+                return true;
+            }
+            else if (n.length() == fileExt.length()) {
+                auto ssk = n.split ("?").toSet();
+                if (std::all_of (ssk.begin(), ssk.end(), [&] (const QString& ass) -> bool {
+                    if ("" == ass || ass.isNull() || ass.isEmpty()) return true;
+                    return fileExt.contains (ass);
+                })) return true;
+            }
+        }
+        return false;
     })) return true;
 
     return false;

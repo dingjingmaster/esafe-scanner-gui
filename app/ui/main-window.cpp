@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QWidget{parent}
 {
     setObjectName("main");
+    setMouseTracking (true);
     setContentsMargins(0, 0, 0, 0);
     setMinimumSize(mMinWidth, mMinHeight);
 
@@ -232,79 +233,189 @@ void MainWindow::onLoadTaskResult(const ScannerTaskItem * const item)
 
 void MainWindow::mouseMoveEvent(QMouseEvent* e)
 {
-    QWidget::mouseMoveEvent(e);
-    if (!mDrag) {
-        return;
+    QPoint globalPos = e->globalPos();
+    QRect rect = this->rect();
+    QPoint tl = mapToGlobal (rect.topLeft());
+    QPoint rb = mapToGlobal (rect.bottomRight());
+
+    qreal dpiRatio = qApp->devicePixelRatio ();
+//    qDebug() << "pressed: " << (mIsPress ? "true" : "false");
+    if (!mIsPress) {
+        region (globalPos);
+    }
+    else {
+        if (NONE != mDirection) {
+            QRect rMove (tl, rb);
+            switch (mDirection) {
+                case LEFT: {
+                    if (rb.x () - globalPos.x () <= this->minimumWidth ()) {
+                        rMove.setX (tl.x ());
+                    }
+                    else {
+                        rMove.setX (globalPos.x ());
+                    }
+//                    qDebug() << "pressed: " << (mIsPress ? "true" : "false") << " left";
+                    break;
+                }
+                case RIGHT: {
+                    rMove.setWidth (globalPos.x () - tl.x ());
+//                    qDebug() << "pressed: " << (mIsPress ? "true" : "false") << " right";
+                    break;
+                }
+                case UP: {
+                    if (rb.y () - globalPos.y () <= this->minimumHeight ()) {
+                        rMove.setY (tl.y ());
+                    }
+                    else {
+                        rMove.setY (globalPos.y ());
+                    }
+//                    qDebug() << "pressed: " << (mIsPress ? "true" : "false") << " up";
+                    break;
+                }
+                case DOWN: {
+                    rMove.setHeight (globalPos.y () - tl.y ());
+//                    qDebug() << "pressed: " << (mIsPress ? "true" : "false") << " down";
+                    break;
+                }
+                case LEFT_TOP: {
+                    if (rb.x () - globalPos.x () <= this->minimumWidth ()) {
+                        rMove.setX (tl.x ());
+                    }
+                    else {
+                        rMove.setX (globalPos.x ());
+                    }
+
+                    if (rb.y () - globalPos.y () <= this->minimumHeight ()) {
+                        rMove.setY (tl.y ());
+                    }
+                    else {
+                        rMove.setY (globalPos.y ());
+                    }
+//                    qDebug() << "pressed: " << (mIsPress ? "true" : "false") << " left_top";
+                    break;
+                }
+                case RIGHT_TOP: {
+                    rMove.setWidth (globalPos.x () - tl.x ());
+                    rMove.setY (globalPos.y ());
+//                    qDebug() << "pressed: " << (mIsPress ? "true" : "false") << " right_top";
+                    break;
+                }
+                case LEFT_BOTTOM: {
+                    rMove.setX (globalPos.x ());
+                    rMove.setHeight (globalPos.y () - tl.y ());
+//                    qDebug() << "pressed: " << (mIsPress ? "true" : "false") << " left_bottom";
+                    break;
+                }
+                case RIGHT_BOTTOM: {
+                    rMove.setWidth (globalPos.x () - tl.x ());
+                    rMove.setHeight (globalPos.y () - tl.y ());
+//                    qDebug() << "pressed: " << (mIsPress ? "true" : "false") << " right_bottom";
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+            this->setGeometry(rMove);
+            return;
+        }
     }
 
-    qreal  dpiRatio = qApp->devicePixelRatio();
-    if (QX11Info::isPlatformX11()) {
-        Display *display = QX11Info::display();
-        Atom netMoveResize = XInternAtom(display, "_NET_WM_MOVERESIZE", False);
-        XEvent xEvent;
-        const auto pos = QCursor::pos();
+    if (mDrag) {
+//#ifdef __unix
+        if (QX11Info::isPlatformX11 ()) {
+            Display *display = QX11Info::display ();
+            Atom netMoveResize = XInternAtom (display, "_NET_WM_MOVERESIZE", False);
+            XEvent xEvent;
+            const auto pos = QCursor::pos ();
 
-        memset(&xEvent, 0, sizeof(XEvent));
-        xEvent.xclient.type = ClientMessage;
-        xEvent.xclient.message_type = netMoveResize;
-        xEvent.xclient.display = display;
-        xEvent.xclient.window = this->winId();
-        xEvent.xclient.format = 32;
-        xEvent.xclient.data.l[0] = pos.x() * dpiRatio;
-        xEvent.xclient.data.l[1] = pos.y() * dpiRatio;
-        xEvent.xclient.data.l[2] = 8;
-        xEvent.xclient.data.l[3] = Button1;
-        xEvent.xclient.data.l[4] = 0;
+            memset (&xEvent, 0, sizeof (XEvent));
+            xEvent.xclient.type = ClientMessage;
+            xEvent.xclient.message_type = netMoveResize;
+            xEvent.xclient.display = display;
+            xEvent.xclient.window = this->winId ();
+            xEvent.xclient.format = 32;
+            xEvent.xclient.data.l[0] = pos.x () * dpiRatio;
+            xEvent.xclient.data.l[1] = pos.y () * dpiRatio;
+            xEvent.xclient.data.l[2] = 8;
+            xEvent.xclient.data.l[3] = Button1;
+            xEvent.xclient.data.l[4] = 0;
 
-        XUngrabPointer(display, CurrentTime);
-        XSendEvent(display, QX11Info::appRootWindow(QX11Info::appScreen()),
-                   False, SubstructureNotifyMask | SubstructureRedirectMask,
-                   &xEvent);
-        //XFlush(display);
+            XUngrabPointer (display, CurrentTime);
+            XSendEvent (display, QX11Info::appRootWindow (QX11Info::appScreen ()), False,
+                        SubstructureNotifyMask | SubstructureRedirectMask, &xEvent);
+            //XFlush(display);
+            XEvent xevent;
+            memset (&xevent, 0, sizeof (XEvent));
 
-        XEvent xevent;
-        memset(&xevent, 0, sizeof(XEvent));
+            xevent.type = ButtonRelease;
+            xevent.xbutton.button = Button1;
+            xevent.xbutton.window = this->winId ();
+            xevent.xbutton.x = e->pos ().x () * dpiRatio;
+            xevent.xbutton.y = e->pos ().y () * dpiRatio;
+            xevent.xbutton.x_root = pos.x () * dpiRatio;
+            xevent.xbutton.y_root = pos.y () * dpiRatio;
+            xevent.xbutton.display = display;
 
-        xevent.type = ButtonRelease;
-        xevent.xbutton.button = Button1;
-        xevent.xbutton.window = this->winId();
-        xevent.xbutton.x = e->pos().x() * dpiRatio;
-        xevent.xbutton.y = e->pos().y() * dpiRatio;
-        xevent.xbutton.x_root = pos.x() * dpiRatio;
-        xevent.xbutton.y_root = pos.y() * dpiRatio;
-        xevent.xbutton.display = display;
+            XSendEvent (display, this->effectiveWinId (), False, ButtonReleaseMask, &xevent);
+            XFlush (display);
 
-        XSendEvent(display, this->effectiveWinId(), False, ButtonReleaseMask, &xevent);
-        XFlush(display);
-
-        if (e->source() == Qt::MouseEventSynthesizedByQt) {
-            if (!this->mouseGrabber()) {
-                this->grabMouse();
-                this->releaseMouse();
+            if (e->source () == Qt::MouseEventSynthesizedByQt) {
+                if (!MainWindow::mouseGrabber ()) {
+                    this->grabMouse ();
+                    this->releaseMouse ();
+                }
             }
+            mDrag = false;
         }
-
-        mDrag = false;
-    } else {
-        this->move((QCursor::pos() - mOffset) * dpiRatio);
+        else {
+            move ((QCursor::pos () - mOffset) * dpiRatio);
+        }
     }
 }
 
 void MainWindow::mousePressEvent(QMouseEvent* e)
 {
-    QWidget::mousePressEvent(e);
-    //QMainWindow::mousePressEvent(e);
-    if (e->button() == Qt::LeftButton && !e->isAccepted()) {
-        mDrag = true;
-        mOffset = mapFromGlobal(QCursor::pos());
+    QWidget::mousePressEvent (e);
+
+    if (e->isAccepted()) {
+        return;
+    }
+
+    switch (e->button()) {
+        case Qt::LeftButton: {
+            mDrag = true;
+            mIsPress = true;
+            mOffset = mapFromGlobal (QCursor::pos());
+            if (NONE != mDirection) {
+                mouseGrabber();
+            }
+            else {
+                mDragPos = e->globalPos() - frameGeometry().topLeft();
+            }
+            break;
+        }
+        case Qt::RightButton:
+        default:{
+            QWidget::mousePressEvent (e);
+        }
     }
 }
 
 void MainWindow::mouseReleaseEvent(QMouseEvent* e)
 {
-    QWidget::mouseReleaseEvent(e);
-    //QMainWindow::mouseReleaseEvent(e);
-    mDrag = false;
+    if (e->button() == Qt::LeftButton || e->button() == Qt::RightButton) {
+        mDrag = false;
+        mIsPress = false;
+        if (NONE != mDirection) {
+            releaseMouse();
+            setCursor (QCursor(Qt::ArrowCursor));
+        }
+    }
+    else {
+        QWidget::mouseReleaseEvent (e);
+    }
+
 }
 
 void MainWindow::onShowTaskWidget()
@@ -333,6 +444,52 @@ void MainWindow::onShowTaskResultWidget()
     DBManager::instance()->refreshScanResult2();
 
     mScannerResultWidget->show();
+}
+
+void MainWindow::region(const QPoint &cursorGlobalPoint)
+{
+    QRect rect = this->rect();
+    QPoint tl = mapToGlobal(rect.topLeft());
+    QPoint rb = mapToGlobal(rect.bottomRight());
+    int x = cursorGlobalPoint.x();
+    int y = cursorGlobalPoint.y();
+
+    if (tl.x() + 3 >= x && x >= tl.x() - 3 && tl.y() + 3 >= y && y >= tl.y() - 3) {
+        mDirection = LEFT_TOP;
+        this->setCursor(QCursor(Qt::SizeFDiagCursor));  // 设置鼠标形状
+    }
+    else if (x >= rb.x() - 3 && x <= rb.x() + 3 && y >= rb.y() - 3 && y <= rb.y() + 3) {
+        mDirection = RIGHT_BOTTOM;
+        this->setCursor(QCursor(Qt::SizeFDiagCursor));
+    }
+    else if (x <= tl.x() + 3 && x >= tl.x() - 3 && y >= rb.y() - 3 && y <= rb.y() + 3) {
+        mDirection = LEFT_BOTTOM;
+        this->setCursor(QCursor(Qt::SizeBDiagCursor));
+    }
+    else if (x <= rb.x() + 3 && x >= rb.x() - 3 && y >= tl.y() + 3 && y <= tl.y() - 3) {
+        mDirection = RIGHT_TOP;
+        this->setCursor(QCursor(Qt::SizeBDiagCursor));
+    }
+    else if (x <= tl.x() + 3 && x >= tl.x() - 3) {
+        mDirection = LEFT;
+        this->setCursor(QCursor(Qt::SizeHorCursor));
+    }
+    else if (x <= rb.x() + 3 && x >= rb.x() - 3) {
+        mDirection = RIGHT;
+        this->setCursor(QCursor(Qt::SizeHorCursor));
+    }
+    else if (y >= tl.y() - 3 && y <= tl.y() + 3) {
+        mDirection = UP;
+        this->setCursor(QCursor(Qt::SizeVerCursor));
+    }
+    else if (y <= rb.y() + 3 && y >= rb.y() - 3) {
+        mDirection = DOWN;
+        this->setCursor(QCursor(Qt::SizeVerCursor));
+    }
+    else {
+        mDirection = NONE;
+        this->setCursor(QCursor(Qt::ArrowCursor));
+    }
 }
 
 

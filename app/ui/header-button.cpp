@@ -98,7 +98,7 @@ static QPixmap transColor (const QPixmap& icon)
 
     for (auto i = 0; i < oldp.width(); ++i) {
         for (auto j = 0; j < oldp.height(); ++j) {
-            QColor c = QColor(oldp.pixel(i, j));
+            auto c = QColor(oldp.pixel(i, j));
             if (c.red () != 0 || c.green () != 0 || c.blue () != 0)
             qDebug() << "r: " << c.red() << " g: " << c.green () << " b: " << c.blue ();
                         

@@ -50,7 +50,6 @@ DBManager::DBManager(QObject *parent)
     mWatcher->addPath(DB_PATH);
 
     mTimer = new QTimer(this);
-//    mTimer->setSingleShot (true);
 
     // 此处仅仅用于更新
     connect(mTimer, &QTimer::timeout, this, &DBManager::updateModel);

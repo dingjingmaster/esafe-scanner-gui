@@ -271,7 +271,7 @@ void ScannerTaskItem::setScanFileType(const QString &ft)
 void ScannerTaskItem::setScanFileOutType(const QString &ft)
 {
     mScanFileOutType = ft;
-    if (mScanFileOutType.endsWith ("|")) {
+    if (mScanFileOutType.endsWith ("#")) {
         mScanFileOutType.chop (1);
     }
 }

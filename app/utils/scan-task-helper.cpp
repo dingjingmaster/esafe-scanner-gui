@@ -312,8 +312,8 @@ void ScanTaskHelperPrivate::onDBChanged()
                         || scanDir != item->getScanDir2 ()
                         || scanSelfCheck != item->getSelfCheck()
                         || scanTaskFilterDir != item->getFilterOutDir()
-                        || scanTaskFileType == item->getScanFileTypeStr()
-                        || scanTaskFileOutType == item->getScanFileOutTypeStr()) {
+                        || scanTaskFileType != item->getScanFileTypeStr()
+                        || scanTaskFileOutType != item->getScanFileOutTypeStr()) {
                     item->setName(taskName);
                     item->setScanDir (scanDir);
                     item->setStopTime(stopTime);

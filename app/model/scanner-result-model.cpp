@@ -133,24 +133,23 @@ void ScannerResultModel::delItem(ScannerResultItem* item)
 {
     if (!item)      return;
 
-    mLocker.lock();
 
     QModelIndex idx = getIndexByItem(item);
 
     if (!idx.isValid()) {
-        mLocker.unlock();
         return;
     }
 
+    mLocker.lock();
     if (mData.contains (item))  mData.removeOne (item);
     mLocker.unlock();
 
     removeRow (idx.row());
     changeItemCount(item->getStatus2 (), false);
 
-    if (mCurIndex < 30 || rowCount() < mCurIndex + 30) {
-        Q_EMIT dataChanged (idx, idx);
-    }
+//    if (mCurIndex < 30 || rowCount() < mCurIndex + 30) {
+//        Q_EMIT dataChanged (idx, idx);
+//    }
 
     Q_EMIT dataStatueChanged();
 }

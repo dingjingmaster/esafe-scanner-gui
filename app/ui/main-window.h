@@ -18,6 +18,7 @@ class MainSubToolBar;
 class MainWindow : public QWidget
 {
     Q_OBJECT
+    enum Direction {UP = 0, DOWN, LEFT, RIGHT, LEFT_TOP, LEFT_BOTTOM, RIGHT_BOTTOM, RIGHT_TOP, NONE};
 public:
     explicit MainWindow(QWidget *parent = nullptr);
 
@@ -38,6 +39,9 @@ Q_SIGNALS:
     void activePrimaryWindow();
 
 private:
+    void region (const QPoint& cursorGlobalPoint);
+
+private:
     const int               mMinWidth = 1100;
     const int               mMinHeight = 700;
 
@@ -56,6 +60,9 @@ private:
 
     bool                    mDrag;
     QPoint                  mOffset;
+    Direction               mDirection;
+    bool                    mIsPress = false;
+    QPoint                  mDragPos;
     QPoint                  mMouseStartPoint;
     QPoint                  mWindowTopLeftPoint;
 };
