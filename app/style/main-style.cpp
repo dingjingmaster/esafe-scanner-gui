@@ -85,8 +85,10 @@ QRect MainStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
         break;
     }
     default:
-        QProxyStyle::subElementRect(sr, opt, widget);
+        return QProxyStyle::subElementRect(sr, opt, widget);
     }
+
+    return r;
 }
 
 void MainStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p, const QWidget *widget) const

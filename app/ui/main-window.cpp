@@ -237,7 +237,7 @@ void MainWindow::onLoadTaskResult(const ScannerTaskItem * const item)
     onShowTaskResultWidget();
 }
 
-void MainWindow::mouseMoveEvent(QMouseEvent* e)
+void MainWindow::mouseMoveEvent(QMouseEvent*e)
 {
     QPoint globalPos = e->globalPos();
     QRect rect = this->rect();
