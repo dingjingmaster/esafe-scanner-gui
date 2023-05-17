@@ -23,6 +23,8 @@ public:
     bool hasChecked ();
     bool isCheckAllItems ();
 
+    void unSelectedItem ();
+
     void addItem (ScannerResultItem* item);
     void delItem (ScannerResultItem* item);
     void addItem (QList<ScannerResultItem*>& item);
@@ -54,6 +56,7 @@ public Q_SLOTS:
     // 对数据库进行操作的接口
     void applyData();
     void applyDelData(const QModelIndex& idx);
+    void applyMakeDSM(const QModelIndex& idx);
     void applyMisReportData(const QModelIndex& idx);
 
 Q_SIGNALS:

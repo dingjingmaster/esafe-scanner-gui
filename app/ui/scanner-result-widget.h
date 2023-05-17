@@ -86,6 +86,7 @@ private:
     PushButton*                 mMisBtn;
     PushButton*                 mRetBtn;
     PushButton*                 mDelBtn;
+    PushButton*                 mDSMBtn;
     PushButton*                 mExpBtn;
 
     ScannerView*                mView;

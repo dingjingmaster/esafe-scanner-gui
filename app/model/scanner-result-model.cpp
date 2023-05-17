@@ -7,6 +7,7 @@
 #include <QList>
 #include <QDebug>
 #include <QColor>
+#include <QProcess>
 
 #include "../utils/notify-to-filter.h"
 #include "../utils/scan-result-helper.h"
@@ -699,6 +700,35 @@ void ScannerResultModel::clearData()
     mNoFix = 0;
     mDelete = 0;
     mMisReport = 0;
+}
+
+void ScannerResultModel::applyMakeDSM(const QModelIndex &idx)
+{
+    if (!idx.isValid()) { return; }
+
+    mLocker.lock();
+    auto item = static_cast<ScannerResultItem*>(idx.internalPointer());
+    if (!item) {
+        mLocker.unlock();
+        return;
+    }
+
+    QString path = item->getFileName();
+    mLocker.unlock();
+
+    if (!path.isNull() && path.length() > 1) {
+        QProcess::startDetached ("/usr/local/ultrasec/dsm/bin/dsm-gui", QStringList() << "-e" << path);
+    }
+}
+
+void ScannerResultModel::unSelectedItem()
+{
+    auto selectedItem = getSelectedItem();
+
+    for (auto it : selectedItem) {
+        it->setChecked (false);
+    }
+
 }
 
 

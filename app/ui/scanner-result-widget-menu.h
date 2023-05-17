@@ -18,6 +18,7 @@ public:
 
 Q_SIGNALS:
     void deleteItem(QModelIndex idx);
+    void makeDSMItem(QModelIndex idx);
     void misReportItem(QModelIndex idx);
 
 private:

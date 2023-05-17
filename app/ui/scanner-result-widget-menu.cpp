@@ -32,6 +32,27 @@ ScannerResultWidgetMenu::ScannerResultWidgetMenu(QWidget *parent)
         box->deleteLater();
     });
 
+    connect (addAction (QIcon(":/data/menu-dsm.png"), "授权加密"), &QAction::triggered, this, [=] (bool) {
+        QMessageBox* box = new QMessageBox(this);
+        box->setText ("是否确定制作授权加密文件？");
+        box->setWindowTitle("提示");
+
+        QPushButton* apply = new QPushButton(box);
+        QPushButton* cancel = new QPushButton(box);
+
+        apply->setText ("确定");
+        cancel->setText ("取消");
+
+        box->addButton (apply, QMessageBox::AcceptRole);
+        box->addButton (cancel, QMessageBox::RejectRole);
+
+        box->connect (apply, &QPushButton::clicked, this, [=] () {
+            Q_EMIT makeDSMItem(mIndex);
+        });
+        box->exec();
+        box->deleteLater();
+    });
+
     connect (addAction (QIcon(":/data/menu-misreport.png"), "例外文件"), &QAction::triggered, this, [=] (bool) {
         QMessageBox* box = new QMessageBox(this);
         box->setText ("是否确定为例外文件？");
@@ -52,6 +73,7 @@ ScannerResultWidgetMenu::ScannerResultWidgetMenu(QWidget *parent)
         box->exec();
         box->deleteLater();
     });
+
 }
 
 void ScannerResultWidgetMenu::setItem(QModelIndex &idx)

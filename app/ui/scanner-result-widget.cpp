@@ -27,6 +27,7 @@
 #include <QEventLoop>
 #include <QApplication>
 #include <QLocalSocket>
+#include <QProcess>
 
 #include "../db/db-manager.h"
 #include "../widget/progress.h"
@@ -47,6 +48,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mRightLayout = new QHBoxLayout;
     
     mDelBtn = new PushButton(this, PushButton::Type2);
+    mDSMBtn = new PushButton(this, PushButton::Type2);
     mMisBtn = new PushButton(this, PushButton::Type2);
     mExpBtn = new PushButton(this, PushButton::Type2);
 
@@ -80,6 +82,10 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mMisBtn->setStyleSheet("background-color:red;");
     mMisBtn->setText(tr("例外文件"));
     mRightLayout->addWidget(mMisBtn);
+
+    mDSMBtn->setStyleSheet("background-color:red;");
+    mDSMBtn->setText(tr("授权加密"));
+    mRightLayout->addWidget(mDSMBtn);
 
     mExpBtn->setStyleSheet("background-color:red;");
     mExpBtn->setText(tr("导出"));
@@ -121,6 +127,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     connect (this, &ScannerResultWidget::startApplyData, this, [=] () {
         mRetBtn->enable(false);
         mExpBtn->enable(false);
+        mDSMBtn->enable(false);
         mMisBtn->enable(false);
         mDelBtn->enable(false);
     });
@@ -128,6 +135,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     connect (this, &ScannerResultWidget::stopApplyData, this, [=] () {
         mRetBtn->enable(true);
         mMisBtn->enable(true);
+        mDSMBtn->enable(true);
     });
 
     connect (mModel, &ScannerResultModel::lazyUpdateView, this, &ScannerResultWidget::lazyUpdateView);
@@ -228,7 +236,9 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     connect (mDelBtn, &PushButton::clicked, this, [=] () {
         QList<ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
-            QMessageBox::warning(this, "警告", "请选中需要删除的数据后，再执行删除操作！", QMessageBox::Ok);
+            QMessageBox msg(QMessageBox::NoIcon, "警告", "请选中需要删除的数据后，再执行删除操作！");
+            msg.addButton (QMessageBox::Ok)->setText ("确定");
+            msg.exec();
             return;
         }
 
@@ -271,7 +281,9 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     connect (mMisBtn, &PushButton::clicked, this, [=] () {
         QList<ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
-            QMessageBox::warning(this, "警告", "请选中例外的数据后，再执行操作！", QMessageBox::Ok);
+            QMessageBox msg(QMessageBox::NoIcon, "警告", "请选中例外的数据后，再执行操作！");
+            msg.addButton (QMessageBox::Ok)->setText ("确定");
+            msg.exec();
             return;
         }
 
@@ -311,10 +323,55 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         box->deleteLater();
     });
 
+    connect (mDSMBtn, &PushButton::clicked, this, [=] () {
+        QList<ScannerResultItem*> ls = mModel->getSelectedItem();
+        if (ls.count() <= 0) {
+            QMessageBox msg(QMessageBox::NoIcon, "警告", "请选中要操作的文件，再执行操作！");
+            msg.addButton (QMessageBox::Ok)->setText ("确定");
+            msg.exec();
+            return;
+        }
+
+        auto box = new QMessageBox(this);
+        box->setText ("是否确定制作授权加密文件？");
+        box->setWindowTitle("");
+
+        auto apply = new QPushButton(box);
+        auto cancel = new QPushButton(box);
+
+        apply->setText ("确定");
+        cancel->setText ("取消");
+
+        box->addButton (apply, QMessageBox::AcceptRole);
+        box->addButton (cancel, QMessageBox::RejectRole);
+
+        box->connect (apply, &QPushButton::clicked, this, [=] () {
+            Q_EMIT mModel->lazyUpdateView();
+
+            QStringList params;
+            auto ss = mModel->getSelectedItem();
+            for (auto i : ss) {
+                params << i->getFileName();
+            }
+            mModel->unSelectedItem();
+
+            mHeaderView->setChecked(false);
+            Q_EMIT mHeaderView->checkBoxClicked (false);
+            Q_EMIT mModel->lazyUpdateView();
+            updateStatus();
+
+            QProcess::startDetached ("/usr/local/ultrasec/dsm/bin/dsm-gui", QStringList() << "-e" << params);
+        });
+        box->exec();
+        box->deleteLater();
+    });
+
     connect (mExpBtn, &PushButton::clicked, this, [=] () {
         QList<ScannerResultItem*> ls = mModel->getSelectedItem();
         if (ls.count() <= 0) {
-            QMessageBox::warning(this, "警告", "请选中需要导出的数据后，再执行导出操作！", QMessageBox::Ok);
+            QMessageBox msg(QMessageBox::NoIcon, "警告", "请选中需要导出的数据后，再执行导出操作！");
+            msg.addButton (QMessageBox::Ok)->setText ("确定");
+            msg.exec();
             return;
         }
 
@@ -421,6 +478,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         if (mModel->rowCount () <= 0) {
             Q_EMIT mDelBtn->enable (false);
             Q_EMIT mMisBtn->enable (false);
+            Q_EMIT mDSMBtn->enable (false);
             Q_EMIT mExpBtn->enable (false);
         }
 
@@ -435,7 +493,9 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
                 QDBusMessage msg = QDBusMessage::createMethodCall(FREEDESKTOP_FM_DBUS, FREEDESKTOP_FM_DBUS_PATH, FREEDESKTOP_FM_DBUS, "ShowItems");
                 QString file = static_cast<ScannerResultItem*>(index.internalPointer())->getFileName();
                 if (!QFile::exists(file)) {
-                    QMessageBox::warning(this, "文件打开失败", QString("文件 '%1' 不存在, 或者当前用户没有查看权限!").arg(file), QMessageBox::Ok);
+                    QMessageBox msg(QMessageBox::NoIcon, "文件打开失败", QString("文件 '%1' 不存在, 或者当前用户没有查看权限!").arg(file));
+                    msg.addButton (QMessageBox::Ok)->setText ("确定");
+                    msg.exec();
                     return;
                 }
                 msg.setArguments(QList<QVariant>() << (QStringList() << "file://" + file) << "");
@@ -526,6 +586,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     setLayout(mMainLayout);
 
     connect (mMenu, &ScannerResultWidgetMenu::deleteItem, mModel, &ScannerResultModel::applyDelData);
+    connect (mMenu, &ScannerResultWidgetMenu::makeDSMItem, mModel, &ScannerResultModel::applyMakeDSM);
     connect (mMenu, &ScannerResultWidgetMenu::misReportItem, mModel, &ScannerResultModel::applyMisReportData);
 
     connect (this, &ScannerResultWidget::customContextMenuRequested, [=] (const QPoint& pos) {
@@ -707,6 +768,7 @@ void ScannerResultWidget::setNoSelectedStatus()
 {
     mDelBtn->hide();
     mMisBtn->hide();
+    mDSMBtn->hide();
     mExpBtn->hide();
 
     mStatusLabel->show();
@@ -716,10 +778,12 @@ void ScannerResultWidget::setSelectedStatus()
 {
     mDelBtn->enable (true);
     mMisBtn->enable (true);
+    mDSMBtn->enable (true);
     mExpBtn->enable (true);
 
     mDelBtn->show();
     mMisBtn->show();
+    mDSMBtn->show();
     mExpBtn->show();
 
 
