@@ -39,8 +39,6 @@ MainWindow::MainWindow(QWidget *parent)
         XatomHelper::getInstance()->setWindowMotifHint(this->winId(), hints);
     }
 
-
-
     mCurStatus = new QLabel;
     mCurStatus->setWordWrap(true);
     QString str = ScanStatusHelper::getStatusString();

@@ -27,7 +27,7 @@ void notify_policy_filter (ScannerResultItem::Status status)
 
     for (int i = 3; i > 0; --i) {
         sock.connectToServer (socket);
-        if (sock.waitForConnected (1000)) {
+        if (sock.waitForConnected (100)) {
             if (!sock.isValid()) {
                 qWarning() << "error: " << sock.error();
             } else {
@@ -37,7 +37,8 @@ void notify_policy_filter (ScannerResultItem::Status status)
                 qWarning() << "Start end";
                 break;
             }
-        } else {
+        }
+        else {
             qWarning() << "timeout";
         }
     }

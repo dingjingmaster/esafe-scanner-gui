@@ -18,10 +18,10 @@ public:
     void setChecked (bool);
     void setStatus (int status);
     void setStatus (Status status);
-    void setStatus (QString status);
+    void setStatus (const QString& status);
     void setTaskName (QString name);
     void setFileName (QString fileName);
-    void setFileCreateTime (QString time);
+    void setFileCreateTime (const QString& time);
     void setFileCreateTime (qint64 time);
     void setFileModifyTime (qint64 time);
     void setFileType(const QString& fileType);
@@ -36,16 +36,16 @@ public:
     bool getChecked ();
     QString getFileType();
     QString getTaskName ();
-    QString getFileName ();
-    QString getFilterName ();
+    QString getFileName () const;
+    QString getFilterName () const;
 
     qint64 getFileCreateTime2 ();
-    QString getFileCreateTime ();
+    QString getFileCreateTime () const;
     QString getFileModifyTime ();
     
     QString getStatus ();
     Status getStatus2 ();
-    static int getStatus (QString status);
+    static int getStatus (const QString& status);
 
 private:
     bool                mChecked = false;

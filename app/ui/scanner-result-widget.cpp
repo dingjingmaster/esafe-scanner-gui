@@ -40,6 +40,8 @@
 ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     : QWidget{parent}
 {
+    setMouseTracking (true);
+
     mMainLayout = new QVBoxLayout;
 
     mBtnLayout = new QHBoxLayout;
@@ -259,8 +261,8 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
                 mModel->setData (*l, "删除");
             }
 
-            Q_EMIT mModel->lazyUpdateView();
             mModel->setSelectedItemStatus(ScannerResultItem::Deleted);
+            Q_EMIT mModel->lazyUpdateView();
 
             Q_EMIT startApplyData();
             mProgress->show();
@@ -520,7 +522,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             Q_EMIT checkedItem(checkAll || mModel->hasChecked ()); 
             //mView->updateView();
             lazyUpdateView();
-        } else if (ScannerResultModel::FileName == index.column() && index.row() >= 0) {
+        } else if ((ScannerResultModel::FileName == index.column()) && (index.row() >= 0)) {
 #if 0
             QDBusConnection dbus = QDBusConnection::connectToBus (QDBusConnection::SessionBus, FREEDESKTOP_FM_DBUS);
             if (dbus.isConnected()) {
@@ -537,7 +539,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
                 }
             }
 #endif
-        } else if (ScannerResultModel::Status == index.column() && index.row() >= 0) {
+        } else if ((ScannerResultModel::Status == index.column()) && (index.row() >= 0)) {
 
             Q_EMIT mView->activated(index);
         }
@@ -565,7 +567,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
 
         if (ScannerResultModel::FileName == index.column() && index.row() >= 0) {
             //QPoint p = mView->visualRect(index).bottomRight();
-            QPoint p = QCursor().pos (); //mView->visualRect(index).bottomRight();
+            QPoint p = QCursor::pos (); //mView->visualRect(index).bottomRight();
             QString text = static_cast<ScannerResultItem*>(index.internalPointer())->getFileName();
             if (nullptr != text && !text.isNull() && !text.isEmpty() && "" != text) {
                 QFontMetrics fm(font());
@@ -590,7 +592,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     connect (mMenu, &ScannerResultWidgetMenu::misReportItem, mModel, &ScannerResultModel::applyMisReportData);
 
     connect (this, &ScannerResultWidget::customContextMenuRequested, [=] (const QPoint& pos) {
-        QModelIndex idx = mView->currentIndex();
+        QModelIndex idx = mView->currentIndex(); //mView->indexAt (mView->mapFrom (this, pos));// ->indexAt((pos));
         if (!idx.isValid() || idx.row() < 0 || idx.column() < 0) return;
         mMenu->setItem (idx);
         mMenu->exec(QCursor::pos());

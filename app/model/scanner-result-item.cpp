@@ -75,7 +75,7 @@ void ScannerResultItem::setStatus(Status status)
     mStatus = status;
 }
 
-void ScannerResultItem::setStatus(QString status)
+void ScannerResultItem::setStatus(const QString& status)
 {
     if ("例外文件" == status) {
         mStatus = MisReport;
@@ -86,7 +86,7 @@ void ScannerResultItem::setStatus(QString status)
     }
 }
 
-void ScannerResultItem::setFileCreateTime(QString time)
+void ScannerResultItem::setFileCreateTime(const QString& time)
 {
     qInfo() << "result create time: " << time;
     mFileCreateTime = QDateTime::fromString (time, "yyyy-MM-dd hh:mm:ss").toSecsSinceEpoch ();
@@ -127,7 +127,7 @@ QString ScannerResultItem::getTaskName()
     return (nullptr == mTaskName || mFileName.isNull() || mTaskName.isEmpty()) ? "" : mTaskName;
 }
 
-QString ScannerResultItem::getFileName()
+QString ScannerResultItem::getFileName() const
 {
     return (nullptr == mFileName || mFileName.isNull() || mFileName.isEmpty()) ? "" : mFileName;
 }
@@ -151,7 +151,7 @@ ScannerResultItem::Status ScannerResultItem::getStatus2()
     return mStatus;
 }
 
-int ScannerResultItem::getStatus(QString status)
+int ScannerResultItem::getStatus(const QString& status)
 {
     if ("例外文件" == status) {
         return static_cast<int>(MisReport);
@@ -162,7 +162,7 @@ int ScannerResultItem::getStatus(QString status)
     return static_cast<int>(Untreated);
 }
 
-QString ScannerResultItem::getFileCreateTime()
+QString ScannerResultItem::getFileCreateTime() const
 {
     return mFileCreateTime <= 0 ? "" : QDateTime::fromSecsSinceEpoch(mFileCreateTime).toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
 }
@@ -178,7 +178,7 @@ QString ScannerResultItem::getFileModifyTime()
     return tim <= 0 ? "" : QDateTime::fromSecsSinceEpoch(tim).toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
 }
 
-QString ScannerResultItem::getFilterName()
+QString ScannerResultItem::getFilterName() const
 {
     return mFilterName;
 }

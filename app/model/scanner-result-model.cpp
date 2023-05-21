@@ -90,6 +90,7 @@ void ScannerResultModel::addItem(ScannerResultItem* item)
     changeItemCount(item->getStatus2 ());
 
     QModelIndex idx = getIndexByItem(item);
+//    qDebug() << "4";
     if ((mCurIndex - 10 <= idx.row()) && (idx.row() <= mCurIndex + 30)) {
         Q_EMIT dataChanged (idx, idx);
     }
@@ -104,8 +105,6 @@ void ScannerResultModel::addItem(QList<ScannerResultItem*>& item)
     insertRows(mData.count() - 1, item.count());
     mLocker.unlock();
 
-//    qDebug() << "add item: " << item.count();
-
     for (auto& i : item) {
         if (nullptr == i) {
             continue;
@@ -115,10 +114,10 @@ void ScannerResultModel::addItem(QList<ScannerResultItem*>& item)
 
     for (auto& i : item) {
         QModelIndex idx = getIndexByItem(i);
+//        qDebug() << "3";
         if (!idx.isValid()) {
             continue;
         }
-//        qDebug() << "idx: " << idx;
         if ((mCurIndex - 30 <= idx.row()) && (idx.row() <= mCurIndex + 30)) {
             Q_EMIT dataChanged (idx, idx);
         }
@@ -134,9 +133,8 @@ void ScannerResultModel::delItem(ScannerResultItem* item)
 {
     if (!item)      return;
 
-
     QModelIndex idx = getIndexByItem(item);
-
+//    qDebug() << "2";
     if (!idx.isValid()) {
         return;
     }
@@ -147,6 +145,8 @@ void ScannerResultModel::delItem(ScannerResultItem* item)
 
     removeRow (idx.row());
     changeItemCount(item->getStatus2 (), false);
+
+//    qDebug() << "delete ..................";
 
 //    if (mCurIndex < 30 || rowCount() < mCurIndex + 30) {
 //        Q_EMIT dataChanged (idx, idx);
@@ -164,7 +164,9 @@ void ScannerResultModel::delItem(QList<ScannerResultItem*>& item)
 
     for (auto& i : item) {
         QModelIndex idx = getIndexByItem(i);
+//        qDebug() << "1";
         if (!idx.isValid()) {
+            Q_EMIT deleteItem (i->getFileName());
             continue;
         }
         if (mData.contains (i))  mData.removeOne (i);
@@ -173,18 +175,20 @@ void ScannerResultModel::delItem(QList<ScannerResultItem*>& item)
         if (mCurIndex < 30 || rowCount() < mCurIndex + 30) {
             Q_EMIT dataChanged (idx, idx);
         }
-        else {
-            break;
-        }
-    }
-
-    for (auto& i : item) {
-        if (nullptr == i) {
-            continue;
-        }
+//        else {
+//            break;
+//        }
         changeItemCount(i->getStatus2 (), false);
         Q_EMIT deleteItem (i->getFileName());
     }
+
+//    for (auto& i : item) {
+//        if (nullptr == i) {
+//            continue;
+//        }
+//        changeItemCount(i->getStatus2 (), false);
+//        Q_EMIT deleteItem (i->getFileName());
+//    }
 
     mLocker.unlock();
 
@@ -232,7 +236,7 @@ QModelIndex ScannerResultModel::getIndexByItem(const ScannerResultItem* item, in
         }
     }
     
-    qDebug() << "item not found!";
+//    qDebug() << "item not found!" << item->getFileName();
         
     return {};
 }
@@ -632,6 +636,8 @@ void ScannerResultModel::applyDelData(const QModelIndex& idx)
     delItem (item);
     updateCount();
     notify_policy_filter (ScannerResultItem::Deleted);
+
+    //
 }
 
 QPair<QList<ScannerResultItem*>, QList<ScannerResultItem*>> ScannerResultModel::getSaveItemPoints()

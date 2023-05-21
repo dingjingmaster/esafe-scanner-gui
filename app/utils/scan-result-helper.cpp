@@ -60,6 +60,7 @@ public:
     QMutex                                      mLocker;
 
     sqlite3*                                    mDB;
+    QMutex                                      mDBLocker;
     QFileSystemWatcher*                         mWatcher;
 
     GCancellable*                               mCancel;                // 取消操作
@@ -220,7 +221,7 @@ void ScanResultHelperPrivate::onDBChanged()
 
     QString sql = QString("SELECT `ID`, `scan_file_name`, `status`, `scan_finished_time`, `file_type`, `change_time`"
                           " FROM scan_result WHERE status!=5 AND policy_id IN (%1)").arg (policy);
-    qInfo() << "sql ==> " << sql;
+//    qInfo() << "sql ==> " << sql;
     g_return_if_fail(!isCanceled());
     while (!sqlite_lock()); // {if (++ev % 10) QApplication::processEvents(); usleep(1000);};
     open();
@@ -248,11 +249,6 @@ void ScanResultHelperPrivate::onDBChanged()
                 continue;
             }
 
-//            qDebug() << "==>" << isInScanDir(fileName);
-//            qDebug() << "==>" << isInScanOutDir(fileName);
-//            qDebug() << "==>" << isInScanFileType(fileType);
-//            qDebug() << "==>" << isInScanFileOutType(fileType);
-//            qDebug() << "==>" << fileType;
             if (isInScanDir(fileName) && !isInScanOutDir(fileName) && isInScanFileType(fileType) && !isInScanFileOutType(fileName, fileType)) {
                 if (mData.contains (id)) {
                     auto item = mData[id];
@@ -310,6 +306,8 @@ void ScanResultHelperPrivate::onDBChanged()
         Q_EMIT q->addNewFile (addItem);
         Q_EMIT q->delOldFile (delItem);
         Q_EMIT q->updateFile (updateItem);
+
+        qDebug() << "is running...";
 
         Q_EMIT q->allItemsUpdated();
     }
@@ -562,20 +560,28 @@ void ScanResultHelperPrivate::setRunning(bool r)
 
 void ScanResultHelperPrivate::open()
 {
+    mDBLocker.lock();
+
     int rc = sqlite3_open (mDBPath.toUtf8().constData(), &mDB);
     if (SQLITE_OK != rc) {
         qCritical() << "connect to database: " << mDBPath << " failed!";
         QMessageBox::warning(nullptr, "数据库错误", "连接数据库出错", QMessageBox::Ok);
         qApp->exit(-1);
     }
+
+    mDBLocker.unlock();
 }
 
 void ScanResultHelperPrivate::close()
 {
+    mDBLocker.lock();
+
     if (mDB) {
         sqlite3_close (mDB);
         mDB = nullptr;
     }
+
+    mDBLocker.unlock();
 }
 
 void ScanResultHelper::misReportByIDs(const QStringList& ids)
