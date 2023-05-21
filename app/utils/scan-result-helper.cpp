@@ -238,7 +238,7 @@ void ScanResultHelperPrivate::onDBChanged()
             gint64 modifyTime = sqlite3_column_int(stmt, 5);
 
             // 取消
-            if (g_cancellable_is_cancelled (mCancel)) {
+            if (isCanceled()) {
                 qWarning () << "canceled";
                 break;
             }
@@ -286,14 +286,11 @@ void ScanResultHelperPrivate::onDBChanged()
     }
     else {
         qWarning() << "sql execute error: " << sqlite3_errmsg(mDB);
+        goto out;
     }
 
-    if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
-    close();
-    while (!sqlite_unlock());
-
     // 是否是取消操作
-    if (isRunning()) {
+    if (!isCanceled()) {
         mLocker.lock();
         auto delItemT = mData.keys().toSet() - allItem;
         mLocker.unlock();
@@ -307,13 +304,18 @@ void ScanResultHelperPrivate::onDBChanged()
         Q_EMIT q->delOldFile (delItem);
         Q_EMIT q->updateFile (updateItem);
 
-        qDebug() << "is running...";
+        qDebug() << "is running..." << "all: " << allItem.count() << "del: " << delItem.count();
 
         Q_EMIT q->allItemsUpdated();
     }
     else {
         qInfo () << "取消";
     }
+
+out:
+    if (stmt)           { sqlite3_finalize(stmt); stmt = nullptr;}
+    close();
+    while (!sqlite_unlock());
 
     Q_EMIT q_ptr->loadFinished();
 

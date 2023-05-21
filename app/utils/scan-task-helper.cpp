@@ -263,7 +263,7 @@ void ScanTaskHelperPrivate::onDBChanged()
                           " `scan_task_filter_name`, `task_name`, `scan_task_dir`, `scan_task_self_check`, "
                           " `scan_task_dir_filterout`, `scan_task_dir_filterout_fileext`, `exce_exte_file_type`"
                           " FROM scan_task WHERE scan_task_self_check=1;");
-    qDebug() << "scan_task sql: '" << sql << "'";
+//    qDebug() << "scan_task sql: '" << sql << "'";
 
     while (!sqlite_lock());
     open();
@@ -293,14 +293,10 @@ void ScanTaskHelperPrivate::onDBChanged()
             }
 
             if (id.isNull () || id.isEmpty () || "" == id)  continue;
-
             allT.insert (id);
-
 //            qInfo() << id;
-
             if (mData.contains(id)) {
                 ScannerTaskItem* item = mData[id];
-
                 if (taskStatus != item->getStatus2 ()
                         || startTime != item->getStartTime2 ()
                         || stopTime != item->getStopTime2 ()
@@ -350,7 +346,6 @@ void ScanTaskHelperPrivate::onDBChanged()
                 item->setScanFileOutType (scanTaskFileOutType);
 
                 mData[id] = item;
-
 //                qInfo() << "new task id:" << id;
                 Q_EMIT q->addNewTask (item);
             }
@@ -358,13 +353,10 @@ void ScanTaskHelperPrivate::onDBChanged()
     }
     else {
         qWarning() << "select: '" << sql << "' error";
+        goto out;
     }
 
-    if (stmt)       sqlite3_finalize(stmt);
-    close();
-    while (!sqlite_unlock());
-
-    if (isRunning()) {
+    if (!isCanceled()) {
         mLocker.lock();
         QSet<QString> delT = mData.keys().toSet () - allT;
         mLocker.unlock();
@@ -374,6 +366,14 @@ void ScanTaskHelperPrivate::onDBChanged()
             Q_EMIT q->delOldTask(id);
         }
     }
+    else {
+        qDebug() << "cancel";
+    }
+
+out:
+    if (stmt)       sqlite3_finalize(stmt);
+    close();
+    while (!sqlite_unlock());
 
     Q_EMIT q_ptr->loadFinished();
 

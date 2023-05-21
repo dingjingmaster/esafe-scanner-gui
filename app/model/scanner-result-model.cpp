@@ -588,8 +588,6 @@ void ScannerResultModel::applyData()
 {
     auto items = getSaveItemPointAndIds();
 
-//    qDebug() << "apply data";
-
     mCur = 0;
     mTotal =  items.first.second.size() + items.second.second.size();
     Q_EMIT progress(0, mTotal);
@@ -600,6 +598,7 @@ void ScannerResultModel::applyData()
     if (!items.first.first.isEmpty()) {
         for (auto it : items.first.first) {
             delItem (it);
+//            qDebug() << "del";
         }
     }
 }
@@ -636,7 +635,6 @@ void ScannerResultModel::applyDelData(const QModelIndex& idx)
     delItem (item);
     updateCount();
     notify_policy_filter (ScannerResultItem::Deleted);
-
     //
 }
 

@@ -17,7 +17,7 @@ class Progress : public QWidget
 {
     Q_OBJECT
 public:
-    Progress (QWidget* parent = {});
+    explicit Progress (QWidget* parent = nullptr);
 
 private:
     void newParent ();
@@ -37,8 +37,8 @@ private:
     const int                   mLabelHeight = 80;
     QLabel*                     mInfo;
     QProgressIndicator*         mProcess;
-    QVBoxLayout*                mMainLayout;
-    QWidget*                    mMainWidget;
+    QVBoxLayout*                mMainLayout{};
+    QWidget*                    mMainWidget{};
 };
 
 class QProgressIndicator : public QWidget

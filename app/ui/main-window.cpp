@@ -170,9 +170,13 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     connect (mScannerResultWidget, &ScannerResultWidget::returnTaskList, this, [=] () {
+//        qDebug() << "1-1";
         mScanBtn->setText(tr("扫描任务"));
+//        qDebug() << "1-2";
         mCurStatus->show();
+//        qDebug() << "1-3";
         onShowTaskWidget();
+//        qDebug() << "1-4";
     });
 
     connect (this, &MainWindow::activePrimaryWindow, this, [=] () {
@@ -237,6 +241,10 @@ void MainWindow::onLoadTaskResult(const ScannerTaskItem * const item)
 
 void MainWindow::mouseMoveEvent(QMouseEvent*e)
 {
+//    if (Qt::MouseButton::LeftButton != e->button()) {
+//        mDrag = false;
+//        mIsPress = false;
+//    }
     QPoint globalPos = e->globalPos();
     QRect rect = this->rect();
     QPoint tl = mapToGlobal (rect.topLeft());
@@ -424,11 +432,17 @@ void MainWindow::onShowTaskWidget()
     mCurStatus->hide();
     mScannerResultWidget->hide();
 
+//    qDebug() << "1-3-1";
     DBManager::instance()->setCurPage(DBManager::CUR_STOP);
+//    qDebug() << "1-3-2";
     mScannerTaskWidget->clearData();
+//    qDebug() << "1-3-3";
     DBManager::instance()->setCurPage(DBManager::CUR_TASK);
+//    qDebug() << "1-3-4";
     Q_EMIT DBManager::instance()->loadTaskStart();
+//    qDebug() << "1-3-5";
     DBManager::instance()->refreshScanTask();
+//    qDebug() << "1-3-6";
 
     mScannerTaskWidget->show();
     mCurStatus->show();

@@ -591,6 +591,14 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     connect (mMenu, &ScannerResultWidgetMenu::makeDSMItem, mModel, &ScannerResultModel::applyMakeDSM);
     connect (mMenu, &ScannerResultWidgetMenu::misReportItem, mModel, &ScannerResultModel::applyMisReportData);
 
+    connect (mMenu, &ScannerResultWidgetMenu::deleteItem, this, [=] (QModelIndex) {
+        if (mModel->getSelectedItem().isEmpty()) {
+            mHeaderView->setChecked(false);
+            Q_EMIT mHeaderView->checkBoxClicked (false);
+            Q_EMIT mModel->lazyUpdateView();
+        }
+    });
+
     connect (this, &ScannerResultWidget::customContextMenuRequested, [=] (const QPoint& pos) {
         QModelIndex idx = mView->currentIndex(); //mView->indexAt (mView->mapFrom (this, pos));// ->indexAt((pos));
         if (!idx.isValid() || idx.row() < 0 || idx.column() < 0) return;
@@ -682,15 +690,23 @@ void ScannerResultWidget::updateStatus()
 void ScannerResultWidget::onBackToTaskView()
 {
     //Q_EMIT applyData ();
+//    qDebug() << "1";
     Q_EMIT returnTaskList();
+//    qDebug() << "2";
     Q_EMIT checkedItem(false);
+//    qDebug() << "3";
     mHeaderView->setChecked(false);
+//    qDebug() << "4";
     Q_EMIT mHeaderView->checkBoxClicked (false);
+//    qDebug() << "5";
     DBManager::instance()->setCurPage(DBManager::CUR_TASK);
+//    qDebug() << "6";
     Q_EMIT DBManager::instance()->refreshScanTask();
+//    qDebug() << "7";
 
     // FIXME:// 释放数据 暂时放在跳转到 result 界面时候(虽然这样浪费了大量内存，但是临时解决了崩溃)，后续 item 都用智能指针管理其生命周期
      Q_EMIT mModel->clearData();
+//    qDebug() << "8";
 }
 
 void ScannerResultWidget::setScanDir(const QString& name)

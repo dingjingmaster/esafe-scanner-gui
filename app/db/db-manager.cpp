@@ -91,6 +91,7 @@ DBManager::DBManager(QObject *parent)
 
 void DBManager::updateModel()
 {
+    qDebug() << "updateModel";
     if (CUR_RESULT == getCurPage()) {
         qDebug() << "scan result db changed";
         if (!mScanResult->isRunning()) {
@@ -116,8 +117,11 @@ void DBManager::setCurPage(CurPage p)
     mPageLock.unlock();
 
     if (CUR_STOP == mPage) {
+//        qDebug() << "1-3-1-1";
         mScanTask->cancel();
+//        qDebug() << "1-3-1-2";
         mScanResult->cancel();
+//        qDebug() << "1-3-1-3";
         mPageChangeExec.exec ();
     }
 }

@@ -15,7 +15,7 @@ Progress::Progress(QWidget *parent)
     : QWidget(parent)
 {
     //setAttribute(Qt::WA_NoSystemBackground, false);
-    //setAttribute(Qt::WA_TranslucentBackground, false);
+//    setAttribute(Qt::WA_TranslucentBackground, false);
 
     if (parent) setFixedSize(parent->size());
 
@@ -23,35 +23,25 @@ Progress::Progress(QWidget *parent)
 
     mInfo = new QLabel(this);
     mInfo->setAutoFillBackground(true);
-    //mInfo->setAttribute(Qt::WA_TranslucentBackground, false);
-    //mInfo->setAttribute(Qt::WA_NoSystemBackground, false);
+    mInfo->setAttribute(Qt::WA_TranslucentBackground, false);
+    mInfo->setAttribute(Qt::WA_NoSystemBackground, false);
 
-    //if (parent) {
-    //    if (parent->parent()) {
-    //        if (parent->parent()->parent()) {
-    //            mInfo->setParent(static_cast<QWidget*>(parent->parent()->parent()));
-    //        }
-    //    }
-    //}
+    if (parent) {
+        if (parent->parent()) {
+//                mInfo->setParent(static_cast<QWidget*>(parent->parent()->parent()));
+            if (parent->parent()->parent()) {
+//                mInfo->setParent(static_cast<QWidget*>(parent->parent()->parent()));
+            }
+        }
+    }
 
     mInfo->setAlignment(Qt::AlignCenter);
     //mMainWidget = new QWidget;
     mProcess = new QProgressIndicator;
-
-    //mMainLayout->addStretch(1);
-    //mMainLayout->addWidget(mProcess);
-    //mMainLayout->addSpacing(10);
-    //mMainLayout->addWidget(mInfo);
-    //mMainLayout->addStretch(1);
-
-    //mMainWidget->setLayout(mMainLayout);
-
     updateLabelPosition();
     //mProcess->setColor(Qt::blue);
 
     connect(this, &Progress::updateProcess, this, [=] (int cur, int total) {
-
-        qInfo () << "cur: " << cur << " total: " << total;
 
         if (cur < total && !mProcess->isAnimated()) {
             mProcess->startAnimation();
@@ -60,7 +50,7 @@ Progress::Progress(QWidget *parent)
         }
 
         mInfo->setText(QString("当前进度： %1/%2\t完成：%3%").arg(cur, 5).arg(total, 5)
-        .arg(QString::number(float(cur)/total * 100, 'f', 2)));
+                    .arg(QString::number(float(cur)/total * 100, 'f', 2)));
     });
 
 }
