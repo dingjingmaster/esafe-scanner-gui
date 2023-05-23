@@ -37,7 +37,7 @@ CREATE TABLE scan_result (
     `ID`                                INTEGER PRIMARY KEY AUTOINCREMENT,
     `scan_file_name`                    TEXT                            NOT NULL,       -- 文件绝对路径
     `policy_id`                         VARCHAR(32)                     NOT NULL,       -- 策略ID
-    `status`                            TINYINT         DEFAULT 0       NOT NULL,       -- 处理状态，0 - 未处理，5 - 删除，6 - 误报
+    `status`                            TINYINT         DEFAULT 0       NOT NULL,       -- 处理状态，0 - 未处理，5 - 删除，6 - 误报, 7,8 - 权限文件制作
     `scan_finished_time`                DATETIME        DEFAULT 0       NOT NULL,       -- 扫描完成时间
     `action_id`                         VARCHAR(32)     DEFAULT ''      NOT NULL,       -- 策略ID
     `file_type`                         VARCHAR(8),                                     -- 文件类型

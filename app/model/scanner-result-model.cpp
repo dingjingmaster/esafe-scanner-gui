@@ -721,7 +721,7 @@ void ScannerResultModel::applyMakeDSM(const QModelIndex &idx)
     mLocker.unlock();
 
     if (!path.isNull() && path.length() > 1) {
-        QProcess::startDetached ("/usr/local/ultrasec/dsm/bin/dsm-gui", QStringList() << "-e" << path);
+        QProcess::startDetached ("/usr/local/ultrasec/dsm/bin/dsm-gui", QStringList() << "-p" << "-e" << path);
     }
 }
 

@@ -362,7 +362,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             Q_EMIT mModel->lazyUpdateView();
             updateStatus();
 
-            QProcess::startDetached ("/usr/local/ultrasec/dsm/bin/dsm-gui", QStringList() << "-e" << params);
+            QProcess::startDetached ("/usr/local/ultrasec/dsm/bin/dsm-gui", QStringList() << "-p" << "-e" << params);
         });
         box->exec();
         box->deleteLater();
