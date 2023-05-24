@@ -25,7 +25,7 @@ MainHeader::MainHeader(QWidget *parent)
     mRightLayout->setSpacing(3);
 
     // title
-    mHeaderName->setText(tr("终端数据防泄漏系统"));
+    mHeaderName->setText(tr("终端数据防泄露系统"));
     mLeftLayout->addWidget(mHeaderName);
 
     // button
