@@ -1,5 +1,5 @@
 #include "push-button.h"
-#include "threads/scanner-result-save-thread.h"
+#include "utils/configure.h"
 #include "view/header-view.h"
 #include "scanner-result-widget.h"
 #include "utils/notify-to-filter.h"
@@ -8,6 +8,7 @@
 //#include "utils/message-with-fp.pb.h"
 #include "model/scanner-result-item.h"
 #include "model/scanner-result-model.h"
+#include "threads/scanner-result-save-thread.h"
 
 #include <QDebug>
 #include <QToolTip>
@@ -290,7 +291,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         }
 
         auto box = new QMessageBox(this);
-        box->setText ("是否确定为例外文件？");
+        box->setText (Configure::getInstance()->misreportPrompt());
         box->setWindowTitle("");
 
         auto apply = new QPushButton(box);
@@ -335,7 +336,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
         }
 
         auto box = new QMessageBox(this);
-        box->setText ("是否确定制作授权加密文件？");
+        box->setText (Configure::getInstance()->dsmPrompt());
         box->setWindowTitle("");
 
         auto apply = new QPushButton(box);
