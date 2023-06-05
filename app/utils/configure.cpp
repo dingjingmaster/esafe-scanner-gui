@@ -6,6 +6,7 @@
 
 #include <glib.h>
 
+#include <QDebug>
 #include <QSettings>
 
 #define ULTRASEC_CONFIG_DAEMON      "/usr/local/ultrasec/dat/daemon_conf.ini"

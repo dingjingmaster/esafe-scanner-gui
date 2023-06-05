@@ -4,6 +4,8 @@
 
 #include "scanner-result-widget-menu.h"
 
+#include "utils/configure.h"
+
 #include <QDebug>
 #include <QMessageBox>
 #include <QPushButton>
@@ -34,7 +36,7 @@ ScannerResultWidgetMenu::ScannerResultWidgetMenu(QWidget *parent)
 
     connect (addAction (QIcon(":/data/menu-dsm.png"), "授权加密"), &QAction::triggered, this, [=] (bool) {
         QMessageBox* box = new QMessageBox(this);
-        box->setText ("是否确定制作授权加密文件？");
+        box->setText (Configure::getInstance()->dsmPrompt());
         box->setWindowTitle("提示");
 
         QPushButton* apply = new QPushButton(box);
@@ -55,7 +57,7 @@ ScannerResultWidgetMenu::ScannerResultWidgetMenu(QWidget *parent)
 
     connect (addAction (QIcon(":/data/menu-misreport.png"), "例外文件"), &QAction::triggered, this, [=] (bool) {
         QMessageBox* box = new QMessageBox(this);
-        box->setText ("是否确定为例外文件？");
+        box->setText (Configure::getInstance()->misreportPrompt());
         box->setWindowTitle("提示");
 
         QPushButton* apply = new QPushButton(box);
