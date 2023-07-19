@@ -89,6 +89,7 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
     mDSMBtn->setStyleSheet("background-color:red;");
     mDSMBtn->setText(tr("授权加密"));
     mRightLayout->addWidget(mDSMBtn);
+    mDSMBtn->hide();
 
     mExpBtn->setStyleSheet("background-color:red;");
     mExpBtn->setText(tr("导出"));
@@ -797,12 +798,12 @@ void ScannerResultWidget::setSelectedStatus()
 {
     mDelBtn->enable (true);
     mMisBtn->enable (true);
-    mDSMBtn->enable (true);
+    //mDSMBtn->enable (true);
     mExpBtn->enable (true);
 
     mDelBtn->show();
     mMisBtn->show();
-    mDSMBtn->show();
+    //mDSMBtn->show();
     mExpBtn->show();
 
 

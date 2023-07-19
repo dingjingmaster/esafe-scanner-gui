@@ -34,6 +34,7 @@ ScannerResultWidgetMenu::ScannerResultWidgetMenu(QWidget *parent)
         box->deleteLater();
     });
 
+#if 0
     connect (addAction (QIcon(":/data/menu-dsm.png"), "授权加密"), &QAction::triggered, this, [=] (bool) {
         QMessageBox* box = new QMessageBox(this);
         box->setText (Configure::getInstance()->dsmPrompt());
@@ -54,6 +55,7 @@ ScannerResultWidgetMenu::ScannerResultWidgetMenu(QWidget *parent)
         box->exec();
         box->deleteLater();
     });
+#endif
 
     connect (addAction (QIcon(":/data/menu-misreport.png"), "例外文件"), &QAction::triggered, this, [=] (bool) {
         QMessageBox* box = new QMessageBox(this);
