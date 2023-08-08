@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
     setContentsMargins(0, 0, 0, 0);
     setWindowTitle ("终端数据防泄漏系统");
     setMinimumSize(mMinWidth, mMinHeight);
-    setWindowFlags(Qt::FramelessWindowHint);
+    setWindowFlag(Qt::FramelessWindowHint);
 
     if (QX11Info::isPlatformX11()) {
         XatomHelper::getInstance()->setUKUIDecoraiontHint(this->winId(), false);
