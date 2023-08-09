@@ -42,6 +42,8 @@ int main(int argc, char *argv[])
         return errno;
     }
 
+    // add for panel icon on wayland
+//    setenv("GIO_LAUNCHED_DESKTOP_FILE", "/usr/local/ultrasec/estdlp/bin/dsip-sit.desktop", true);
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("utf-8"));
 
     SingletonApp app (argc, argv, APP_NAME);
