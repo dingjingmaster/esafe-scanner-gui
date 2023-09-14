@@ -269,14 +269,15 @@ ScannerResultWidget::ScannerResultWidget(QWidget *parent)
             Q_EMIT startApplyData();
             mProgress->show();
             mModel->applyData();
-            mProgress->hide();
-            Q_EMIT stopApplyData();
 
             mHeaderView->setChecked(false);
             Q_EMIT mHeaderView->checkBoxClicked (false);
             Q_EMIT mModel->lazyUpdateView();
-            updateStatus();
             notify_policy_filter (ScannerResultItem::Deleted);
+            updateStatus();
+
+            mProgress->hide();
+            Q_EMIT stopApplyData();
         });
         box->exec();
         box->deleteLater();

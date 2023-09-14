@@ -617,18 +617,31 @@ void ScanResultHelper::deleteItemByIDs(const QStringList& ids)
         QString sql = QString("UPDATE `scan_result` SET status=5, status_reported=0 WHERE ID=%1 AND status != 5").arg (id);
         qDebug() << "sql: " << sql;
 
+        int tryTimes = 10;
         char* errMsg = nullptr;
-        while (!sqlite_lock());
-        d->open();
-        sqlite3_exec (d->mDB, sql.toUtf8().constData(), nullptr, nullptr, &errMsg);
-        d->close();
-        while (!sqlite_unlock());
-        if (errMsg) {
-            qWarning() << "report error: " << errMsg << " DB FILE: " DB_PATH;
-            sqlite3_free(errMsg);
-        } else {
-            Q_EMIT delOldFile (id);
+
+        do {
+            while (!sqlite_lock());
+            d->open();
+            sqlite3_exec (d->mDB, sql.toUtf8().constData(), nullptr, nullptr, &errMsg);
+            d->close();
+            while (!sqlite_unlock());
+            if (errMsg) {
+                qWarning() << "report error: " << errMsg << " DB FILE: " DB_PATH;
+                g_usleep (100);
+                --tryTimes;
+                sqlite3_free(errMsg);
+            }
+            else {
+                break;
+            }
+        } while (tryTimes > 0);
+
+        if (tryTimes <= 0) {
+            qWarning() << "report error: " << id << " not deleted!";
         }
+
+        Q_EMIT delOldFile (id);
         Q_EMIT detailOne();
         QApplication::processEvents();
     }
