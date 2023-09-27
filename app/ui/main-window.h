@@ -48,7 +48,7 @@ private:
 
     QLayout*                mMainLayout;
 
-    MainSubToolBar*         mMainSubtoolbar;
+    MainSubToolBar*         mMainSubtoolbar{};
 //    QLabel*                 mStatusLabel;
 
     ScannerTaskWidget*      mScannerTaskWidget;
@@ -59,7 +59,7 @@ private:
     QLabel*                 mCurStatus;
     QTimer*                 mStatusTimer;
 
-    bool                    mDrag;
+    bool                    mDrag{};
     QPoint                  mOffset;
     Direction               mDirection;
     bool                    mIsPress = false;
