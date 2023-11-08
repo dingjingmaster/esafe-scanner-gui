@@ -825,3 +825,4 @@ void ScannerResultWidget::onShowStatusString(QString t, int a, int b, int c)
     Q_EMIT statusString (QString("任务名称: %1 未处理数 <span style='color:#00CCFF;'>%2</span> 条 例外文件数 <span style='color:blue;'>%3</span> 条 共 %4 条结果").arg(t).arg(a).arg (b).arg (c)); //.arg (mModel->getDeleteCount ()));
 }
 
+

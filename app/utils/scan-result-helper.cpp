@@ -8,6 +8,7 @@
 #include <QFile>
 #include <QDebug>
 #include <QMutex>
+#include <QRegExp>
 #include <QFileInfo>
 #include <QDateTime>
 #include <QMessageBox>
@@ -432,10 +433,11 @@ bool ScanResultHelperPrivate::isInScanDir(const QString &path)
 bool ScanResultHelperPrivate::isInScanOutDir(const QString &path) const
 {
     QStringList od = mFilterOutDir.split("|").toSet().toList();
+    od.removeOne("");
     if (od.isEmpty()) {
         return false;
     }
-//    qDebug() << "out dir: " << od;
+    qDebug() << "out dir: " << od;
 
     if (std::any_of (od.begin(), od.end(), [=] (const QString& s) -> bool {
         if ("/" == s || "*" == s) {
@@ -457,10 +459,11 @@ bool ScanResultHelperPrivate::isInScanOutDir(const QString &path) const
 bool ScanResultHelperPrivate::isInScanFileType(const QString& fileType) const
 {
     QStringList ft = mFileType.split("|").toSet().toList();
+    ft.removeOne("");
     if (ft.isEmpty()) {
         return true;
     }
-//    qDebug() << "file type: " << fileType << "all file type:" << ft;
+    qDebug() << "file type: " << fileType << "all file type:" << ft;
 
     if (std::any_of (ft.begin(), ft.end(), [=] (const QString& s) -> bool {
         if ("" == s || "*" == s) {
@@ -475,22 +478,25 @@ bool ScanResultHelperPrivate::isInScanFileType(const QString& fileType) const
 bool ScanResultHelperPrivate::isInScanFileOutType(const QString& fileName, const QString &fileType) const
 {
     QStringList ft = mFileTypeOut.split("#").toSet().toList();
+    ft.removeOne("");
     if (ft.isEmpty()) {
+        qDebug() << "empty";
         return false;
     }
 
     QStringList fileExtT = fileName.split(".");
+    fileExtT.removeAll("");
     fileExtT.pop_front();
     QString fileExt = fileExtT.join (".");
 
-//    qDebug()
-//        << "\nfile name: " << fileName
-//        << "\nfile type: " << fileType
-//        << "\nfile extend name: " << fileExt
-//        << "\nscan file out type: " << mFileTypeOut
-//        ;
+    qDebug()
+        << "\nfile name: " << fileName
+        << "\nfile type: " << fileType
+        << "\nfile extend name: " << fileExt
+        << "\nscan file out type: " << mFileTypeOut
+        ;
 
-//    qDebug() << "out file type: " << ft;
+    qDebug() << "out file type: " << ft;
 
     if (std::any_of (ft.begin(), ft.end(), [=] (const QString& s) -> bool {
         if ("*" == s) {
@@ -501,31 +507,47 @@ bool ScanResultHelperPrivate::isInScanFileOutType(const QString& fileName, const
         }
 
         QStringList ls = s.split (":");
+        ls.removeAll("");
 
         g_return_val_if_fail(ls.length() == 2, false);
 
-        auto filterOutType = ls.takeFirst().split ("|").toSet();
-        auto filterExtName = ls.takeFirst().split ("&").toSet();
+        auto filterOutType = ls.takeFirst().split ("|").toSet().toList();
+        filterOutType.removeOne("");
+        auto filterExtName = ls.takeFirst().split ("&").toSet().toList();
+        filterExtName.removeOne("");
 
-//        qDebug()
-//            << "\nfilter out type: " << filterOutType
-//            << "\nfilter out extend name: " << filterExtName
-//            ;
+        qDebug()
+            << "\nfilter out type: " << filterOutType
+            << "\nfilter out extend name: " << filterExtName
+            ;
 
         if (!filterOutType.contains (fileType)) { return false; }
-
         if (filterExtName.isEmpty()) { return true; }
 
         for (auto& n : filterExtName) {
             if (n == fileExt) {
+                qDebug() << "ext name: " << n << " file ext: " << fileExt << " is equal";
                 return true;
             }
-            else if (n.length() == fileExt.length()) {
-                auto ssk = n.split ("?").toSet();
-                if (std::all_of (ssk.begin(), ssk.end(), [&] (const QString& ass) -> bool {
-                    if ("" == ass || ass.isNull() || ass.isEmpty()) return true;
-                    return fileExt.contains (ass);
-                })) return true;
+            else {
+                // 去掉 ??? 匹配
+                QString fExt = n;
+                auto delA = fExt.replace("?", "");
+                if (fileExt.endsWith (delA)) {
+                    // 去掉 ? 后文件以 扩展名结尾
+                    qDebug() << "file ext: " << fileExt << "delA: " << delA << " >>> file ext contains delA";
+                    return true;
+                }
+                else {
+                    // 多扩展名情况
+                    auto regStr = fExt.replace ("?", "(|\\s|\\S)");
+                    regStr.append ("$");
+                    QRegExp reg(regStr);
+                    qDebug() << "ext: " << fileExt << " match: " << regStr << " " << reg.indexIn (fileExt);
+                    if (-1 != reg.indexIn (fileExt)) {
+                        return true;
+                    }
+                }
             }
         }
         return false;
